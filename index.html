@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ד"ר אלכסנדר | CRM</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#1B6CA8;--primary-dark:#154F7A;--primary-light:#E8F4FD;--accent:#2AA876;--accent-light:#E8F7F2;--teal:#4DB8C8;--teal-light:#EAF8FA;--text:#1A2332;--text-sub:#5A6A7E;--border:#DDE8F0;--bg:#F4F8FB;--white:#fff;--gold:#C9A84C;--red:#E24B4A;--red-light:#FCEBEB;--amber:#EF9F27;--amber-light:#FAEEDA}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Heebo',sans-serif;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* LOGIN */
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--primary-dark),var(--primary),var(--teal));padding:20px}
+.login-box{background:var(--white);border-radius:20px;padding:36px 28px;width:100%;max-width:360px;box-shadow:0 16px 48px rgba(0,0,0,.15)}
+.login-logo{text-align:center;margin-bottom:24px}
+.login-logo-icon{width:56px;height:56px;background:linear-gradient(135deg,var(--primary),var(--teal));border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:26px;color:#fff}
+.login-logo-text{font-size:18px;font-weight:700;color:var(--text)}
+.login-logo-sub{font-size:12px;color:var(--text-sub);margin-top:2px}
+.login-title{font-size:20px;font-weight:600;margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--text-sub);margin-bottom:22px}
+.login-field{margin-bottom:14px}
+.login-label{font-size:12px;color:var(--text-sub);margin-bottom:5px;display:block;font-weight:500}
+.login-input{width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:11px;font-size:15px;font-family:'Heebo',sans-serif;background:#FAFAFA;color:var(--text);outline:none;transition:all .15s}
+.login-input:focus{border-color:var(--primary);background:var(--white)}
+.login-btn{width:100%;padding:14px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--primary),var(--teal));color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;margin-top:6px}
+.login-btn:active{opacity:.88}
+.login-err{color:var(--red);font-size:12px;margin-top:10px;display:none;text-align:center;background:var(--red-light);padding:8px 12px;border-radius:8px}
+
+/* APP */
+.app{display:flex;height:100vh;overflow:hidden;background:var(--bg)}
+.sidebar{width:240px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;z-index:50}
+.sb-top{padding:16px 14px 12px;border-bottom:1px solid var(--border)}
+.sb-brand{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.sb-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--teal));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0}
+.sb-name{font-size:13px;font-weight:700;color:var(--text)}
+.sb-ver{font-size:10px;color:var(--text-sub)}
+.logout-btn{background:none;border:none;font-size:12px;color:var(--text-sub);cursor:pointer;font-family:'Heebo',sans-serif;display:flex;align-items:center;gap:4px;padding:4px 0;margin-top:2px}
+.logout-btn:hover{color:var(--red)}
+.search-wrap{position:relative}
+.search-wrap input{width:100%;padding:9px 10px 9px 32px;border:1px solid var(--border);border-radius:9px;font-size:13px;font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);outline:none}
+.search-wrap input:focus{border-color:var(--primary);background:var(--white)}
+.search-wrap i{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--text-sub)}
+.nav-section{padding:10px 10px 0}
+.nav-label{font-size:10px;font-weight:700;color:#ccc;letter-spacing:.08em;padding:4px 6px 6px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-sub);border:1px solid transparent;margin-bottom:2px;transition:all .12s}
+.nav-item:hover{background:var(--bg);color:var(--text)}
+.nav-item.active{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;font-weight:500}
+.nav-item.active i{color:#fff}
+.nav-item i{font-size:17px;width:20px;text-align:center;color:var(--text-sub)}
+.nav-badge{margin-right:auto;background:var(--red);color:#fff;font-size:10px;font-weight:600;padding:2px 6px;border-radius:99px}
+.nav-item.active .nav-badge{background:#fff;color:var(--primary)}
+.client-list{flex:1;overflow-y:auto;padding:6px 8px}
+.ci{display:flex;align-items:center;gap:9px;padding:10px;border-radius:9px;cursor:pointer;border:1px solid transparent;margin-bottom:2px;transition:all .1s}
+.ci:hover,.ci.active{background:var(--bg);border-color:var(--border)}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.ci-meta{min-width:0;flex:1}
+.ci-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci-sub{font-size:11px;color:var(--text-sub);margin-top:1px}
+.add-client-btn{margin:6px 10px 10px;padding:10px;border-radius:9px;border:1.5px dashed var(--border);background:transparent;color:var(--text-sub);cursor:pointer;font-size:13px;display:flex;align-items:center;gap:6px;justify-content:center;font-family:'Heebo',sans-serif;transition:all .12s}
+.add-client-btn:hover{background:var(--bg);border-color:var(--primary);color:var(--primary)}
+.sb-footer{padding:10px 14px;border-top:1px solid var(--border)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:40}
+.topbar{display:none;align-items:center;gap:10px;padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:600;flex:1;text-align:center}
+.tb-btn{width:38px;height:38px;border-radius:9px;border:1px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:19px;color:var(--text-sub)}
+.main-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.page-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.page-pad{padding:20px}
+.bottom-nav{display:none;background:var(--white);border-top:1px solid var(--border);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
+.bn-row{display:flex;justify-content:space-around}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 12px;cursor:pointer;border:none;background:none;font-family:'Heebo',sans-serif;color:#aaa;font-size:10px;font-weight:500;min-width:56px}
+.bn-item.active{color:var(--primary)}
+.bn-item i{font-size:22px}
+.bn-dot{position:relative}
+.bn-dot-badge{position:absolute;top:-2px;right:-4px;width:8px;height:8px;background:var(--red);border-radius:50%;border:1.5px solid #fff}
+
+/* CLIENT HEADER */
+.mh{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;background:var(--white)}
+.mh-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0}
+.mh-info{flex:1;min-width:0}
+.mh-name{font-size:17px;font-weight:600}
+.mh-sub{font-size:12px;color:var(--text-sub);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.badge{font-size:11px;padding:3px 9px;border-radius:99px;font-weight:500;white-space:nowrap}
+.b-vip{background:#EEEDFE;color:#3C3489}
+.b-new{background:var(--accent-light);color:#085041}
+.b-reg{background:#F1EFE8;color:#444}
+.b-sens{background:var(--red-light);color:#791F1F}
+.tabs{display:flex;border-bottom:1px solid var(--border);padding:0 20px;flex-shrink:0;background:var(--white);overflow-x:auto}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 12px;font-size:13px;color:var(--text-sub);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
+.content{flex:1;overflow-y:auto;padding:16px;background:var(--bg)}
+
+/* DASHBOARD */
+.dash-header{margin-bottom:20px}
+.dash-title{font-size:22px;font-weight:600}
+.dash-sub{font-size:13px;color:var(--text-sub);margin-top:4px}
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;position:relative;overflow:hidden}
+.kpi-accent{position:absolute;top:0;right:0;width:4px;height:100%;border-radius:0 14px 14px 0}
+.kpi-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:10px}
+.kpi-val{font-size:26px;font-weight:600;line-height:1}
+.kpi-label{font-size:11px;color:var(--text-sub);margin-top:5px;font-weight:500}
+.dash-card{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px}
+.dc-header{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.dc-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px}
+.dc-title i{font-size:16px;color:var(--text-sub)}
+.dc-action{font-size:12px;color:var(--text-sub);cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 9px;border-radius:7px;border:1px solid var(--border);background:transparent;font-family:'Heebo',sans-serif}
+.dc-body{padding:13px 16px}
+.today-appt{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bg)}
+.today-appt:last-child{border-bottom:none;padding-bottom:0}
+.ta-time{font-size:13px;font-weight:600;min-width:46px;color:var(--primary)}
+.ta-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.ta-info{flex:1;min-width:0}
+.ta-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ta-treat{font-size:11px;color:var(--text-sub);margin-top:1px}
+.ta-badge{font-size:10px;padding:3px 8px;border-radius:99px;font-weight:500;white-space:nowrap}
+.appt-pending{background:var(--amber-light);color:#633806}
+.appt-confirmed{background:var(--accent-light);color:#085041}
+.rem-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--bg)}
+.rem-item:last-child{border-bottom:none;padding-bottom:0}
+.ri-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.ri-body{flex:1;min-width:0}
+.ri-text{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ri-client{font-size:11px;color:var(--text-sub);margin-top:1px}
+.overdue-text{color:var(--red);font-size:11px;font-weight:600}
+.today-text{color:var(--amber);font-size:11px;font-weight:600}
+
+/* CARDS */
+.sec-label{font-size:11px;font-weight:700;color:var(--text-sub);letter-spacing:.07em;margin-bottom:10px;text-transform:uppercase}
+.card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.card.overdue{border-color:#F09595;background:#FFFAFA}
+.card.today-card{border-color:var(--amber);background:#FFFDF5}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.stat{background:var(--bg);border-radius:10px;padding:10px 12px}
+.stat-val{font-size:20px;font-weight:600;color:var(--primary)}
+.stat-lbl{font-size:11px;color:var(--text-sub);margin-top:2px}
+.treat-card{display:flex;gap:12px;align-items:flex-start}
+.treat-date{font-size:11px;color:var(--text-sub);white-space:nowrap;padding-top:2px;min-width:54px}
+.treat-body{flex:1;min-width:0}
+.treat-name{font-size:13px;font-weight:500}
+.treat-detail{font-size:12px;color:var(--text-sub);margin-top:3px;line-height:1.5}
+.treat-price{font-size:12px;font-weight:600;color:var(--accent);margin-top:4px}
+.rem-card{display:flex;align-items:flex-start;gap:10px}
+.rem-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.d-red{background:var(--red)}.d-amber{background:var(--amber)}.d-teal{background:var(--accent)}
+.rem-body{flex:1}
+.rem-text{font-size:13px;font-weight:500}
+.rem-due{font-size:11px;color:var(--text-sub);margin-top:2px}
+.chip{display:inline-block;font-size:11px;padding:3px 9px;border-radius:99px;margin:2px}
+.skin-chip{background:#F1EFE8;color:#444}
+.allergy-chip{background:var(--red-light);color:#791F1F}
+.source-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;border-radius:99px;background:var(--primary-light);color:var(--primary);font-weight:500}
+.empty{text-align:center;padding:32px 0;color:#bbb;font-size:13px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.info-field{display:flex;flex-direction:column;gap:3px}
+.info-label{font-size:11px;color:var(--text-sub);font-weight:500}
+.info-value{font-size:13px;color:var(--text)}
+
+/* FORMS */
+textarea.fi,input.fi,select.fi{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'Heebo',sans-serif;background:var(--white);color:var(--text);outline:none;-webkit-appearance:none;transition:border .12s}
+textarea.fi:focus,input.fi:focus,select.fi:focus{border-color:var(--primary)}
+.add-row{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.add-area{margin-top:14px}
+.source-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.source-opt{padding:11px 6px;border:1.5px solid var(--border);border-radius:10px;font-size:12px;cursor:pointer;text-align:center;background:var(--white);transition:all .12s}
+.source-opt.selected{border-color:var(--primary);background:var(--primary);color:#fff}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Heebo',sans-serif;transition:all .12s;border:1.5px solid transparent;white-space:nowrap}
+.btn:active{opacity:.82}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--teal));color:#fff;border-color:transparent;box-shadow:0 3px 10px rgba(27,108,168,.2)}
+.btn-secondary{background:var(--white);color:var(--text);border-color:var(--border)}
+.btn-secondary:hover{border-color:var(--primary);color:var(--primary)}
+.btn-danger{background:var(--white);color:var(--red);border-color:#F09595}
+.btn-success{background:var(--accent-light);color:#085041;border-color:#B6E4CC}
+.btn-google{background:var(--white);color:#444;border-color:var(--border)}
+.btn-sm{padding:7px 12px;font-size:12px}
+.btn-icon{width:36px;height:36px;padding:0;justify-content:center;border-radius:9px}
+
+/* CALENDAR */
+.cal-wrap{display:flex;flex-direction:column;height:100%;overflow:hidden}
+.cal-scroll{flex:1;overflow:hidden;border:1px solid var(--border);border-radius:12px;background:var(--white);display:flex;flex-direction:column}
+.cal-head{display:grid;grid-template-columns:48px repeat(7,1fr);border-bottom:1px solid var(--border);flex-shrink:0}
+.cal-day-hdr{padding:8px 2px;text-align:center;border-left:1px solid var(--border);background:var(--bg)}
+.cal-day-hdr:first-child{border-left:none}
+.cal-day-name{font-size:10px;font-weight:700;color:var(--text-sub)}
+.cal-day-num{font-size:14px;font-weight:500;margin-top:2px}
+.cal-body{flex:1;overflow-y:auto}
+.cal-row{display:grid;grid-template-columns:48px repeat(7,1fr)}
+.cal-time{height:52px;padding:0 4px;display:flex;align-items:flex-start;justify-content:flex-end;border-bottom:1px solid #F0EEE8;border-right:1px solid var(--border)}
+.cal-time span{font-size:9px;color:#ccc;padding-top:4px;white-space:nowrap}
+.cal-cell{height:52px;border-left:1px solid var(--border);border-bottom:1px solid #F0EEE8;position:relative;cursor:pointer}
+.cal-cell:hover{background:var(--primary-light)}
+.appt-block{position:absolute;left:1px;right:1px;border-radius:5px;padding:2px 5px;font-size:10px;font-weight:500;cursor:pointer;overflow:hidden;z-index:2;border:1px solid transparent}
+.appt-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.appt-time-label{font-size:9px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:12px}
+.loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:13px;color:var(--text-sub)}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;z-index:200;padding:0}
+.modal{background:var(--white);border-radius:20px 20px 0 0;padding:12px 20px 32px;width:100%;max-height:92vh;overflow-y:auto}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 16px}
+.modal-title{font-size:17px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:9px}
+.modal-title i{font-size:20px;color:var(--text-sub)}
+.fg{margin-bottom:13px}
+.fl{font-size:12px;color:var(--text-sub);margin-bottom:5px;font-weight:500}
+.ma{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:11px 20px;border-radius:99px;font-size:13px;z-index:300;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.toast.show{opacity:1}
+
+/* LINK BOX */
+.link-box{background:var(--primary-light);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.link-box-title{font-size:12px;font-weight:600;color:var(--primary);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.link-box-url{font-size:12px;color:var(--primary);background:var(--white);padding:8px 10px;border-radius:7px;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;word-break:break-all}
+
+/* EDIT FIELD */
+.edit-field{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.edit-label{font-size:11px;color:var(--text-sub);font-weight:500;min-width:80px}
+.edit-val{font-size:13px;flex:1}
+.edit-input{flex:1;padding:7px 10px;border:1.5px solid var(--primary);border-radius:8px;font-size:13px;font-family:'Heebo',sans-serif;outline:none}
+
+@media(min-width:680px){
+  .topbar{display:none!important}.bottom-nav{display:none!important}
+  .sidebar{position:static!important;transform:none!important}
+  .sidebar-overlay{display:none!important}
+  .modal-bg{align-items:center;padding:20px}
+  .modal{border-radius:16px;max-width:460px;padding:24px}
+  .modal-handle{display:none}
+  .page-pad{padding:24px}
+  .kpi-grid{grid-template-columns:repeat(4,1fr)}
+  .toast{bottom:24px}
+}
+@media(max-width:679px){
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:82%;max-width:300px;transform:translateX(-100%);box-shadow:4px 0 20px rgba(0,0,0,.1)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay{display:block;opacity:0;pointer-events:none;transition:opacity .25s}
+  .sidebar-overlay.show{opacity:1;pointer-events:auto}
+  .topbar{display:flex!important}
+  .bottom-nav{display:block!important}
+  .main-wrap{display:flex;flex-direction:column;overflow:hidden}
+  .page-pad{padding:14px}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .cal-wrap{padding:0 12px 12px}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="toast" id="toast"></div>
+<script>
+const SUPABASE_URL='https://vizqigecvjpcfrorwowm.supabase.co';
+const SUPABASE_KEY='sb_publishable_EhhQfiQA2cUDA7BA68ZPWg_0bVeHtlA';
+const RESEND_KEY='re_6MTEMhFC_HNChj4enmkKPZYbxvubmecaW';
+
+const PALETTES=[{bg:'#EEEDFE',c:'#3C3489'},{bg:'#E1F5EE',c:'#085041'},{bg:'#FAECE7',c:'#712B13'},{bg:'#FBEAF0',c:'#72243E'},{bg:'#E6F1FB',c:'#0C447C'},{bg:'#FAEEDA',c:'#633806'},{bg:'#EAF3DE',c:'#27500A'},{bg:'#F1EFE8',c:'#444441'}];
+const SOURCES=[{key:'instagram',label:'אינסטגרם',icon:'ti-brand-instagram'},{key:'facebook',label:'פייסבוק',icon:'ti-brand-facebook'},{key:'google',label:'גוגל',icon:'ti-brand-google'},{key:'referral',label:'המלצה',icon:'ti-users'},{key:'tiktok',label:'טיקטוק',icon:'ti-brand-tiktok'},{key:'other',label:'אחר',icon:'ti-dots'}];
+const HOURS=Array.from({length:13},(_,i)=>i+8);
+const AUTH={username:'admin',password:'clinic2024'};
+const AUTH_KEY='clinic_crm_auth';
+
+async function sbFetch(table,query=''){
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+  if(!res.ok)return null;const t=await res.text();return t?JSON.parse(t):null;
+}
+async function sbPost(table,body){
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}`,{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify(body)});
+  if(!res.ok)return null;const t=await res.text();return t?JSON.parse(t):null;
+}
+async function sbPatch(table,query,body){
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`,{method:'PATCH',headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  return res.ok;
+}
+async function sbDelete(table,query){
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`,{method:'DELETE',headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+  return res.ok;
+}
+
+// EMAIL
+async function sendEmail(to,subject,html){
+  if(!to)return;
+  try{
+    await fetch('https://vizqigecvjpcfrorwowm.supabase.co/functions/v1/send-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
+      body:JSON.stringify({to,subject,html})
+    });
+  }catch(e){console.log('Email error:',e)}
+}
+
+async function sendApptEmail(appt){
+  const email=appt.client_email||'';
+  if(!email)return;
+  const html=`<div dir="rtl" style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
+    <div style="background:linear-gradient(135deg,#154F7A,#1B6CA8,#4DB8C8);padding:24px;border-radius:12px;text-align:center;margin-bottom:24px">
+      <h2 style="color:#fff;margin:0">ד"ר אלכסנדר</h2>
+      <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px">קליניקה לרפואה אסתטית</p>
+    </div>
+    <p>שלום <strong>${appt.client_name}</strong>,</p>
+    <p style="color:#555;margin-bottom:16px">תורך נקבע בהצלחה!</p>
+    <div style="background:#E8F4FD;border-radius:12px;padding:20px;margin-bottom:20px">
+      <p style="margin-bottom:8px">📅 <strong>תאריך:</strong> ${appt.date}</p>
+      <p style="margin-bottom:8px">🕐 <strong>שעה:</strong> ${appt.time}</p>
+      <p style="margin-bottom:0">💆 <strong>טיפול:</strong> ${appt.treatment}</p>
+    </div>
+    <p style="color:#888;font-size:13px">לשינוי או ביטול — צור קשר.</p>
+    <hr style="border:1px solid #DDE8F0;margin:20px 0">
+    <p style="font-size:11px;color:#aaa;text-align:center">ד"ר אלכסנדר | קליניקה לרפואה אסתטית</p>
+  </div>`;
+  await sendEmail(email,'✅ אישור תור — ד"ר אלכסנדר',html);
+}
+
+async function sendConsentEmail(clientId,clientName,clientEmail){
+  if(!clientEmail){toast('אין אימייל ללקוח זה — הוסף אימייל בפרופיל');return;}
+  const url=window.location.origin+window.location.pathname.replace('index.html','')+'consent.html?client='+clientId;
+  const html=`<div dir="rtl" style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
+    <div style="background:linear-gradient(135deg,#154F7A,#1B6CA8,#4DB8C8);padding:24px;border-radius:12px;text-align:center;margin-bottom:24px">
+      <h2 style="color:#fff;margin:0">ד"ר אלכסנדר</h2>
+      <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px">קליניקה לרפואה אסתטית</p>
+    </div>
+    <p>שלום <strong>${clientName}</strong>,</p>
+    <p style="color:#555;margin-bottom:20px">לפני הטיפול, אנא חתום/י על טופס ההסכמה הדיגיטלי:</p>
+    <div style="text-align:center;margin:24px 0">
+      <a href="${url}" style="background:linear-gradient(135deg,#1B6CA8,#4DB8C8);color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-size:16px;font-weight:600;display:inline-block">✍️ לחץ לחתימה על הטופס</a>
+    </div>
+    <p style="color:#888;font-size:12px;text-align:center">הקישור תקף ל-7 ימים</p>
+    <hr style="border:1px solid #DDE8F0;margin:20px 0">
+    <p style="font-size:11px;color:#aaa;text-align:center">ד"ר אלכסנדר | קליניקה לרפואה אסתטית</p>
+  </div>`;
+  await sendEmail(clientEmail,'✍️ טופס הסכמה לטיפול — ד"ר אלכסנדר',html);
+  toast('📧 אימייל עם קישור חתימה נשלח!');
+}
+
+// AUTH
+function isLoggedIn(){return sessionStorage.getItem(AUTH_KEY)==='1'}
+function doLogin(u,p){if(u===AUTH.username&&p===AUTH.password){sessionStorage.setItem(AUTH_KEY,'1');return true}return false}
+function doLogout(){sessionStorage.removeItem(AUTH_KEY);renderRoot()}
+
+// UTILS
+function weekStart(d){const dt=new Date(d);const day=dt.getDay();dt.setDate(dt.getDate()-(day===0?6:day-1));return dt}
+function addDays(d,n){const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt}
+function fmtDate(d){return d.toISOString().slice(0,10)}
+function today(){return new Date().toISOString().slice(0,10)}
+function fmt(d){if(!d)return'';const[y,m,day]=d.split('-');const M=['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'];return`${+day} ${M[+m-1]}`}
+function fmtFull(d){if(!d)return'';const[y,m,day]=d.split('-');const M=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];return`${+day} ${M[+m-1]} ${y}`}
+function fmtDay(){const days=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];const d=new Date();return`יום ${days[d.getDay()]}, ${fmt(today())}`}
+function duePri(d){if(!d)return'normal';if(d<today())return'overdue';if(d===today())return'today';return'normal'}
+function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2)}
+function getSrc(k){return SOURCES.find(s=>s.key===k)||null}
+function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function getClientName(id){const c=S.clients.find(c=>c.id===id);return c?c.name:'לא ידוע'}
+function getClientColor(id){const c=S.clients.find(c=>c.id===id);return c?c.color%PALETTES.length:0}
+function allPendingRem(){return S.reminders.filter(r=>!r.done).map(r=>{const c=S.clients.find(x=>x.id===r.client_id);return{...r,clientName:c?c.name:'?'}})}
+function getC(){return S.clients.find(c=>c.id===S.activeId)}
+function totalRev(c){return S.treatments.filter(t=>t.client_id===c.id).reduce((s,t)=>s+(t.price||0),0)}
+function clientTreatments(cid){return S.treatments.filter(t=>t.client_id===cid).sort((a,b)=>b.date.localeCompare(a.date))}
+function clientReminders(cid){return S.reminders.filter(r=>r.client_id===cid)}
+function clientAppts(cid){return S.appointments.filter(a=>a.client_id===cid).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time))}
+function pendingRem(c){return clientReminders(c.id).filter(r=>!r.done).length}
+function getBookingUrl(){return window.location.origin+window.location.pathname.replace('index.html','')+'booking.html'}
+
+let S={clients:[],appointments:[],treatments:[],reminders:[],activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false};
+
+function showLoading(){const el=document.getElementById('root');if(!document.getElementById('loading'))el.insertAdjacentHTML('beforeend','<div class="loading-overlay" id="loading"><div class="loading-spinner"></div><div class="loading-text">טוען נתונים…</div></div>')}
+function hideLoading(){const el=document.getElementById('loading');if(el)el.remove()}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600)}
+function renderRoot(){document.getElementById('root').innerHTML=isLoggedIn()?buildApp():buildLogin()}
+
+async function loadAll(){
+  showLoading();
+  try{
+    const[clients,appointments,treatments,reminders]=await Promise.all([
+      sbFetch('clients','?order=created_at.desc'),
+      sbFetch('appointments','?order=date.asc,time.asc'),
+      sbFetch('treatments','?order=date.desc'),
+      sbFetch('reminders','?order=due.asc')
+    ]);
+    S.clients=clients||[];S.appointments=appointments||[];S.treatments=treatments||[];S.reminders=reminders||[];
+    if(S.clients.length&&!S.activeId)S.activeId=S.clients[0].id;
+  }catch(e){toast('שגיאה בטעינת נתונים')}
+  hideLoading();renderRoot();
+}
+
+// LOGIN
+function buildLogin(){return`<div class="login-page"><div class="login-box">
+  <div class="login-logo"><div class="login-logo-icon"><i class="ti ti-heartbeat"></i></div><div class="login-logo-text">ד"ר אלכסנדר</div><div class="login-logo-sub">מערכת ניהול קליניקה</div></div>
+  <div class="login-title">ברוכים הבאים 👋</div>
+  <div class="login-sub">התחברו כדי להמשיך</div>
+  <div class="login-field"><label class="login-label">שם משתמש</label><input class="login-input" id="l-user" type="text" placeholder="admin" autocomplete="username"></div>
+  <div class="login-field"><label class="login-label">סיסמה</label><input class="login-input" id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')tryLogin()"></div>
+  <button class="login-btn" onclick="tryLogin()"><i class="ti ti-lock-open"></i> כניסה למערכת</button>
+  <div class="login-err" id="login-err">שם משתמש או סיסמה שגויים</div>
+</div></div>`}
+function tryLogin(){const u=document.getElementById('l-user').value.trim();const p=document.getElementById('l-pass').value;if(doLogin(u,p)){renderRoot();loadAll();}else document.getElementById('login-err').style.display='block'}
+
+// APP
+function buildApp(){
+  const q=S.search.toLowerCase();
+  const filtered=S.clients.filter(c=>c.name.toLowerCase().includes(q));
+  const urgentRems=allPendingRem().filter(r=>duePri(r.due)!=='normal').length;
+  const pendingAppts=S.appointments.filter(a=>a.status==='pending').length;
+  const pageLabels={dashboard:'דשבורד',calendar:'יומן תורים',clients:'לקוחות'};
+
+  const clientListHTML=filtered.map(cl=>{
+    const p=PALETTES[cl.color%PALETTES.length];const pr=pendingRem(cl);
+    return`<div class="ci ${cl.id===S.activeId&&S.activePage==='clients'?'active':''}" onclick="selectClient('${cl.id}')">
+      <div class="av" style="background:${p.bg};color:${p.c}">${initials(cl.name)}</div>
+      <div class="ci-meta"><div class="ci-name">${escHtml(cl.name)}</div><div class="ci-sub">${(cl.skin||'').split(',')[0]}${pr>0?` · ${pr} תזכ׳`:''}</div></div>
+    </div>`;
+  }).join('')||'<div style="padding:12px;font-size:12px;color:#bbb;text-align:center">לא נמצאו</div>';
+
+  const sidebar=`<div class="sidebar ${S.sidebarOpen?'open':''}" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-brand"><div class="sb-icon"><i class="ti ti-heartbeat"></i></div><div><div class="sb-name">ד"ר אלכסנדר</div><div class="sb-ver">מערכת ניהול</div></div></div>
+      <div class="search-wrap"><i class="ti ti-search"></i><input type="text" placeholder="חיפוש לקוח…" value="${escHtml(S.search)}" oninput="S.search=this.value;reSidebar()"></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">ניווט</div>
+      <div class="nav-item ${S.activePage==='dashboard'?'active':''}" onclick="gotoPage('dashboard')"><i class="ti ti-layout-dashboard"></i>דשבורד${urgentRems>0?`<span class="nav-badge">${urgentRems}</span>`:''}</div>
+      <div class="nav-item ${S.activePage==='calendar'?'active':''}" onclick="gotoPage('calendar')"><i class="ti ti-calendar-event"></i>יומן תורים${pendingAppts>0?`<span class="nav-badge">${pendingAppts}</span>`:''}</div>
+      <div class="nav-item ${S.activePage==='clients'?'active':''}" onclick="gotoPage('clients')"><i class="ti ti-users"></i>לקוחות</div>
+      <div class="nav-item" onclick="showModal('bookingLink')"><i class="ti ti-link"></i>קישור הזמנה</div>
+    </div>
+    <div class="nav-section" style="padding-top:4px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 6px 6px">
+        <div class="nav-label" style="padding:0">לקוחות</div>
+        <button onclick="showModal('newClient')" style="background:var(--primary);color:#fff;border:none;border-radius:6px;width:22px;height:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">+</button>
+      </div>
+    </div>
+    <div class="client-list" id="clientList">${clientListHTML}</div>
+    <button class="add-client-btn" onclick="showModal('newClient')"><i class="ti ti-user-plus"></i> לקוח חדש</button>
+    <div class="sb-footer"><button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout"></i> יציאה</button></div>
+  </div>`;
+
+  const overlay=`<div class="sidebar-overlay ${S.sidebarOpen?'show':''}" onclick="closeSidebar()"></div>`;
+  const topbar=`<div class="topbar">
+    <button class="tb-btn" onclick="toggleSidebar()"><i class="ti ti-menu-2"></i></button>
+    <div class="topbar-title">${pageLabels[S.activePage]||'לקוחות'}</div>
+    <button class="tb-btn" onclick="loadAll()"><i class="ti ti-refresh"></i></button>
+  </div>`;
+  const bottomNav=`<div class="bottom-nav"><div class="bn-row">
+    <button class="bn-item ${S.activePage==='dashboard'?'active':''}" onclick="gotoPage('dashboard')"><span class="bn-dot"><i class="ti ti-layout-dashboard"></i>${urgentRems>0?'<span class="bn-dot-badge"></span>':''}</span>דשבורד</button>
+    <button class="bn-item ${S.activePage==='calendar'?'active':''}" onclick="gotoPage('calendar')"><span class="bn-dot"><i class="ti ti-calendar-event"></i>${pendingAppts>0?'<span class="bn-dot-badge"></span>':''}</span>יומן</button>
+    <button class="bn-item ${S.activePage==='clients'?'active':''}" onclick="gotoPage('clients')"><i class="ti ti-users"></i>לקוחות</button>
+    <button class="bn-item" onclick="showModal('newAppt')"><i class="ti ti-calendar-plus"></i>תור</button>
+    <button class="bn-item" onclick="showModal('newClient')"><i class="ti ti-user-plus"></i>לקוח</button>
+  </div></div>`;
+
+  let pageContent='';
+  if(S.activePage==='dashboard'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildDashboard()}</div></div>`;}
+  else if(S.activePage==='calendar'){pageContent=`<div style="flex:1;overflow:hidden;display:flex;flex-direction:column"><div class="cal-wrap page-pad" style="flex:1">${buildCalendar()}</div></div>`;}
+  else{
+    const c=getC();
+    const tabs={overview:'סקירה',treatments:'טיפולים',reminders:'תזכורות',appointments:'תורים',profile:'פרופיל'};
+    pageContent=`${c?buildClientHeader(c):''}
+    <div class="tabs">${c?Object.entries(tabs).map(([k,v])=>`<div class="tab ${S.activeTab===k?'active':''}" onclick="setTab('${k}')">${v}</div>`).join(''):''}</div>
+    <div class="content">${c?buildContent(c):`<div class="empty" style="padding-top:60px"><i class="ti ti-users" style="font-size:40px;display:block;margin-bottom:12px"></i>בחר לקוח מהרשימה<br><br><button class="btn btn-primary" onclick="showModal('newClient')"><i class="ti ti-user-plus"></i> הוסף לקוח חדש</button></div>`}</div>`;
+  }
+
+  return`<div class="app" id="app">${overlay}${sidebar}
+    <div class="main-wrap">${topbar}
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">${pageContent}</div>
+      ${bottomNav}
+    </div>
+    ${S.modal?buildModal():''}
+  </div>`;
+}
+
+// DASHBOARD
+function buildDashboard(){
+  const todayStr=today();
+  const todayAppts=S.appointments.filter(a=>a.date===todayStr).sort((a,b)=>a.time.localeCompare(b.time));
+  const totalRevenue=S.treatments.reduce((s,t)=>s+(t.price||0),0);
+  const urgentRems=allPendingRem().filter(r=>duePri(r.due)!=='normal').length;
+  const pendingAppts=S.appointments.filter(a=>a.status==='pending').length;
+  const upRems=allPendingRem().sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999')).slice(0,4);
+
+  return`<div class="dash-header"><div class="dash-title">שלום, ד"ר אלכסנדר 👋</div><div class="dash-sub">${fmtDay()} · ${todayAppts.length} תורים היום</div></div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-accent" style="background:var(--primary)"></div><div class="kpi-icon" style="background:var(--primary-light);color:var(--primary)"><i class="ti ti-users"></i></div><div class="kpi-val">${S.clients.length}</div><div class="kpi-label">לקוחות</div></div>
+    <div class="kpi"><div class="kpi-accent" style="background:var(--accent)"></div><div class="kpi-icon" style="background:var(--accent-light);color:var(--accent)"><i class="ti ti-needle"></i></div><div class="kpi-val">${S.treatments.length}</div><div class="kpi-label">טיפולים</div></div>
+    <div class="kpi"><div class="kpi-accent" style="background:#27500A"></div><div class="kpi-icon" style="background:#EAF3DE;color:#27500A"><i class="ti ti-currency-shekel"></i></div><div class="kpi-val">₪${(totalRevenue/1000).toFixed(1)}K</div><div class="kpi-label">הכנסה</div></div>
+    <div class="kpi"><div class="kpi-accent" style="background:${pendingAppts>0?'var(--amber)':'var(--accent)'}"></div><div class="kpi-icon" style="background:${pendingAppts>0?'var(--amber-light)':'var(--accent-light)'};color:${pendingAppts>0?'#633806':'#085041'}"><i class="ti ti-calendar-clock"></i></div><div class="kpi-val">${pendingAppts}</div><div class="kpi-label">תורים ממתינים</div></div>
+  </div>
+
+  ${pendingAppts>0?`<div class="dash-card" style="border-color:var(--amber)">
+    <div class="dc-header" style="background:var(--amber-light)"><div class="dc-title" style="color:#633806"><i class="ti ti-bell-ringing" style="color:var(--amber)"></i>תורים ממתינים לאישור (${pendingAppts})</div></div>
+    <div class="dc-body">${S.appointments.filter(a=>a.status==='pending').slice(0,3).map(a=>`<div class="today-appt">
+      <div class="ta-time">${a.time}</div><div class="ta-dot" style="background:var(--amber)"></div>
+      <div class="ta-info"><div class="ta-name">${escHtml(a.client_name||'לא ידוע')}</div><div class="ta-treat">${escHtml(a.treatment)} · ${fmt(a.date)}</div></div>
+      <div style="display:flex;gap:4px">
+        <button class="btn btn-success btn-sm" onclick="confirmAppt('${a.id}')"><i class="ti ti-check"></i></button>
+        <button class="btn btn-danger btn-sm" onclick="cancelAppt('${a.id}')"><i class="ti ti-x"></i></button>
+      </div>
+    </div>`).join('')}</div>
+  </div>`:''}
+
+  <div class="dash-card">
+    <div class="dc-header"><div class="dc-title"><i class="ti ti-calendar-today"></i>תורים היום</div><button class="dc-action" onclick="gotoPage('calendar')">יומן ←</button></div>
+    <div class="dc-body">
+      ${todayAppts.length===0?`<div class="empty" style="padding:16px 0"><i class="ti ti-calendar-off" style="font-size:26px;display:block;margin-bottom:6px"></i>אין תורים היום</div>`:''}
+      ${todayAppts.map(a=>{const p=PALETTES[getClientColor(a.client_id)];const sMap={pending:'appt-pending',confirmed:'appt-confirmed'};return`<div class="today-appt"><div class="ta-time">${a.time}</div><div class="ta-dot" style="background:${p.c}"></div><div class="ta-info"><div class="ta-name">${escHtml(a.client_name||getClientName(a.client_id))}</div><div class="ta-treat">${escHtml(a.treatment)} · ${a.duration}דק׳</div></div><span class="ta-badge ${sMap[a.status]||'appt-confirmed'}">${{pending:'ממתין',confirmed:'מאושר'}[a.status]||'מאושר'}</span></div>`;}).join('')}
+      <div style="margin-top:10px"><button class="btn btn-primary btn-sm" onclick="showModal('newAppt')"><i class="ti ti-plus"></i> תור חדש</button></div>
+    </div>
+  </div>
+
+  <div class="dash-card">
+    <div class="dc-header"><div class="dc-title"><i class="ti ti-clock"></i>תזכורות דחופות</div></div>
+    <div class="dc-body">${upRems.length===0?`<div class="empty" style="padding:12px 0"><i class="ti ti-check" style="font-size:22px;display:block;margin-bottom:6px"></i>הכל מעודכן!</div>`:upRems.map(r=>{const pp=duePri(r.due);const dc={overdue:'d-red',today:'d-amber',normal:'d-teal'}[pp];const cls={overdue:'overdue-text',today:'today-text',normal:''}[pp];const lbl={overdue:'באיחור!',today:'היום',normal:fmt(r.due)}[pp];return`<div class="rem-item"><div class="ri-dot ${dc}"></div><div class="ri-body"><div class="ri-text">${escHtml(r.text)}</div><div class="ri-client">${escHtml(r.clientName)}</div></div><div class="${cls}">${lbl}</div></div>`;}).join('')}</div>
+  </div>
+
+  <div class="dash-card">
+    <div class="dc-header"><div class="dc-title"><i class="ti ti-link"></i>קישור הזמנת תור</div></div>
+    <div class="dc-body">
+      <div class="link-box">
+        <div class="link-box-title"><i class="ti ti-world"></i> שלח ללקוחות</div>
+        <div class="link-box-url" onclick="copyBookingLink()"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${getBookingUrl()}</span><i class="ti ti-copy" style="flex-shrink:0"></i></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// CALENDAR
+function buildCalendar(){
+  const days=['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'];
+  const weekDates=Array.from({length:7},(_,i)=>fmtDate(addDays(S.calWeek,i)));
+  const todayStr=today();
+  const[,fm,fd]=weekDates[0].split('-');const[ty,tm,td]=weekDates[6].split('-');
+  const months=['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'];
+  const rangeLabel=`${+fd} ${months[+fm-1]} – ${+td} ${months[+tm-1]} ${ty}`;
+
+  let html=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;flex-shrink:0;flex-wrap:wrap">
+    <button class="btn btn-secondary btn-icon" onclick="calPrev()"><i class="ti ti-chevron-right"></i></button>
+    <div style="font-size:14px;font-weight:600;flex:1">${rangeLabel}</div>
+    <button class="btn btn-secondary btn-icon" onclick="calNext()"><i class="ti ti-chevron-left"></i></button>
+    <button class="btn btn-secondary btn-sm" onclick="calToday()"><i class="ti ti-calendar"></i> היום</button>
+    <button class="btn btn-primary btn-sm" onclick="showModal('newAppt')"><i class="ti ti-plus"></i> תור</button>
+    <button class="btn btn-google btn-sm" onclick="exportWeekToGoogle()"><i class="ti ti-brand-google"></i></button>
+  </div>
+  <div class="cal-scroll"><div class="cal-head"><div class="cal-day-hdr"></div>`;
+  weekDates.forEach((d,i)=>{const isToday=d===todayStr;const[,,day]=d.split('-');html+=`<div class="cal-day-hdr"><div class="cal-day-name">${days[i]}</div><div class="cal-day-num">${isToday?`<span style="width:24px;height:24px;background:var(--primary);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px">${+day}</span>`:`${+day}`}</div></div>`;});
+  html+=`</div><div class="cal-body">`;
+  HOURS.forEach(h=>{
+    html+=`<div class="cal-row"><div class="cal-time"><span>${String(h).padStart(2,'0')}:00</span></div>`;
+    weekDates.forEach(d=>{
+      const appts=S.appointments.filter(a=>a.date===d&&parseInt((a.time||'0').split(':')[0])===h);
+      let cells='';
+      appts.forEach(a=>{const p=PALETTES[getClientColor(a.client_id)];const name=a.client_name||getClientName(a.client_id);const mins=parseInt((a.time||'0').split(':')[1])||0;const top=Math.round((mins/60)*52);const ht=Math.max(20,Math.round((a.duration/60)*52)-2);const isPending=a.status==='pending';cells+=`<div class="appt-block" style="top:${top}px;height:${ht}px;background:${isPending?'var(--amber-light)':p.bg};color:${isPending?'#633806':p.c};border-color:${isPending?'var(--amber)':p.c+'30'}" onclick="showApptDetail('${a.id}')"><div class="appt-name">${escHtml(name)}${isPending?' ⏳':''}</div><div class="appt-time-label">${a.time} · ${escHtml(a.treatment)}</div></div>`;});
+      html+=`<div class="cal-cell" onclick="quickAddAppt('${d}','${String(h).padStart(2,'0')}:00')">${cells}</div>`;
+    });
+    html+=`</div>`;
+  });
+  html+=`</div></div>`;
+  return html;
+}
+
+// CLIENT VIEWS
+function buildClientHeader(c){
+  const p=PALETTES[c.color%PALETTES.length];
+  const tm={vip:['b-vip','VIP'],new:['b-new','חדש'],regular:['b-reg','קבוע']};
+  const[tc,tl]=tm[c.tier]||['b-reg','קבוע'];
+  const src=getSrc(c.source);
+  return`<div class="mh">
+    <div class="mh-av" style="background:${p.bg};color:${p.c}">${initials(c.name)}</div>
+    <div class="mh-info"><div class="mh-name">${escHtml(c.name)}</div>
+    <div class="mh-sub"><span>גיל ${c.age||'?'} · ${escHtml(c.skin||'')}</span>${src?`<span class="source-chip"><i class="ti ${src.icon}" style="font-size:11px"></i>${src.label}</span>`:''}</div></div>
+    <span class="badge ${tc}">${tl}</span>
+    ${c.allergies&&c.allergies!=='אין ידועות'?`<span class="badge b-sens"><i class="ti ti-alert-triangle"></i></span>`:''}
+  </div>`;
+}
+
+function buildContent(c){
+  if(S.activeTab==='overview')return buildOverview(c);
+  if(S.activeTab==='treatments')return buildTreatments(c);
+  if(S.activeTab==='reminders')return buildReminders(c);
+  if(S.activeTab==='appointments')return buildClientAppts(c);
+  return buildProfile(c);
+}
+
+function buildOverview(c){
+  const treats=clientTreatments(c.id);const rems=clientReminders(c.id);
+  const rev=totalRev(c);const pr=rems.filter(r=>!r.done).length;
+  const last=treats[0]||null;
+  const nextAppt=clientAppts(c.id).filter(a=>a.date>=today())[0];
+  let h=`<div class="stat-row"><div class="stat"><div class="stat-val">₪${rev.toLocaleString()}</div><div class="stat-lbl">הכנסה</div></div><div class="stat"><div class="stat-val">${treats.length}</div><div class="stat-lbl">טיפולים</div></div><div class="stat"><div class="stat-val">${pr}</div><div class="stat-lbl">תזכורות</div></div></div>`;
+  if(nextAppt){const pp=PALETTES[c.color%PALETTES.length];h+=`<div class="sec-label">התור הבא</div><div class="card" style="margin-bottom:14px;display:flex;align-items:center;gap:12px"><div style="background:${pp.bg};color:${pp.c};padding:8px 12px;border-radius:9px;text-align:center;flex-shrink:0"><div style="font-size:17px;font-weight:600">${fmt(nextAppt.date).split(' ')[0]}</div><div style="font-size:10px">${fmt(nextAppt.date).split(' ')[1]}</div></div><div><div style="font-size:13px;font-weight:500">${escHtml(nextAppt.treatment)}</div><div style="font-size:12px;color:var(--text-sub);margin-top:2px">${nextAppt.time} · ${nextAppt.duration}דק׳</div></div><span class="badge ${nextAppt.status==='pending'?'b-sens':'b-new'}">${nextAppt.status==='pending'?'ממתין':'מאושר'}</span></div>`;}
+  h+=`<div class="sec-label">הערות קליניות</div><div class="card" style="margin-bottom:14px"><div style="font-size:13px;line-height:1.65">${escHtml(c.notes)||'<span style="color:#bbb">אין הערות עדיין.</span>'}</div></div>`;
+  if(last)h+=`<div class="sec-label">טיפול אחרון</div><div class="card treat-card"><div class="treat-date">${fmt(last.date)}</div><div class="treat-body"><div class="treat-name">${escHtml(last.name)}</div><div class="treat-detail">${escHtml(last.provider||'')}${last.dose&&last.dose!=='—'?' · '+escHtml(last.dose):''}</div>${last.price?`<div class="treat-price">₪${last.price.toLocaleString()}</div>`:''}</div></div>`;
+  const up=rems.filter(r=>!r.done).slice(0,2);
+  if(up.length){h+=`<div class="sec-label" style="margin-top:14px">תזכורות</div>`;up.forEach(r=>{const pp=duePri(r.due);const dc={overdue:'d-red',today:'d-amber',normal:'d-teal'}[pp];const cc={overdue:'overdue',today:'today-card',normal:''}[pp];h+=`<div class="card rem-card ${cc}"><div class="rem-dot ${dc}"></div><div class="rem-body"><div class="rem-text">${escHtml(r.text)}</div><div class="rem-due">${r.due?fmt(r.due):''}</div></div><button class="btn btn-secondary btn-sm" onclick="markDone('${r.id}')"><i class="ti ti-check"></i></button></div>`;});}
+  return h;
+}
+
+function buildTreatments(c){
+  const treats=clientTreatments(c.id);
+  let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div class="sec-label" style="margin-bottom:0">היסטוריית טיפולים</div><button class="btn btn-primary btn-sm" onclick="showModal('newTreatment')"><i class="ti ti-plus"></i> הוסף</button></div>`;
+  if(!treats.length)return h+`<div class="empty"><i class="ti ti-needle" style="font-size:28px;display:block;margin-bottom:8px"></i>אין טיפולים עדיין.</div>`;
+  treats.forEach(t=>{h+=`<div class="card treat-card"><div class="treat-date">${fmt(t.date)}</div><div class="treat-body"><div class="treat-name">${escHtml(t.name)}</div><div class="treat-detail">${escHtml(t.provider||'')}${t.dose&&t.dose!=='—'?' · '+escHtml(t.dose):''}</div>${t.notes?`<div class="treat-detail" style="font-style:italic;margin-top:3px">${escHtml(t.notes)}</div>`:''}${t.price?`<div class="treat-price">₪${t.price.toLocaleString()}</div>`:''}</div></div>`;});
+  return h;
+}
+
+function buildReminders(c){
+  const rems=clientReminders(c.id);const pend=rems.filter(r=>!r.done);const done=rems.filter(r=>r.done);
+  let h=`<div class="sec-label">תזכורות מעקב</div>`;
+  if(!pend.length)h+=`<div class="empty"><i class="ti ti-check" style="font-size:26px;display:block;margin-bottom:8px"></i>כל התזכורות בוצעו!</div>`;
+  pend.forEach(r=>{const pp=duePri(r.due);const dc={overdue:'d-red',today:'d-amber',normal:'d-teal'}[pp];const cc={overdue:'overdue',today:'today-card',normal:''}[pp];h+=`<div class="card rem-card ${cc}"><div class="rem-dot ${dc}"></div><div class="rem-body"><div class="rem-text">${escHtml(r.text)}</div><div class="rem-due">${r.due?fmt(r.due):''}</div></div><button class="btn btn-secondary btn-sm" onclick="markDone('${r.id}')"><i class="ti ti-check"></i> בוצע</button></div>`;});
+  h+=`<div class="add-area"><textarea class="fi" id="newRemText" rows="2" placeholder="תזכורת חדשה…" dir="rtl"></textarea><div class="add-row"><input type="date" class="fi" id="newRemDate" value="${today()}" style="flex:1"><button class="btn btn-primary" onclick="addReminder()"><i class="ti ti-plus"></i> הוסף</button></div></div>`;
+  if(done.length){h+=`<div class="sec-label" style="margin-top:18px">הושלמו</div>`;done.forEach(r=>{h+=`<div class="card rem-card" style="opacity:.4"><div class="rem-dot" style="background:#ccc"></div><div class="rem-body"><div class="rem-text" style="text-decoration:line-through">${escHtml(r.text)}</div></div><button class="btn btn-secondary btn-sm" onclick="undoDone('${r.id}')">בטל</button></div>`;});}
+  return h;
+}
+
+function buildClientAppts(c){
+  const appts=clientAppts(c.id);
+  let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div class="sec-label" style="margin-bottom:0">תורים</div><button class="btn btn-primary btn-sm" onclick="showModal('newAppt')"><i class="ti ti-plus"></i> תור חדש</button></div>`;
+  if(!appts.length)return h+`<div class="empty"><i class="ti ti-calendar" style="font-size:28px;display:block;margin-bottom:8px"></i>אין תורים.</div>`;
+  appts.forEach(a=>{const isPast=a.date<today();const p=PALETTES[c.color%PALETTES.length];const sMap={pending:'ממתין',confirmed:'מאושר',done:'הסתיים'};h+=`<div class="card" style="display:flex;gap:12px;align-items:center;opacity:${isPast?.55:1}"><div style="background:${p.bg};color:${p.c};padding:8px 10px;border-radius:9px;text-align:center;flex-shrink:0;min-width:42px"><div style="font-size:15px;font-weight:600">${fmt(a.date).split(' ')[0]}</div><div style="font-size:10px">${fmt(a.date).split(' ')[1]}</div></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">${escHtml(a.treatment)}</div><div style="font-size:12px;color:var(--text-sub);margin-top:2px">${a.time} · ${a.duration}דק׳ · <span style="color:${a.status==='pending'?'var(--amber)':'var(--accent)'}">${sMap[a.status]||'מאושר'}</span></div></div><button class="btn btn-danger btn-sm" onclick="deleteAppt('${a.id}')"><i class="ti ti-trash"></i></button></div>`;});
+  return h;
+}
+
+function buildProfile(c){
+  const src=getSrc(c.source);
+  const chips=(str,cls)=>(str||'').split(',').map(s=>`<span class="chip ${cls}">${escHtml(s.trim())}</span>`).join('');
+  return`<div class="sec-label">פרטי קשר</div>
+  <div class="info-grid">
+    <div class="info-field"><span class="info-label">טלפון</span><span class="info-value">${escHtml(c.phone)||'—'}</span></div>
+    <div class="info-field"><span class="info-label">אימייל</span><span class="info-value" style="font-size:12px">${escHtml(c.email)||'—'}</span></div>
+    <div class="info-field"><span class="info-label">גיל</span><span class="info-value">${c.age||'—'}</span></div>
+    <div class="info-field"><span class="info-label">הסכמה</span><span class="info-value">${c.consent?'✅ נחתמה':'⏳ ממתין'}</span></div>
+    <div class="info-field"><span class="info-label">ערוץ הגעה</span><span class="info-value">${src?`<span class="source-chip"><i class="ti ${src.icon}" style="font-size:11px"></i>${src.label}</span>`:'—'}</span></div>
+  </div>
+  <div class="sec-label">סוג עור</div><div class="card" style="margin-bottom:12px">${chips(c.skin,'skin-chip')||'<span style="color:#aaa;font-size:13px">לא צוין</span>'}</div>
+  <div class="sec-label">אלרגיות</div><div class="card" style="margin-bottom:12px">${c.allergies&&c.allergies!=='אין ידועות'?chips(c.allergies,'allergy-chip'):`<span style="font-size:13px;color:#aaa">אין ידועות</span>`}</div>
+  <div class="sec-label">הערות קליניות</div>
+  <div class="card" style="margin-bottom:12px"><textarea class="fi" rows="3" id="notesField" placeholder="הוסף הערות…" dir="rtl">${escHtml(c.notes||'')}</textarea><div class="add-row" style="justify-content:flex-end"><button class="btn btn-primary btn-sm" onclick="saveNotes()"><i class="ti ti-device-floppy"></i> שמור</button></div></div>
+  <div class="sec-label">עריכת פרטים</div>
+  <div class="card" style="margin-bottom:12px">
+    <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:8px" onclick="showModal('editClient')"><i class="ti ti-edit"></i> ערוך פרטי לקוח</button>
+    <button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="sendConsentEmail('${c.id}','${escHtml(c.name)}','${escHtml(c.email||'')}')"><i class="ti ti-mail"></i> שלח טופס הסכמה לאימייל</button>
+  </div>`;
+}
+
+// MODALS
+function buildModal(){
+  if(S.modal==='bookingLink'){
+    const url=getBookingUrl();
+    return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
+      <div class="modal-title"><i class="ti ti-link"></i> קישור הזמנת תור</div>
+      <div class="link-box"><div class="link-box-title"><i class="ti ti-world"></i> שלח ללקוחות</div><div class="link-box-url" onclick="copyBookingLink()"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${url}</span><i class="ti ti-copy" style="flex-shrink:0"></i></div></div>
+      <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">סגור</button><button class="btn btn-primary" onclick="copyBookingLink()"><i class="ti ti-copy"></i> העתק</button></div>
+    </div></div>`;
+  }
+
+  if(S.modal==='newClient'){
+    const sg=SOURCES.map(s=>`<div class="source-opt ${S.newSrc===s.key?'selected':''}" onclick="selectSrc('${s.key}')"><i class="ti ${s.icon}" style="font-size:18px;display:block;margin-bottom:3px"></i>${s.label}</div>`).join('');
+    return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
+      <div class="modal-title"><i class="ti ti-user-plus"></i> לקוח חדש</div>
+      <div class="fg"><div class="fl">שם מלא *</div><input class="fi" id="m-name" placeholder="שם הלקוח" dir="rtl" autofocus></div>
+      <div class="fg"><div class="fl">טלפון</div><input class="fi" id="m-phone" type="tel" placeholder="050-..."></div>
+      <div class="fg"><div class="fl">אימייל</div><input class="fi" id="m-email" type="email" placeholder="email@example.com"></div>
+      <div class="fg"><div class="fl">גיל</div><input class="fi" id="m-age" type="number" placeholder="30" min="1" max="120"></div>
+      <div class="fg"><div class="fl">סוג עור</div><input class="fi" id="m-skin" placeholder="למשל: יבש, בוגר" dir="rtl"></div>
+      <div class="fg"><div class="fl">אלרגיות</div><input class="fi" id="m-allergy" placeholder="אין ידועות" dir="rtl"></div>
+      <div class="fg"><div class="fl">ערוץ הגעה</div><div class="source-grid">${sg}</div></div>
+      <div class="fg"><div class="fl">סטטוס</div><select class="fi" id="m-tier"><option value="new">לקוח חדש</option><option value="regular">קבוע</option><option value="vip">VIP</option></select></div>
+      <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">ביטול</button><button class="btn btn-primary" onclick="saveNewClient()"><i class="ti ti-check"></i> הוסף לקוח</button></div>
+    </div></div>`;
+  }
+
+  if(S.modal==='editClient'){
+    const c=getC();if(!c)return'';
+    return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
+      <div class="modal-title"><i class="ti ti-edit"></i> עריכת פרטי לקוח</div>
+      <div class="fg"><div class="fl">שם מלא</div><input class="fi" id="e-name" value="${escHtml(c.name)}" dir="rtl"></div>
+      <div class="fg"><div class="fl">טלפון</div><input class="fi" id="e-phone" type="tel" value="${escHtml(c.phone||'')}"></div>
+      <div class="fg"><div class="fl">אימייל</div><input class="fi" id="e-email" type="email" value="${escHtml(c.email||'')}"></div>
+      <div class="fg"><div class="fl">גיל</div><input class="fi" id="e-age" type="number" value="${c.age||''}" min="1" max="120"></div>
+      <div class="fg"><div class="fl">סוג עור</div><input class="fi" id="e-skin" value="${escHtml(c.skin||'')}" dir="rtl"></div>
+      <div class="fg"><div class="fl">אלרגיות</div><input class="fi" id="e-allergy" value="${escHtml(c.allergies||'')}" dir="rtl"></div>
+      <div class="fg"><div class="fl">סטטוס</div><select class="fi" id="e-tier"><option value="new" ${c.tier==='new'?'selected':''}>לקוח חדש</option><option value="regular" ${c.tier==='regular'?'selected':''}>קבוע</option><option value="vip" ${c.tier==='vip'?'selected':''}>VIP</option></select></div>
+      <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">ביטול</button><button class="btn btn-primary" onclick="saveEditClient()"><i class="ti ti-device-floppy"></i> שמור שינויים</button></div>
+    </div></div>`;
+  }
+
+  if(S.modal==='newTreatment'){
+    return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
+      <div class="modal-title"><i class="ti ti-needle"></i> רישום טיפול</div>
+      <div class="fg"><div class="fl">שם הטיפול *</div><input class="fi" id="t-name" placeholder="למשל: בוטוקס" dir="rtl" autofocus></div>
+      <div class="fg"><div class="fl">תאריך</div><input class="fi" id="t-date" type="date" value="${today()}"></div>
+      <div class="fg"><div class="fl">מטפל/ת</div><input class="fi" id="t-prov" placeholder='ד"ר ...' dir="rtl"></div>
+      <div class="fg"><div class="fl">מינון / מוצר</div><input class="fi" id="t-dose" placeholder="למשל: 20 יחידות" dir="rtl"></div>
+      <div class="fg"><div class="fl">הערות</div><textarea class="fi" id="t-notes" rows="2" dir="rtl"></textarea></div>
+      <div class="fg"><div class="fl">מחיר (₪)</div><input class="fi" id="t-price" type="number" placeholder="0" min="0"></div>
+      <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">ביטול</button><button class="btn btn-primary" onclick="saveTreatment()"><i class="ti ti-device-floppy"></i> שמור</button></div>
+    </div></div>`;
+  }
+
+  if(S.modal==='newAppt'){
+    return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
+      <div class="modal-title"><i class="ti ti-calendar-plus"></i> תור חדש</div>
+      <div class="fg"><div class="fl">שם הלקוח *</div><input class="fi" id="a-name" placeholder="שם מלא" dir="rtl"></div>
+      <div class="fg"><div class="fl">טלפון</div><input class="fi" id="a-phone" type="tel" placeholder="050-..."></div>
+      <div class="fg"><div class="fl">אימייל (לשליחת אישור)</div><input class="fi" id="a-email" type="email" placeholder="email@example.com"></div>
+      <div class="fg"><div class="fl">טיפול</div><input class="fi" id="a-treat" placeholder="בוטוקס, פילר…" dir="rtl"></div>
+      <div class="fg"><div class="fl">תאריך</div><input class="fi" id="a-date" type="date" value="${S.prefillDate||today()}"></div>
+      <div class="fg"><div class="fl">שעה</div><input class="fi" id="a-time" type="time" value="${S.prefillTime||'10:00'}"></div>
+      <div class="fg"><div class="fl">משך (דקות)</div><input class="fi" id="a-dur" type="number" value="60" min="15" max="240"></div>
+      <div class="fg"><div class="fl">הערות</div><textarea class="fi" id="a-notes" rows="2" dir="rtl"></textarea></div>
+      <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">ביטול</button><button class="btn btn-primary" onclick="saveAppt()"><i class="ti ti-calendar-check"></i> קבע תור</button></div>
+    </div></div>`;
+  }
+
+  if(S.modal&&S.modal.startsWith('link-')){
+    const aid=S.modal.split('-').slice(1).join('-');
+    const a=S.appointments.find(x=>x.id===aid);if(!a)return'';
+    const clientOpts=S.clients.map(c=>`<option value="${c.id}">${escHtml(c.name)}${c.phone?' · '+escHtml(c.phone):''}</option>`).join('');
+    return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
+      <div class="modal-title"><i class="ti ti-user-plus"></i> שייך תור ללקוח</div>
+      <div style="background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:13px"><div style="font-weight:500">${escHtml(a.client_name||'לא ידוע')}</div><div style="color:var(--text-sub);margin-top:2px">${escHtml(a.treatment)} · ${a.date} ${a.time}</div></div>
+      <div class="fg"><div class="fl">בחר לקוח קיים</div><select class="fi" id="link-client-id"><option value="">--- בחר לקוח ---</option>${clientOpts}</select></div>
+      <div style="text-align:center;color:#aaa;font-size:12px;margin:8px 0">— או —</div>
+      <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:16px" onclick="createClientFromAppt('${aid}')"><i class="ti ti-user-plus"></i> צור לקוח חדש מנתוני התור</button>
+      <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">ביטול</button><button class="btn btn-primary" onclick="linkClientToAppt('${aid}')"><i class="ti ti-link"></i> שייך</button></div>
+    </div></div>`;
+  }
+
+  if(S.modal&&S.modal.startsWith('appt-')){
+    const aid=S.modal.split('-').slice(1).join('-');
+    const a=S.appointments.find(x=>x.id===aid);if(!a)return'';
+    const cname=a.client_name||getClientName(a.client_id);
+    const p=PALETTES[getClientColor(a.client_id)];
+    return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
+      <div class="modal-title"><i class="ti ti-calendar-event"></i> פרטי תור</div>
+      <div class="card" style="background:${p.bg};border-color:${p.c}30;margin-bottom:16px">
+        <div style="font-size:15px;font-weight:600;color:${p.c}">${escHtml(cname)}</div>
+        <div style="font-size:13px;color:${p.c};opacity:.8;margin-top:4px">${escHtml(a.treatment)}</div>
+        ${a.client_phone?`<div style="font-size:12px;color:${p.c};opacity:.7;margin-top:4px">📞 ${escHtml(a.client_phone)}</div>`:''}
+        ${a.client_email?`<div style="font-size:12px;color:${p.c};opacity:.7;margin-top:2px">📧 ${escHtml(a.client_email)}</div>`:''}
+      </div>
+      <div class="info-grid">
+        <div class="info-field"><span class="info-label">תאריך</span><span class="info-value">${fmtFull(a.date)}</span></div>
+        <div class="info-field"><span class="info-label">שעה</span><span class="info-value">${a.time}</span></div>
+        <div class="info-field"><span class="info-label">משך</span><span class="info-value">${a.duration} דקות</span></div>
+        <div class="info-field"><span class="info-label">סטטוס</span><span class="info-value">${{pending:'⏳ ממתין',confirmed:'✅ מאושר',done:'הסתיים'}[a.status]||'מאושר'}</span></div>
+      </div>
+      ${a.notes?`<div class="sec-label">הערות</div><div class="card" style="margin-bottom:12px">${escHtml(a.notes)}</div>`:''}
+      <div class="ma">
+        ${a.status==='pending'?`<button class="btn btn-success btn-sm" onclick="confirmAppt('${a.id}')"><i class="ti ti-check"></i> אשר</button><button class="btn btn-danger btn-sm" onclick="cancelAppt('${a.id}')"><i class="ti ti-x"></i> דחה</button>`:''}
+        <button class="btn btn-secondary btn-sm" onclick="showLinkClient('${a.id}')"><i class="ti ti-user-plus"></i> שייך</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteAppt('${a.id}')"><i class="ti ti-trash"></i></button>
+        <button class="btn btn-google btn-sm" onclick="exportApptToGoogle('${a.id}')"><i class="ti ti-brand-google"></i></button>
+        <button class="btn btn-primary" onclick="closeModal()">סגור</button>
+      </div>
+    </div></div>`;
+  }
+  return'';
+}
+
+// ACTIONS
+function toggleSidebar(){S.sidebarOpen=!S.sidebarOpen;const sb=document.getElementById('sidebar');const ov=document.querySelector('.sidebar-overlay');if(sb){sb.classList.toggle('open',S.sidebarOpen);ov&&ov.classList.toggle('show',S.sidebarOpen)}}
+function closeSidebar(){S.sidebarOpen=false;renderRoot()}
+function reSidebar(){const q=S.search.toLowerCase();const f=S.clients.filter(c=>c.name.toLowerCase().includes(q));const el=document.getElementById('clientList');if(el)el.innerHTML=f.map(cl=>{const p=PALETTES[cl.color%PALETTES.length];const pr=pendingRem(cl);return`<div class="ci ${cl.id===S.activeId&&S.activePage==='clients'?'active':''}" onclick="selectClient('${cl.id}')"><div class="av" style="background:${p.bg};color:${p.c}">${initials(cl.name)}</div><div class="ci-meta"><div class="ci-name">${escHtml(cl.name)}</div><div class="ci-sub">${(cl.skin||'').split(',')[0]}${pr>0?` · ${pr} תזכ׳`:''}</div></div></div>`;}).join('')||'<div style="padding:12px;font-size:12px;color:#bbb;text-align:center">לא נמצאו</div>';}
+function selectClient(id){S.activeId=id;S.activePage='clients';S.activeTab='overview';S.sidebarOpen=false;renderRoot()}
+function gotoPage(p){S.activePage=p;S.sidebarOpen=false;renderRoot()}
+function setTab(t){S.activeTab=t;renderRoot()}
+function showModal(type){S.modal=type;S.newSrc='';renderRoot()}
+function closeModal(){S.modal=null;S.prefillDate='';S.prefillTime='';renderRoot()}
+function closeModalBg(e){if(e.target===e.currentTarget)closeModal()}
+function selectSrc(k){S.newSrc=k;document.querySelectorAll('.source-opt').forEach(el=>{el.classList.toggle('selected',el.getAttribute('onclick').includes("'"+k+"'"))})}
+function showApptDetail(id){S.modal='appt-'+id;renderRoot()}
+function showLinkClient(aid){S.modal='link-'+aid;renderRoot()}
+function calPrev(){S.calWeek=addDays(S.calWeek,-7);renderRoot()}
+function calNext(){S.calWeek=addDays(S.calWeek,7);renderRoot()}
+function calToday(){S.calWeek=weekStart(new Date());renderRoot()}
+function quickAddAppt(date,time){S.prefillDate=date;S.prefillTime=time;showModal('newAppt')}
+function copyBookingLink(){navigator.clipboard.writeText(getBookingUrl()).then(()=>toast('קישור הועתק! 📋')).catch(()=>toast('העתק ידנית'))}
+
+async function markDone(rid){await sbPatch('reminders',`?id=eq.${rid}`,{done:true});S.reminders=S.reminders.map(r=>r.id===rid?{...r,done:true}:r);renderRoot();toast('✓ בוצע!')}
+async function undoDone(rid){await sbPatch('reminders',`?id=eq.${rid}`,{done:false});S.reminders=S.reminders.map(r=>r.id===rid?{...r,done:false}:r);renderRoot()}
+async function addReminder(){const text=document.getElementById('newRemText').value.trim();const due=document.getElementById('newRemDate').value;if(!text)return;const c=getC();const res=await sbPost('reminders',{client_id:c.id,text,due:due||null,done:false});if(res&&res[0]){S.reminders.push(res[0]);renderRoot();toast('תזכורת נוספה')}else toast('שגיאה')}
+async function saveNotes(){const val=document.getElementById('notesField').value.trim();const c=getC();await sbPatch('clients',`?id=eq.${c.id}`,{notes:val});S.clients=S.clients.map(x=>x.id===c.id?{...x,notes:val}:x);toast('הערות נשמרו ✓')}
+
+async function saveNewClient(){
+  const name=document.getElementById('m-name').value.trim();if(!name){alert('נא להזין שם.');return}
+  const body={name,phone:document.getElementById('m-phone').value.trim(),email:document.getElementById('m-email').value.trim(),age:parseInt(document.getElementById('m-age').value)||null,skin:document.getElementById('m-skin').value.trim()||'לא ידוע',allergies:document.getElementById('m-allergy').value.trim()||'אין ידועות',tier:document.getElementById('m-tier').value,source:S.newSrc||null,color:S.clients.length%PALETTES.length,consent:false,notes:''};
+  const res=await sbPost('clients',body);
+  if(res&&res[0]){S.clients.unshift(res[0]);S.activeId=res[0].id;S.activePage='clients';S.activeTab='overview';S.modal=null;renderRoot();toast('לקוח נוסף! 🎉')}else toast('שגיאה בשמירה')
+}
+
+async function saveEditClient(){
+  const c=getC();if(!c)return;
+  const body={name:document.getElementById('e-name').value.trim(),phone:document.getElementById('e-phone').value.trim(),email:document.getElementById('e-email').value.trim(),age:parseInt(document.getElementById('e-age').value)||null,skin:document.getElementById('e-skin').value.trim(),allergies:document.getElementById('e-allergy').value.trim()||'אין ידועות',tier:document.getElementById('e-tier').value};
+  await sbPatch('clients',`?id=eq.${c.id}`,body);
+  S.clients=S.clients.map(x=>x.id===c.id?{...x,...body}:x);
+  S.modal=null;renderRoot();toast('פרטים עודכנו ✓');
+}
+
+async function saveTreatment(){
+  const name=document.getElementById('t-name').value.trim();if(!name){alert('נא להזין שם טיפול.');return}
+  const c=getC();
+  const body={client_id:c.id,name,date:document.getElementById('t-date').value||today(),provider:document.getElementById('t-prov').value.trim()||null,dose:document.getElementById('t-dose').value.trim()||'—',notes:document.getElementById('t-notes').value.trim(),price:parseInt(document.getElementById('t-price').value)||0};
+  const res=await sbPost('treatments',body);
+  if(res&&res[0]){S.treatments.unshift(res[0]);S.modal=null;S.activeTab='treatments';renderRoot();toast('טיפול נשמר ✓')}else toast('שגיאה')
+}
+
+async function saveAppt(){
+  const name=(document.getElementById('a-name')||{}).value||'';
+  const phone=(document.getElementById('a-phone')||{}).value||'';
+  const email=(document.getElementById('a-email')||{}).value||'';
+  const treat=document.getElementById('a-treat').value.trim();
+  const date=document.getElementById('a-date').value;
+  const time=document.getElementById('a-time').value;
+  const dur=parseInt(document.getElementById('a-dur').value)||60;
+  const notes=document.getElementById('a-notes').value.trim();
+  if(!name.trim()){alert('נא להזין שם לקוח.');return}
+  if(!date||!time){alert('נא למלא תאריך ושעה.');return}
+  const body={client_name:name.trim(),client_phone:phone.trim(),client_email:email.trim(),treatment:treat||'טיפול',date,time,duration:dur,notes,status:'confirmed'};
+  const res=await sbPost('appointments',body);
+  if(res&&res[0]){
+    S.appointments.push(res[0]);S.appointments.sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+    S.modal=null;S.prefillDate='';S.prefillTime='';renderRoot();toast('תור נקבע! 📅');
+    if(email.trim())sendApptEmail(res[0]).then(()=>toast('📧 אימייל אישור נשלח!'));
+  }else toast('שגיאה בשמירה')
+}
+
+async function confirmAppt(id){await sbPatch('appointments',`?id=eq.${id}`,{status:'confirmed'});S.appointments=S.appointments.map(a=>a.id===id?{...a,status:'confirmed'}:a);S.modal=null;renderRoot();toast('תור אושר ✓')}
+async function cancelAppt(id){if(!confirm('לדחות את התור?'))return;await sbDelete('appointments',`?id=eq.${id}`);S.appointments=S.appointments.filter(a=>a.id!==id);S.modal=null;renderRoot();toast('תור נדחה')}
+async function deleteAppt(id){if(!confirm('למחוק את התור?'))return;await sbDelete('appointments',`?id=eq.${id}`);S.appointments=S.appointments.filter(a=>a.id!==id);S.modal=null;renderRoot();toast('תור נמחק')}
+
+async function linkClientToAppt(aid){
+  const clientId=document.getElementById('link-client-id').value;if(!clientId){alert('נא לבחור לקוח.');return}
+  const c=S.clients.find(x=>x.id===clientId);
+  await sbPatch('appointments',`?id=eq.${aid}`,{client_id:clientId,client_name:c?c.name:'',client_phone:c?c.phone:''});
+  S.appointments=S.appointments.map(a=>a.id===aid?{...a,client_id:clientId,client_name:c?c.name:'',client_phone:c?c.phone:''}:a);
+  S.modal=null;renderRoot();toast('שויך ללקוח ✓');
+}
+
+async function createClientFromAppt(aid){
+  const a=S.appointments.find(x=>x.id===aid);if(!a)return;
+  if(!a.client_name){alert('אין שם לקוח בתור.');return}
+  const res=await sbPost('clients',{name:a.client_name,phone:a.client_phone||'',email:a.client_email||'',tier:'new',color:S.clients.length%8,consent:false,notes:'',allergies:'אין ידועות',skin:'לא ידוע'});
+  if(res&&res[0]){S.clients.unshift(res[0]);await sbPatch('appointments',`?id=eq.${aid}`,{client_id:res[0].id});S.appointments=S.appointments.map(a=>a.id===aid?{...a,client_id:res[0].id}:a);S.modal=null;S.activeId=res[0].id;S.activePage='clients';renderRoot();toast('לקוח נוצר ושויך! 🎉');}else toast('שגיאה')
+}
+
+// GOOGLE CALENDAR
+function padZ(n){return String(n).padStart(2,'0')}
+function toICS(dateStr,timeStr){const[y,m,d]=dateStr.split('-');const[h,min]=timeStr.split(':');return`${y}${padZ(m)}${padZ(d)}T${padZ(h)}${padZ(min)}00`}
+function dlICS(ics,filename){const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url)}
+function exportApptToGoogle(id){const a=S.appointments.find(x=>x.id===id);if(!a)return;const cname=a.client_name||getClientName(a.client_id);const[h,min]=a.time.split(':').map(Number);const tot=h*60+min+(a.duration||60);const end=`${padZ(Math.floor(tot/60))}:${padZ(tot%60)}`;const ics=`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Clinic CRM//HE\r\nBEGIN:VEVENT\r\nUID:appt-${a.id}@clinic\r\nDTSTART:${toICS(a.date,a.time)}\r\nDTEND:${toICS(a.date,end)}\r\nSUMMARY:${cname} — ${a.treatment}\r\nEND:VEVENT\r\nEND:VCALENDAR`;dlICS(ics,`tor-${a.date}.ics`);toast('📅 יוצא לגוגל!')}
+function exportWeekToGoogle(){const dates=Array.from({length:7},(_,i)=>fmtDate(addDays(S.calWeek,i)));const appts=S.appointments.filter(a=>dates.includes(a.date));if(!appts.length){toast('אין תורים השבוע');return}let events='';appts.forEach(a=>{const cname=a.client_name||getClientName(a.client_id);const[h,min]=a.time.split(':').map(Number);const tot=h*60+min+(a.duration||60);const end=`${padZ(Math.floor(tot/60))}:${padZ(tot%60)}`;events+=`BEGIN:VEVENT\r\nUID:appt-${a.id}@clinic\r\nDTSTART:${toICS(a.date,a.time)}\r\nDTEND:${toICS(a.date,end)}\r\nSUMMARY:${cname} — ${a.treatment}\r\nEND:VEVENT\r\n`;});dlICS(`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Clinic CRM//HE\r\n${events}END:VCALENDAR`,`clinic-week.ics`);toast(`📅 ${appts.length} תורים יוצאו!`)}
+
+renderRoot();
+if(isLoggedIn())loadAll();
+</script>
+</body>
+</html>

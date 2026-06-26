@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>קביעת תור | ד"ר אלכסנדר</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#1B6CA8;
+  --primary-dark:#154F7A;
+  --primary-light:#E8F4FD;
+  --accent:#2AA876;
+  --accent-light:#E8F7F2;
+  --teal:#4DB8C8;
+  --teal-light:#EAF8FA;
+  --text:#1A2332;
+  --text-sub:#5A6A7E;
+  --border:#DDE8F0;
+  --bg:#F4F8FB;
+  --white:#fff;
+  --gold:#C9A84C;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* HERO HEADER */
+.hero{background:linear-gradient(135deg,var(--primary-dark) 0%,var(--primary) 50%,var(--teal) 100%);padding:36px 20px 48px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at center,rgba(255,255,255,.06) 0%,transparent 60%);pointer-events:none}
+.hero-logo{width:64px;height:64px;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px;backdrop-filter:blur(10px)}
+.hero-name{font-size:26px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:.5px}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.75);font-weight:300;letter-spacing:.5px}
+.hero-divider{width:40px;height:2px;background:var(--gold);margin:14px auto;border-radius:99px}
+.hero-tag{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;padding:5px 14px;border-radius:99px;backdrop-filter:blur(8px)}
+
+/* MAIN */
+.wrap{max-width:480px;margin:-20px auto 0;padding:0 16px 40px;position:relative;z-index:1}
+
+/* STEPS */
+.steps-bar{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:24px;background:var(--white);border-radius:14px;padding:14px 20px;box-shadow:0 2px 16px rgba(27,108,168,.08);border:1px solid var(--border)}
+.step-item{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.step-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;border:2px solid var(--border);color:var(--text-sub);background:#fff;transition:all .25s}
+.step-num.active{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(27,108,168,.3)}
+.step-num.done{background:var(--accent);border-color:var(--accent);color:#fff}
+.step-label{font-size:10px;color:var(--text-sub);font-weight:500}
+.step-label.active{color:var(--primary);font-weight:600}
+.step-connector{flex:none;width:32px;height:2px;background:var(--border);margin-bottom:14px;transition:background .25s}
+.step-connector.done{background:var(--accent)}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:14px;box-shadow:0 2px 12px rgba(27,108,168,.05)}
+.card-title{font-size:15px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:10px;color:var(--text)}
+.card-title .icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.icon-blue{background:var(--primary-light);color:var(--primary)}
+.icon-teal{background:var(--teal-light);color:var(--teal)}
+.icon-green{background:var(--accent-light);color:var(--accent)}
+
+/* FORM */
+.field{margin-bottom:14px}
+.label{font-size:12px;color:var(--text-sub);margin-bottom:6px;display:block;font-weight:500}
+input,select,textarea{width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:11px;font-size:15px;font-family:'Heebo',sans-serif;background:#fff;color:var(--text);outline:none;-webkit-appearance:none;transition:border .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(27,108,168,.08)}
+
+/* TREATMENT GRID */
+.treat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.treat-opt{padding:14px 10px;border:1.5px solid var(--border);border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;text-align:center;background:#fff;transition:all .15s;user-select:none}
+.treat-opt:hover{border-color:var(--primary);background:var(--primary-light)}
+.treat-opt.selected{border-color:var(--primary);background:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(27,108,168,.25)}
+.treat-icon{font-size:24px;display:block;margin-bottom:6px}
+
+/* SUB TYPES */
+.sub-title{font-size:12px;font-weight:600;color:var(--primary);margin:14px 0 8px;letter-spacing:.03em}
+.sub-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sub-opt{padding:9px 10px;border:1.5px solid var(--border);border-radius:9px;font-size:12px;font-weight:500;cursor:pointer;text-align:center;background:#fff;transition:all .15s;user-select:none}
+.sub-opt:hover{border-color:var(--teal);background:var(--teal-light)}
+.sub-opt.selected{border-color:var(--teal);background:var(--teal);color:#fff}
+
+/* TIME SLOTS */
+.time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.time-opt{padding:12px 6px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;text-align:center;background:#fff;transition:all .15s;user-select:none;color:var(--primary)}
+.time-opt:hover:not(.taken){border-color:var(--primary);background:var(--primary-light)}
+.time-opt.selected{border-color:var(--primary);background:var(--primary);color:#fff;box-shadow:0 3px 10px rgba(27,108,168,.2)}
+.time-opt.taken{background:#F5F5F5;color:#C5C5C5;cursor:not-allowed;border-color:#EBEBEB;text-decoration:line-through}
+
+/* DATE */
+.date-note{font-size:11px;color:var(--text-sub);margin-top:8px;text-align:center;display:flex;align-items:center;justify-content:center;gap:4px}
+
+/* BUTTONS */
+.submit-btn{width:100%;padding:16px;border-radius:13px;border:none;background:linear-gradient(135deg,var(--primary),var(--teal));color:#fff;font-size:16px;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;box-shadow:0 4px 16px rgba(27,108,168,.3);transition:opacity .15s;letter-spacing:.3px}
+.submit-btn:active{opacity:.88}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+.back-btn{padding:16px 22px;border-radius:13px;border:1.5px solid var(--border);background:#fff;font-size:15px;font-weight:500;cursor:pointer;font-family:'Heebo',sans-serif;flex-shrink:0;color:var(--text-sub);transition:all .15s}
+.back-btn:hover{border-color:var(--primary);color:var(--primary)}
+.btn-row{display:flex;gap:10px;margin-top:4px}
+
+/* SUMMARY */
+.summary-box{background:var(--primary-light);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.summary-row{font-size:13px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.summary-row:last-child{margin-bottom:0}
+.summary-label{color:var(--text-sub)}
+.summary-val{font-weight:600;color:var(--primary)}
+
+/* ERROR */
+.error-msg{background:#FEF0F0;border:1px solid #FBBABA;border-radius:10px;padding:12px 14px;font-size:13px;color:#C0392B;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+
+/* SUCCESS */
+.success-page{text-align:center;padding:20px 0 40px}
+.success-hero{background:linear-gradient(135deg,var(--accent),var(--teal));border-radius:20px;padding:32px 24px;margin-bottom:20px;color:#fff}
+.success-icon{font-size:56px;margin-bottom:12px}
+.success-title{font-size:22px;font-weight:700;margin-bottom:6px}
+.success-sub{font-size:14px;opacity:.85;font-weight:300}
+.success-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;text-align:right}
+.success-detail{font-size:13px;color:var(--text);margin-bottom:10px;display:flex;gap:10px;align-items:center}
+.success-detail:last-child{margin-bottom:0}
+.success-detail .s-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:var(--primary-light)}
+.new-btn{padding:14px 28px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:'Heebo',sans-serif;color:var(--primary)}
+.loading-slots{text-align:center;padding:24px;color:var(--text-sub);font-size:13px}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;margin-left:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.closed-note{background:var(--primary-light);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--primary);text-align:center;margin-top:8px}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-logo">✦</div>
+  <div class="hero-name">ד"ר אלכסנדר</div>
+  <div class="hero-sub">קליניקה לרפואה אסתטית</div>
+  <div class="hero-divider"></div>
+  <div class="hero-tag">קביעת תור אונליין</div>
+</div>
+
+<div class="wrap">
+  <div id="content"></div>
+</div>
+
+<script>
+const SUPABASE_URL='https://vizqigecvjpcfrorwowm.supabase.co';
+const SUPABASE_KEY='sb_publishable_EhhQfiQA2cUDA7BA68ZPWg_0bVeHtlA';
+
+const TREATMENTS=[
+  {key:'botox',label:'בוטוקס',icon:'💉',duration:45,subs:['מצח','גלבלה (בין הגבות)','עורביים (עיניים)','מצח + גלבלה','פנים מלא']},
+  {key:'filler',label:'פילר',icon:'✨',duration:60,subs:['שפתיים','קפלי אף-שפה','לחיים','תחת עיניים','סנטר']},
+  {key:'profhilo',label:'פרופהילו',icon:'💧',duration:60,subs:['פנים','צוואר','ידיים']},
+  {key:'peel',label:'פילינג',icon:'🌟',duration:45,subs:['פילינג שטחי','פילינג בינוני (TCA)','פילינג כימי','פילינג פירות']},
+  {key:'laser',label:'לייזר',icon:'⚡',duration:30,subs:['הסרת שיער','כתמים','כלי דם','פיגמנטציה']},
+  {key:'consult',label:'ייעוץ',icon:'🩺',duration:30,subs:['ייעוץ כללי','ניתוח עור','תכנית טיפולים']},
+];
+
+const WORK_HOURS=['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
+const CLOSED_DAYS=[5,6]; // שישי=5, שבת=6
+
+let B={name:'',phone:'',treatment:'',treatmentLabel:'',treatmentDuration:60,subType:'',date:'',time:'',notes:'',step:1,takenSlots:[],error:''};
+
+function today(){return new Date().toISOString().slice(0,10)}
+
+function getMinDate(){
+  // מחר — בדיקה שלא שישי/שבת
+  const d=new Date();d.setDate(d.getDate()+1);
+  while(CLOSED_DAYS.includes(d.getDay()))d.setDate(d.getDate()+1);
+  return d.toISOString().slice(0,10);
+}
+
+function isClosedDay(dateStr){
+  if(!dateStr)return false;
+  const d=new Date(dateStr);
+  return CLOSED_DAYS.includes(d.getDay());
+}
+
+function fmtDate(d){
+  if(!d)return'';
+  const[y,m,day]=d.split('-');
+  const M=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  const days=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+  const dt=new Date(d);
+  return`יום ${days[dt.getDay()]}, ${+day} ${M[+m-1]} ${y}`;
+}
+
+function isSlotTaken(time){
+  return B.takenSlots.some(a=>{
+    const[ah,am]=a.time.split(':').map(Number);
+    const[th,tm]=time.split(':').map(Number);
+    const aStart=ah*60+am;const aEnd=aStart+(a.duration||60);
+    const tStart=th*60+tm;
+    return tStart>=aStart&&tStart<aEnd;
+  });
+}
+
+function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function stepsBar(active){
+  const steps=['פרטים','תאריך ושעה','אישור'];
+  return`<div class="steps-bar">
+    ${steps.map((s,i)=>{
+      const num=i+1;
+      const cls=num<active?'done':num===active?'active':'';
+      const lbl=num===active?'active':'';
+      return`${i>0?`<div class="step-connector ${num<=active?'done':''}"></div>`:''}
+      <div class="step-item">
+        <div class="step-num ${cls}">${num<active?'✓':num}</div>
+        <div class="step-label ${lbl}">${s}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+async function fetchSlots(date){
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/appointments?date=eq.${date}&select=time,duration`,{
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
+    });
+    if(res.ok)B.takenSlots=await res.json()||[];
+  }catch(e){B.takenSlots=[];}
+  renderTimeSlots();
+}
+
+function renderStep1(){
+  const currentTreat=TREATMENTS.find(t=>t.key===B.treatment);
+  document.getElementById('content').innerHTML=`
+    ${stepsBar(1)}
+    <div class="card">
+      <div class="card-title"><div class="icon icon-blue">👤</div>פרטים אישיים</div>
+      <div class="field">
+        <label class="label">שם מלא *</label>
+        <input type="text" id="b-name" placeholder="שם ושם משפחה" dir="rtl" value="${escHtml(B.name)}" oninput="B.name=this.value">
+      </div>
+      <div class="field">
+        <label class="label">מספר טלפון *</label>
+        <input type="tel" id="b-phone" placeholder="050-..." value="${escHtml(B.phone)}" oninput="B.phone=this.value">
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="icon icon-teal">💆</div>בחר טיפול</div>
+      <div class="treat-grid">
+        ${TREATMENTS.map(t=>`
+          <div class="treat-opt ${B.treatment===t.key?'selected':''}" onclick="selectTreat('${t.key}')">
+            <span class="treat-icon">${t.icon}</span>${t.label}
+          </div>`).join('')}
+      </div>
+      ${currentTreat?`
+        <div class="sub-title">בחר סוג ${currentTreat.label}:</div>
+        <div class="sub-grid">
+          ${currentTreat.subs.map(s=>`
+            <div class="sub-opt ${B.subType===s?'selected':''}" onclick="selectSub('${s}')">${s}</div>
+          `).join('')}
+        </div>`:''}
+    </div>
+    ${B.error?`<div class="error-msg">⚠️ ${B.error}</div>`:''}
+    <button class="submit-btn" onclick="goStep2()">המשך לבחירת תאריך ←</button>`;
+}
+
+function selectTreat(key){
+  const nameEl=document.getElementById('b-name');
+  const phoneEl=document.getElementById('b-phone');
+  if(nameEl)B.name=nameEl.value;
+  if(phoneEl)B.phone=phoneEl.value;
+  const t=TREATMENTS.find(x=>x.key===key);
+  B.treatment=key;B.treatmentLabel=t?t.label:'';B.treatmentDuration=t?t.duration:60;B.subType='';
+  renderStep1();
+}
+
+function selectSub(sub){
+  B.subType=sub;
+  document.querySelectorAll('.sub-opt').forEach(el=>el.classList.toggle('selected',el.textContent===sub));
+}
+
+function renderStep2(){
+  document.getElementById('content').innerHTML=`
+    ${stepsBar(2)}
+    <div class="card">
+      <div class="card-title"><div class="icon icon-blue">📅</div>בחר תאריך</div>
+      <input type="date" id="b-date" min="${getMinDate()}" value="${B.date}"
+        onchange="onDateChange(this.value)"
+        style="width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:11px;font-size:15px;font-family:'Heebo',sans-serif;outline:none;-webkit-appearance:none;color:var(--text)">
+      <div class="date-note">📅 ניתן לקבוע מחר ואילך · ימי שישי ושבת סגורים</div>
+    </div>
+    <div id="time-slots-wrap">
+      ${B.date&&!isClosedDay(B.date)?`<div class="loading-slots"><div class="spinner"></div> טוען שעות פנויות…</div>`:''}
+      ${B.date&&isClosedDay(B.date)?`<div class="closed-note">⛔ הקליניקה סגורה בשישי ושבת. אנא בחר יום אחר.</div>`:''}
+    </div>
+    ${B.error?`<div class="error-msg">⚠️ ${B.error}</div>`:''}
+    <div class="btn-row">
+      <button class="back-btn" onclick="goStep1()">← חזור</button>
+      <button class="submit-btn" onclick="goStep3()">המשך לאישור ←</button>
+    </div>`;
+  if(B.date&&!isClosedDay(B.date))fetchSlots(B.date);
+}
+
+function renderTimeSlots(){
+  const wrap=document.getElementById('time-slots-wrap');
+  if(!wrap||!B.date||isClosedDay(B.date))return;
+  wrap.innerHTML=`
+    <div class="card">
+      <div class="card-title"><div class="icon icon-teal">🕐</div>בחר שעה — ${fmtDate(B.date)}</div>
+      <div class="time-grid">
+        ${WORK_HOURS.map(t=>{
+          const taken=isSlotTaken(t);
+          return`<div class="time-opt ${taken?'taken':''}${B.time===t&&!taken?' selected':''}"
+            onclick="${taken?'':'selectTime(\''+t+'\')'}">${t}</div>`;
+        }).join('')}
+      </div>
+      <div style="font-size:11px;color:var(--text-sub);margin-top:10px;text-align:center">שעות מוקרעות — תפוסות</div>
+    </div>`;
+}
+
+function onDateChange(date){
+  if(isClosedDay(date)){
+    B.date=date;B.time='';B.takenSlots=[];
+    const wrap=document.getElementById('time-slots-wrap');
+    if(wrap)wrap.innerHTML=`<div class="closed-note">⛔ הקליניקה סגורה בשישי ושבת. אנא בחר יום אחר.</div>`;
+    return;
+  }
+  B.date=date;B.time='';B.takenSlots=[];
+  const wrap=document.getElementById('time-slots-wrap');
+  if(wrap)wrap.innerHTML=`<div class="loading-slots"><div class="spinner"></div> טוען שעות פנויות…</div>`;
+  fetchSlots(date);
+}
+
+function selectTime(time){
+  B.time=time;
+  document.querySelectorAll('.time-opt:not(.taken)').forEach(el=>el.classList.toggle('selected',el.textContent.trim()===time));
+}
+
+function renderStep3(){
+  const treat=TREATMENTS.find(t=>t.key===B.treatment);
+  const fullLabel=B.subType?`${treat?treat.label:''} — ${B.subType}`:treat?treat.label:'';
+  document.getElementById('content').innerHTML=`
+    ${stepsBar(3)}
+    <div class="card">
+      <div class="card-title"><div class="icon icon-green">✅</div>סיכום ואישור</div>
+      <div class="summary-box">
+        <div class="summary-row"><span class="summary-label">שם</span><span class="summary-val">${escHtml(B.name)}</span></div>
+        <div class="summary-row"><span class="summary-label">טלפון</span><span class="summary-val">${escHtml(B.phone)}</span></div>
+        <div class="summary-row"><span class="summary-label">טיפול</span><span class="summary-val">${treat?treat.icon:''} ${escHtml(fullLabel)}</span></div>
+        <div class="summary-row"><span class="summary-label">תאריך</span><span class="summary-val">${fmtDate(B.date)}</span></div>
+        <div class="summary-row"><span class="summary-label">שעה</span><span class="summary-val">${B.time}</span></div>
+      </div>
+      <div class="field">
+        <label class="label">הערות (אופציונלי)</label>
+        <textarea id="b-notes" rows="2" placeholder="אלרגיות, בקשות מיוחדות…" dir="rtl" oninput="B.notes=this.value">${escHtml(B.notes)}</textarea>
+      </div>
+    </div>
+    ${B.error?`<div class="error-msg">⚠️ ${B.error}</div>`:''}
+    <div class="btn-row">
+      <button class="back-btn" onclick="goStep2()">← חזור</button>
+      <button class="submit-btn" id="submitBtn" onclick="submitBooking()">✓ אשר וקבע תור</button>
+    </div>`;
+}
+
+function renderSuccess(){
+  const treat=TREATMENTS.find(t=>t.key===B.treatment);
+  const fullLabel=B.subType?`${treat?treat.label:''} — ${B.subType}`:treat?treat.label:'';
+  document.getElementById('content').innerHTML=`
+    <div class="success-page">
+      <div class="success-hero">
+        <div class="success-icon">🎉</div>
+        <div class="success-title">התור נקבע בהצלחה!</div>
+        <div class="success-sub">נחזור אליך בהקדם לאישור סופי</div>
+      </div>
+      <div class="success-card">
+        <div class="success-detail"><div class="s-icon">📅</div><span>${fmtDate(B.date)}</span></div>
+        <div class="success-detail"><div class="s-icon">🕐</div><span>שעה ${B.time}</span></div>
+        <div class="success-detail"><div class="s-icon">${treat?treat.icon:'💆'}</div><span>${escHtml(fullLabel)}</span></div>
+        <div class="success-detail"><div class="s-icon">👤</div><span>${escHtml(B.name)}</span></div>
+        <div class="success-detail"><div class="s-icon">📞</div><span>${escHtml(B.phone)}</span></div>
+      </div>
+      <div style="font-size:13px;color:var(--text-sub);margin-bottom:20px;line-height:1.6">
+        נשמח לראות אותך בקליניקה!<br>לשינויים — צור קשר טלפוני.
+      </div>
+      <button class="new-btn" onclick="resetBooking()">+ קבע תור נוסף</button>
+    </div>`;
+}
+
+function goStep1(){B.step=1;B.error='';renderStep1();window.scrollTo(0,0)}
+
+function goStep2(){
+  const nameEl=document.getElementById('b-name');
+  const phoneEl=document.getElementById('b-phone');
+  if(nameEl)B.name=nameEl.value.trim();
+  if(phoneEl)B.phone=phoneEl.value.trim();
+  if(!B.name||!B.phone){B.error='נא למלא שם וטלפון';renderStep1();return}
+  if(!B.treatment){B.error='נא לבחור סוג טיפול';renderStep1();return}
+  B.error='';B.step=2;renderStep2();window.scrollTo(0,0);
+}
+
+function goStep3(){
+  if(!B.date||isClosedDay(B.date)){B.error='נא לבחור תאריך (לא שישי/שבת)';renderStep2();return}
+  if(!B.time){B.error='נא לבחור שעה';renderStep2();return}
+  B.error='';B.step=3;renderStep3();window.scrollTo(0,0);
+}
+
+async function submitBooking(){
+  const notesEl=document.getElementById('b-notes');
+  if(notesEl)B.notes=notesEl.value.trim();
+  const treat=TREATMENTS.find(t=>t.key===B.treatment);
+  const fullLabel=B.subType?`${treat?treat.label:''} — ${B.subType}`:treat?treat.label:'';
+  const btn=document.getElementById('submitBtn');
+  if(btn){btn.disabled=true;btn.innerHTML='<div class="spinner" style="border-color:rgba(255,255,255,.3);border-top-color:#fff;width:18px;height:18px"></div> שולח…';}
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/appointments`,{
+      method:'POST',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=representation'},
+      body:JSON.stringify({client_name:B.name,client_phone:B.phone,treatment:fullLabel,date:B.date,time:B.time,duration:B.treatmentDuration,notes:B.notes,status:'pending'})
+    });
+    if(res.ok)renderSuccess();
+    else{B.error='שגיאה בשמירת התור. נסה שוב.';renderStep3();}
+  }catch(e){B.error='שגיאת חיבור. בדוק אינטרנט ונסה שוב.';renderStep3();}
+}
+
+function resetBooking(){
+  B={name:'',phone:'',treatment:'',treatmentLabel:'',treatmentDuration:60,subType:'',date:'',time:'',notes:'',step:1,takenSlots:[],error:''};
+  renderStep1();window.scrollTo(0,0);
+}
+
+renderStep1();
+</script>
+</body>
+</html>
