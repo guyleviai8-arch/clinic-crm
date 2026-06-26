@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="he">
 <head>
@@ -413,7 +414,7 @@ function buildApp(){
   const clientListHTML=filtered.map(cl=>{
     const p=PALETTES[cl.color%PALETTES.length];const pr=pendingRem(cl);
     return`<div class="ci ${cl.id===S.activeId&&S.activePage==='clients'?'active':''}" onclick="selectClient('${cl.id}')">
-      <div class="av" style="background:${p.bg};color:${p.c}">${initials(cl.name)}</div>
+      ${cl.photo_url?`<img src="${escHtml(cl.photo_url)}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0">`:`<div class="av" style="background:${p.bg};color:${p.c}">${initials(cl.name)}</div>`}
       <div class="ci-meta"><div class="ci-name">${escHtml(cl.name)}</div><div class="ci-sub">${(cl.skin||'').split(',')[0]}${pr>0?` · ${pr} תזכ׳`:''}</div></div>
     </div>`;
   }).join('')||'<div style="padding:12px;font-size:12px;color:#bbb;text-align:center">לא נמצאו</div>';
@@ -570,7 +571,7 @@ function buildClientHeader(c){
   const[tc,tl]=tm[c.tier]||['b-reg','קבוע'];
   const src=getSrc(c.source);
   return`<div class="mh">
-    <div class="mh-av" style="background:${p.bg};color:${p.c}">${initials(c.name)}</div>
+    ${c.photo_url?`<img src="${escHtml(c.photo_url)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--border)">`:`<div class="mh-av" style="background:${p.bg};color:${p.c}">${initials(c.name)}</div>`}
     <div class="mh-info"><div class="mh-name">${escHtml(c.name)}</div>
     <div class="mh-sub"><span>גיל ${c.age||'?'} · ${escHtml(c.skin||'')}</span>${src?`<span class="source-chip"><i class="ti ${src.icon}" style="font-size:11px"></i>${src.label}</span>`:''}</div></div>
     <span class="badge ${tc}">${tl}</span>
@@ -641,6 +642,15 @@ function buildProfile(c){
   <div class="sec-label">אלרגיות</div><div class="card" style="margin-bottom:12px">${c.allergies&&c.allergies!=='אין ידועות'?chips(c.allergies,'allergy-chip'):`<span style="font-size:13px;color:#aaa">אין ידועות</span>`}</div>
   <div class="sec-label">הערות קליניות</div>
   <div class="card" style="margin-bottom:12px"><textarea class="fi" rows="3" id="notesField" placeholder="הוסף הערות…" dir="rtl">${escHtml(c.notes||'')}</textarea><div class="add-row" style="justify-content:flex-end"><button class="btn btn-primary btn-sm" onclick="saveNotes()"><i class="ti ti-device-floppy"></i> שמור</button></div></div>
+  <div class="sec-label">תמונת לקוח</div>
+  <div class="card" style="margin-bottom:12px">
+    ${c.photo_url?`<div style="text-align:center;margin-bottom:12px"><img src="${escHtml(c.photo_url)}" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--border)"></div>`:'<div style="text-align:center;margin-bottom:12px"><div style="width:100px;height:100px;border-radius:50%;background:var(--bg);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:32px">👤</div></div>'}
+    <label style="display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:500;color:var(--text)">
+      <i class="ti ti-upload" style="font-size:16px"></i> העלה תמונה
+      <input type="file" id="photo-upload" accept="image/*" onchange="uploadClientPhoto(this)" style="display:none">
+    </label>
+    <div id="photo-status" style="font-size:12px;color:var(--text-sub);text-align:center;margin-top:8px"></div>
+  </div>
   <div class="sec-label">עריכת פרטים</div>
   <div class="card" style="margin-bottom:12px">
     <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:8px" onclick="showModal('editClient')"><i class="ti ti-edit"></i> ערוך פרטי לקוח</button>
@@ -856,6 +866,59 @@ function toICS(dateStr,timeStr){const[y,m,d]=dateStr.split('-');const[h,min]=tim
 function dlICS(ics,filename){const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url)}
 function exportApptToGoogle(id){const a=S.appointments.find(x=>x.id===id);if(!a)return;const cname=a.client_name||getClientName(a.client_id);const[h,min]=a.time.split(':').map(Number);const tot=h*60+min+(a.duration||60);const end=`${padZ(Math.floor(tot/60))}:${padZ(tot%60)}`;const ics=`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Clinic CRM//HE\r\nBEGIN:VEVENT\r\nUID:appt-${a.id}@clinic\r\nDTSTART:${toICS(a.date,a.time)}\r\nDTEND:${toICS(a.date,end)}\r\nSUMMARY:${cname} — ${a.treatment}\r\nEND:VEVENT\r\nEND:VCALENDAR`;dlICS(ics,`tor-${a.date}.ics`);toast('📅 יוצא לגוגל!')}
 function exportWeekToGoogle(){const dates=Array.from({length:7},(_,i)=>fmtDate(addDays(S.calWeek,i)));const appts=S.appointments.filter(a=>dates.includes(a.date));if(!appts.length){toast('אין תורים השבוע');return}let events='';appts.forEach(a=>{const cname=a.client_name||getClientName(a.client_id);const[h,min]=a.time.split(':').map(Number);const tot=h*60+min+(a.duration||60);const end=`${padZ(Math.floor(tot/60))}:${padZ(tot%60)}`;events+=`BEGIN:VEVENT\r\nUID:appt-${a.id}@clinic\r\nDTSTART:${toICS(a.date,a.time)}\r\nDTEND:${toICS(a.date,end)}\r\nSUMMARY:${cname} — ${a.treatment}\r\nEND:VEVENT\r\n`;});dlICS(`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Clinic CRM//HE\r\n${events}END:VCALENDAR`,`clinic-week.ics`);toast(`📅 ${appts.length} תורים יוצאו!`)}
+
+
+async function uploadClientPhoto(input){
+  const file = input.files[0];
+  if(!file)return;
+  const c = getC();if(!c)return;
+  const statusEl = document.getElementById('photo-status');
+  if(statusEl)statusEl.textContent = 'מעלה תמונה…';
+
+  // Check size (max 5MB)
+  if(file.size > 5*1024*1024){
+    if(statusEl)statusEl.textContent = 'הקובץ גדול מדי (מקסימום 5MB)';
+    return;
+  }
+
+  const ext = file.name.split('.').pop();
+  const filename = `${c.id}-${Date.now()}.${ext}`;
+
+  try{
+    // Upload to Supabase Storage
+    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/clinic-photos/${filename}`,{
+      method:'POST',
+      headers:{
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': file.type,
+        'x-upsert': 'true'
+      },
+      body: file
+    });
+
+    if(!res.ok){
+      const err = await res.text();
+      console.error('Upload error:', err);
+      if(statusEl)statusEl.textContent = 'שגיאה בהעלאה';
+      return;
+    }
+
+    // Get public URL
+    const photoUrl = `${SUPABASE_URL}/storage/v1/object/public/clinic-photos/${filename}`;
+
+    // Save URL to client record
+    await sbPatch('clients', `?id=eq.${c.id}`, {photo_url: photoUrl});
+    S.clients = S.clients.map(x => x.id===c.id ? {...x, photo_url: photoUrl} : x);
+
+    if(statusEl)statusEl.textContent = '✓ תמונה הועלתה בהצלחה!';
+    renderRoot();
+    toast('תמונה הועלתה! 📸');
+  }catch(e){
+    console.error('Photo upload error:', e);
+    if(statusEl)statusEl.textContent = 'שגיאה בהעלאה';
+  }
+}
 
 renderRoot();
 if(isLoggedIn())loadAll();
