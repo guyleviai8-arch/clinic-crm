@@ -654,7 +654,8 @@ function buildProfile(c){
   <div class="sec-label">עריכת פרטים</div>
   <div class="card" style="margin-bottom:12px">
     <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:8px" onclick="showModal('editClient')"><i class="ti ti-edit"></i> ערוך פרטי לקוח</button>
-    <button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="sendConsentEmail('${c.id}','${escHtml(c.name)}','${escHtml(c.email||'')}')"><i class="ti ti-mail"></i> שלח טופס הסכמה לאימייל</button>
+    <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:8px" onclick="sendConsentEmail('${c.id}','${escHtml(c.name)}','${escHtml(c.email||'')}')"><i class="ti ti-mail"></i> שלח טופס הסכמה לאימייל</button>
+    <button class="btn btn-secondary" style="width:100%;justify-content:center;background:#25D366;border-color:#25D366;color:#fff" onclick="shareWhatsAppClient('${escHtml(c.phone||'')}','${escHtml(c.name)}')"><i class="ti ti-brand-whatsapp"></i> שלח קישור הזמנה בוואטסאפ</button>
   </div>`;
 }
 
@@ -665,7 +666,11 @@ function buildModal(){
     return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
       <div class="modal-title"><i class="ti ti-link"></i> קישור הזמנת תור</div>
       <div class="link-box"><div class="link-box-title"><i class="ti ti-world"></i> שלח ללקוחות</div><div class="link-box-url" onclick="copyBookingLink()"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${url}</span><i class="ti ti-copy" style="flex-shrink:0"></i></div></div>
-      <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">סגור</button><button class="btn btn-primary" onclick="copyBookingLink()"><i class="ti ti-copy"></i> העתק</button></div>
+      <div class="ma">
+        <button class="btn btn-secondary" onclick="closeModal()">סגור</button>
+        <button class="btn btn-primary" onclick="copyBookingLink()"><i class="ti ti-copy"></i> העתק</button>
+        <button class="btn btn-success" onclick="shareWhatsApp()" style="background:#25D366;border-color:#25D366;color:#fff"><i class="ti ti-brand-whatsapp"></i> שלח בוואטסאפ</button>
+      </div>
     </div></div>`;
   }
 
@@ -867,6 +872,21 @@ function dlICS(ics,filename){const blob=new Blob([ics],{type:'text/calendar;char
 function exportApptToGoogle(id){const a=S.appointments.find(x=>x.id===id);if(!a)return;const cname=a.client_name||getClientName(a.client_id);const[h,min]=a.time.split(':').map(Number);const tot=h*60+min+(a.duration||60);const end=`${padZ(Math.floor(tot/60))}:${padZ(tot%60)}`;const ics=`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Clinic CRM//HE\r\nBEGIN:VEVENT\r\nUID:appt-${a.id}@clinic\r\nDTSTART:${toICS(a.date,a.time)}\r\nDTEND:${toICS(a.date,end)}\r\nSUMMARY:${cname} — ${a.treatment}\r\nEND:VEVENT\r\nEND:VCALENDAR`;dlICS(ics,`tor-${a.date}.ics`);toast('📅 יוצא לגוגל!')}
 function exportWeekToGoogle(){const dates=Array.from({length:7},(_,i)=>fmtDate(addDays(S.calWeek,i)));const appts=S.appointments.filter(a=>dates.includes(a.date));if(!appts.length){toast('אין תורים השבוע');return}let events='';appts.forEach(a=>{const cname=a.client_name||getClientName(a.client_id);const[h,min]=a.time.split(':').map(Number);const tot=h*60+min+(a.duration||60);const end=`${padZ(Math.floor(tot/60))}:${padZ(tot%60)}`;events+=`BEGIN:VEVENT\r\nUID:appt-${a.id}@clinic\r\nDTSTART:${toICS(a.date,a.time)}\r\nDTEND:${toICS(a.date,end)}\r\nSUMMARY:${cname} — ${a.treatment}\r\nEND:VEVENT\r\n`;});dlICS(`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Clinic CRM//HE\r\n${events}END:VCALENDAR`,`clinic-week.ics`);toast(`📅 ${appts.length} תורים יוצאו!`)}
 
+
+
+function shareWhatsApp(){
+  const url=getBookingUrl();
+  const msg=encodeURIComponent('שלום! קבע/י תור אצל ד"ר אלכסנדר דרך הקישור: '+url);
+  window.open('https://wa.me/?text='+msg,'_blank');
+}
+
+function shareWhatsAppClient(phone,name){
+  const url=getBookingUrl();
+  const msg=encodeURIComponent('שלום '+name+'! קבע/י תור אצל ד"ר אלכסנדר דרך הקישור: '+url);
+  const cleanPhone=(phone||'').replace(/[^0-9]/g,'');
+  const waPhone=cleanPhone.startsWith('0')?'972'+cleanPhone.slice(1):cleanPhone;
+  window.open('https://wa.me/'+waPhone+'?text='+msg,'_blank');
+}
 
 async function uploadClientPhoto(input){
   const file = input.files[0];
