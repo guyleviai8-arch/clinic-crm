@@ -1,198 +1,337 @@
+
 <!DOCTYPE html>
 <html lang="he">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>טופס הסכמה | ד"ר אלכסנדר</title>
+<title>טופס הסכמה | ד"ר קליניק</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--primary:#1B6CA8;--primary-dark:#154F7A;--accent:#2AA876;--teal:#4DB8C8;--text:#1A2332;--text-sub:#5A6A7E;--border:#DDE8F0;--bg:#F4F8FB;--white:#fff;--gold:#C9A84C}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.hero{background:linear-gradient(135deg,var(--primary-dark),var(--primary),var(--teal));padding:30px 20px 40px;text-align:center}
+body{font-family:'Heebo',sans-serif;background:#F4F8FB;color:#1A2332;min-height:100vh;direction:rtl}
+.hero{background:linear-gradient(135deg,#154F7A,#1B6CA8,#4DB8C8);padding:28px 20px 36px;text-align:center}
 .hero-name{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
 .hero-sub{font-size:13px;color:rgba(255,255,255,.75)}
-.hero-divider{width:36px;height:2px;background:var(--gold);margin:12px auto}
+.hero-divider{width:36px;height:2px;background:#C9A84C;margin:12px auto}
 .hero-tag{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;padding:4px 14px;border-radius:99px}
-.wrap{max-width:540px;margin:-16px auto 0;padding:0 16px 40px;position:relative;z-index:1}
-.card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:14px;box-shadow:0 2px 12px rgba(27,108,168,.05)}
-.card-title{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.wrap{max-width:600px;margin:-16px auto 0;padding:0 16px 40px;position:relative;z-index:1}
+.card{background:#fff;border:1px solid #DDE8F0;border-radius:16px;padding:22px;margin-bottom:14px;box-shadow:0 2px 12px rgba(27,108,168,.05)}
+.card-title{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:10px;color:#1A2332}
 .icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.icon-blue{background:#E8F4FD;color:var(--primary)}
-.icon-green{background:#E8F7F2;color:var(--accent)}
-.consent-text{font-size:13px;line-height:1.8;color:var(--text-sub);background:#F8FBFE;border:1px solid var(--border);border-radius:10px;padding:16px;max-height:280px;overflow-y:auto;direction:rtl}
-.consent-text h4{font-size:14px;color:var(--text);margin-bottom:8px;font-weight:600}
+.icon-blue{background:#E8F4FD;color:#1B6CA8}
+.icon-green{background:#E8F7F2;color:#2AA876}
+.icon-red{background:#FCEBEB;color:#E24B4A}
+.consent-text{font-size:13px;line-height:1.9;color:#3A4A5E;background:#F8FBFE;border:1px solid #DDE8F0;border-radius:10px;padding:18px;max-height:320px;overflow-y:auto}
+.consent-text h4{font-size:14px;color:#1A2332;margin:14px 0 6px;font-weight:600}
+.consent-text h4:first-child{margin-top:0}
 .consent-text p{margin-bottom:10px}
 .consent-text ul{padding-right:20px;margin-bottom:10px}
-.consent-text li{margin-bottom:4px}
+.consent-text li{margin-bottom:6px}
 .field{margin-bottom:14px}
-.label{font-size:12px;color:var(--text-sub);margin-bottom:6px;display:block;font-weight:500}
-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'Heebo',sans-serif;background:#fff;color:var(--text);outline:none;-webkit-appearance:none}
-input:focus{border-color:var(--primary)}
-.canvas-wrap{border:1.5px solid var(--border);border-radius:12px;overflow:hidden;position:relative;background:#fff;touch-action:none}
-canvas{display:block;width:100%;height:180px;cursor:crosshair}
-.canvas-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#C5D5E5;font-size:13px;pointer-events:none;transition:opacity .2s}
+.label{font-size:12px;color:#5A6A7E;margin-bottom:6px;display:block;font-weight:500}
+input,select{width:100%;padding:12px 14px;border:1.5px solid #DDE8F0;border-radius:10px;font-size:15px;font-family:'Heebo',sans-serif;background:#fff;color:#1A2332;outline:none;-webkit-appearance:none}
+input:focus,select:focus{border-color:#1B6CA8}
+.canvas-wrap{border:1.5px solid #DDE8F0;border-radius:12px;overflow:hidden;position:relative;background:#fff;cursor:crosshair;touch-action:none}
+canvas{display:block;width:100%;height:160px}
+.canvas-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;pointer-events:none;transition:opacity .2s}
+.canvas-placeholder span{font-size:13px;color:#B0C0D0}
 .canvas-actions{display:flex;gap:8px;margin-top:8px}
-.clear-btn{padding:8px 14px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-size:12px;color:var(--text-sub);cursor:pointer;font-family:'Heebo',sans-serif}
-.clear-btn:hover{border-color:var(--primary);color:var(--primary)}
-.submit-btn{width:100%;padding:16px;border-radius:13px;border:none;background:linear-gradient(135deg,var(--primary),var(--teal));color:#fff;font-size:16px;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(27,108,168,.3)}
+.clear-btn{padding:8px 14px;border-radius:8px;border:1.5px solid #DDE8F0;background:#fff;font-size:12px;color:#5A6A7E;cursor:pointer;font-family:'Heebo',sans-serif;display:flex;align-items:center;gap:6px}
+.clear-btn:hover{border-color:#1B6CA8;color:#1B6CA8}
+.submit-btn{width:100%;padding:16px;border-radius:13px;border:none;background:linear-gradient(135deg,#1B6CA8,#4DB8C8);color:#fff;font-size:16px;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(27,108,168,.3);margin-top:4px}
+.submit-btn:active{opacity:.88}
 .submit-btn:disabled{opacity:.5;cursor:not-allowed}
-.error-msg{background:#FEF0F0;border:1px solid #FBBABA;border-radius:10px;padding:12px 14px;font-size:13px;color:#C0392B;margin-bottom:12px}
+.error-msg{background:#FEF0F0;border:1px solid #FBBABA;border-radius:10px;padding:12px 14px;font-size:13px;color:#C0392B;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.checkbox-wrap{display:flex;align-items:flex-start;gap:12px;background:#F4F8FB;border-radius:10px;padding:14px;cursor:pointer}
+.checkbox-wrap input[type=checkbox]{width:20px;height:20px;cursor:pointer;accent-color:#1B6CA8;flex-shrink:0;margin-top:2px}
+.checkbox-label{font-size:13px;line-height:1.6;color:#1A2332}
 .success-page{text-align:center;padding:20px 0 40px}
-.success-hero{background:linear-gradient(135deg,var(--accent),var(--teal));border-radius:20px;padding:32px 24px;margin-bottom:20px;color:#fff}
+.success-hero{background:linear-gradient(135deg,#2AA876,#4DB8C8);border-radius:20px;padding:32px 24px;margin-bottom:20px;color:#fff}
 .success-icon{font-size:56px;margin-bottom:12px}
 .success-title{font-size:22px;font-weight:700;margin-bottom:6px}
 .success-sub{font-size:14px;opacity:.85}
-.signed-img{border:2px solid var(--border);border-radius:12px;width:100%;margin-top:12px}
-.loading{text-align:center;padding:40px;color:var(--text-sub)}
-.spinner{display:inline-block;width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
+.success-card{background:#fff;border:1px solid #DDE8F0;border-radius:16px;padding:20px;margin-bottom:16px;text-align:right}
+.signed-img{border:2px solid #DDE8F0;border-radius:10px;width:100%;max-height:120px;object-fit:contain;margin-top:12px;background:#F8FBFE}
+.loading{text-align:center;padding:40px;color:#5A6A7E;font-size:13px}
+.spinner{display:inline-block;width:24px;height:24px;border:3px solid #DDE8F0;border-top-color:#1B6CA8;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-left:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.info-box{background:#E8F4FD;border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--primary);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.patient-info{background:#E8F4FD;border-radius:10px;padding:14px;margin-bottom:14px}
+.patient-name{font-size:16px;font-weight:600;color:#1B6CA8}
+.patient-sub{font-size:12px;color:#5A6A7E;margin-top:3px}
+.step-bar{display:flex;align-items:center;gap:6px;margin-bottom:20px}
+.step-item{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.step-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;border:2px solid #DDE8F0;color:#B0C0D0;background:#fff;transition:all .2s}
+.step-circle.active{background:#1B6CA8;border-color:#1B6CA8;color:#fff}
+.step-circle.done{background:#2AA876;border-color:#2AA876;color:#fff}
+.step-text{font-size:10px;color:#B0C0D0;text-align:center}
+.step-text.active{color:#1B6CA8;font-weight:600}
+.step-line{flex:1;height:2px;background:#DDE8F0;margin-bottom:14px}
+.step-line.done{background:#2AA876}
 </style>
 </head>
 <body>
 <div class="hero">
-  <div class="hero-name">ד"ר אלכסנדר</div>
+  <div class="hero-name">ד"ר קליניק</div>
   <div class="hero-sub">קליניקה לרפואה אסתטית</div>
   <div class="hero-divider"></div>
-  <div class="hero-tag">טופס הסכמה לטיפול</div>
+  <div class="hero-tag">✍️ טופס הסכמה לטיפול</div>
 </div>
+
 <div class="wrap">
   <div id="content"><div class="loading"><div class="spinner"></div><br><br>טוען…</div></div>
 </div>
+
 <script>
 const SUPABASE_URL='https://vizqigecvjpcfrorwowm.supabase.co';
 const SUPABASE_KEY='sb_publishable_EhhQfiQA2cUDA7BA68ZPWg_0bVeHtlA';
-const RESEND_KEY='re_6MTEMhFC_HNChj4enmkKPZYbxvubmecaW';
 
 let clientId=null;
 let clientData=null;
-let canvas,ctx,isDrawing=false,hasSig=false;
-let lastX=0,lastY=0;
+let canvas,ctx,isDrawing=false,hasSig=false,lastX=0,lastY=0;
+let step=1;
 
-// קבל client_id מה-URL
-function getParam(name){const u=new URLSearchParams(window.location.search);return u.get(name)}
-
-async function sb(table,method='GET',body=null,query=''){
-  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`,{
-    method,headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':method==='POST'?'return=representation':''},
-    body:body?JSON.stringify(body):null
-  });
-  if(!res.ok)return null;
-  const txt=await res.text();return txt?JSON.parse(txt):null;
-}
-
+function getParam(name){return new URLSearchParams(window.location.search).get(name)}
 function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
 async function init(){
   clientId=getParam('client');
-  if(!clientId){showError();return}
-  const data=await sb('clients',`?id=eq.${clientId}&select=*`,'GET',null,`?id=eq.${clientId}&select=*`);
-  // fix query
-  const res=await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}&select=*`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+  if(!clientId){showError('קישור לא תקין');return}
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}&select=*`,{
+    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
+  });
   const clients=await res.json();
-  if(!clients||!clients.length){showError();return}
+  if(!clients||!clients.length){showError('לקוח לא נמצא');return}
   clientData=clients[0];
-  renderForm();
+  if(clientData.consent){renderAlreadySigned();return}
+  renderStep1();
 }
 
-function showError(){
-  document.getElementById('content').innerHTML=`<div class="card" style="text-align:center;padding:32px"><div style="font-size:40px;margin-bottom:12px">❌</div><div style="font-size:16px;font-weight:500;margin-bottom:8px">קישור לא תקין</div><div style="font-size:13px;color:#888">הקישור שקיבלת אינו תקין או פג תוקפו. פנה לקליניקה.</div></div>`;
+function showError(msg){
+  document.getElementById('content').innerHTML=`<div class="card" style="text-align:center;padding:32px">
+    <div style="font-size:40px;margin-bottom:12px">❌</div>
+    <div style="font-size:16px;font-weight:500;margin-bottom:8px">${msg}</div>
+    <div style="font-size:13px;color:#888">פנה לקליניקה לקבלת קישור חדש.</div>
+  </div>`;
 }
 
-function renderForm(){
+function stepBar(active){
+  const steps=['פרטים','קריאת טופס','חתימה'];
+  return`<div class="step-bar">
+    ${steps.map((s,i)=>{
+      const n=i+1;
+      const cls=n<active?'done':n===active?'active':'';
+      const tcls=n===active?'active':'';
+      return`${i>0?`<div class="step-line ${n<=active?'done':''}"></div>`:''}
+      <div class="step-item">
+        <div class="step-circle ${cls}">${n<active?'✓':n}</div>
+        <div class="step-text ${tcls}">${s}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderAlreadySigned(){
+  document.getElementById('content').innerHTML=`<div class="card" style="text-align:center;padding:32px">
+    <div style="font-size:48px;margin-bottom:12px">✅</div>
+    <div style="font-size:17px;font-weight:600;margin-bottom:8px">טופס ההסכמה כבר נחתם</div>
+    <div style="font-size:13px;color:#888">תודה ${escHtml(clientData.name)}! החתימה שלך כבר נמצאת בתיק.</div>
+  </div>`;
+}
+
+function renderStep1(){
   document.getElementById('content').innerHTML=`
-    <div class="info-box">👋 שלום ${escHtml(clientData.name)}, אנא קרא את טופס ההסכמה וחתום למטה.</div>
+    ${stepBar(1)}
+    <div class="card">
+      <div class="card-title"><div class="icon icon-blue">👤</div>אימות פרטים</div>
+      <div class="patient-info">
+        <div class="patient-name">${escHtml(clientData.name)}</div>
+        <div class="patient-sub">אנא אמת/י שהפרטים נכונים לפני החתימה</div>
+      </div>
+      <div class="field"><label class="label">שם מלא</label><input type="text" id="v-name" value="${escHtml(clientData.name)}" dir="rtl"></div>
+      <div class="field"><label class="label">תאריך לידה</label><input type="date" id="v-dob" value="${clientData.dob||''}"></div>
+      <div class="field"><label class="label">טלפון</label><input type="tel" id="v-phone" value="${escHtml(clientData.phone||'')}"></div>
+    </div>
+    <div id="err1"></div>
+    <button class="submit-btn" onclick="goStep2()">המשך לקריאת הטופס ←</button>`;
+}
+
+function renderStep2(){
+  document.getElementById('content').innerHTML=`
+    ${stepBar(2)}
     <div class="card">
       <div class="card-title"><div class="icon icon-blue">📋</div>טופס הסכמה לטיפול אסתטי</div>
       <div class="consent-text">
-        <h4>הסכמה לטיפול רפואי אסתטי</h4>
-        <p>אני הח"מ, מאשר/ת בזאת כי קיבלתי הסבר מלא ומפורט מד"ר אלכסנדר לגבי הטיפול האסתטי המיועד לי.</p>
-        <h4>הבנת הטיפול:</h4>
-        <p>אני מבין/ה כי הטיפול האסתטי כולל שימוש בחומרים רפואיים (כגון בוטוקס, פילרים, חומצה היאלורונית וכד') ומהווה פרוצדורה רפואית.</p>
-        <h4>סיכונים אפשריים:</h4>
+        <h4>הצהרת המטופל/ת</h4>
+        <p>אני הח"מ, <strong>${escHtml(clientData.name)}</strong>, מצהיר/ה בזאת כי קיבלתי הסבר מלא ומפורט מהצוות הרפואי של ד"ר קליניק לגבי הטיפול האסתטי המיועד לי, לרבות מהות הטיפול, יתרונותיו, חלופותיו, הסיכונים הכרוכים בו והתוצאות הצפויות ממנו.</p>
+
+        <h4>אחריות המטופל/ת</h4>
         <ul>
-          <li>כאב קל, אדמומיות או נפיחות באזור הטיפול</li>
-          <li>חבורות זמניות שיחלפו תוך מספר ימים</li>
-          <li>במקרים נדירים — תגובה אלרגית</li>
-          <li>תוצאות הטיפול עשויות להשתנות בין אדם לאדם</li>
+          <li>מסרתי פרטים מלאים ומדויקים על מצבי הרפואי, תרופות שאני נוטל/ת, אלרגיות וכל מידע רפואי רלוונטי.</li>
+          <li>אני מודע/ת כי הסתרת מידע רפואי עלולה לסכן את בריאותי ולגרום לתוצאות בלתי צפויות.</li>
+          <li>קיבלתי הסבר על חלופות לטיפול המוצע ועל האפשרות להימנע מהטיפול.</li>
         </ul>
-        <h4>הצהרת הלקוח:</h4>
+
+        <h4>הגבלת אחריות הקליניקה</h4>
+        <p>ד"ר קליניק אינה אחראית לתוצאות הטיפול במקרים הבאים:</p>
         <ul>
-          <li>מסרתי פרטים מלאים ומדויקים על מצבי הרפואי</li>
-          <li>הודעתי על כל התרופות שאני נוטל/ת</li>
-          <li>הודעתי על אלרגיות ידועות</li>
-          <li>אני מסכים/ה לקבל את הטיפול מרצוני החופשי</li>
-          <li>קיבלתי הסבר על חלופות לטיפול</li>
+          <li>אי-מסירת מידע רפואי מלא ומדויק על ידי המטופל/ת.</li>
+          <li>אי-עמידה בהוראות הטיפול לאחר הפרוצדורה.</li>
+          <li>תגובות אינדיווידואליות בלתי צפויות לטיפול.</li>
+          <li>גורמים חיצוניים שאינם בשליטת הקליניקה.</li>
+          <li>ציפיות לא מציאותיות שלא הוסכמו מראש בכתב.</li>
         </ul>
-        <p>אני מאשר/ת כי קראתי והבנתי את כל האמור לעיל וחתימתי להלן מהווה הסכמה מדעת לטיפול.</p>
+
+        <h4>סיכונים ידועים</h4>
+        <ul>
+          <li>כאב קל, אדמומיות, נפיחות וחבורות זמניות באזור הטיפול.</li>
+          <li>במקרים נדירים — תגובה אלרגית לחומרים המשמשים בטיפול.</li>
+          <li>אסימטריה זמנית שעשויה לדרוש טיפול נוסף.</li>
+          <li>תוצאות הטיפול משתנות בין אדם לאדם ואינן מובטחות.</li>
+        </ul>
+
+        <h4>צילום ותיעוד</h4>
+        <p>אני מסכים/ה כי הקליניקה תוכל לצלם תמונות לפני ואחרי הטיפול לצורכי תיעוד רפואי פנימי בלבד, אלא אם הסכמתי בנפרד לשימוש שיווקי.</p>
+
+        <h4>הצהרה סופית</h4>
+        <p>אני מאשר/ת כי קראתי והבנתי את כל האמור לעיל, קיבלתי מענה לכל שאלותיי, וחתימתי להלן מהווה הסכמה מדעת חופשית לביצוע הטיפול.</p>
       </div>
     </div>
     <div class="card">
+      <div class="checkbox-wrap" onclick="toggleAgree()">
+        <input type="checkbox" id="agree-check">
+        <div class="checkbox-label">קראתי את טופס ההסכמה במלואו, הבנתי את תוכנו, ואני מסכים/ה לתנאים המפורטים בו.</div>
+      </div>
+    </div>
+    <div id="err2"></div>
+    <div style="display:flex;gap:10px">
+      <button class="submit-btn" style="background:#fff;color:#1B6CA8;border:1.5px solid #DDE8F0;box-shadow:none;flex:0 0 auto;width:auto;padding:16px 20px" onclick="step=1;renderStep1()">← חזור</button>
+      <button class="submit-btn" style="flex:1" onclick="goStep3()">המשך לחתימה ←</button>
+    </div>`;
+}
+
+function toggleAgree(){
+  const cb=document.getElementById('agree-check');
+  if(cb)cb.checked=!cb.checked;
+}
+
+function renderStep3(){
+  document.getElementById('content').innerHTML=`
+    ${stepBar(3)}
+    <div class="card">
       <div class="card-title"><div class="icon icon-green">✍️</div>חתימה אלקטרונית</div>
       <div class="field">
-        <label class="label">תאריך</label>
-        <input type="text" id="sig-date" value="${new Date().toLocaleDateString('he-IL')}" readonly style="background:#F5F5F5;color:#888">
+        <label class="label">תאריך חתימה</label>
+        <input type="text" value="${new Date().toLocaleDateString('he-IL')}" readonly style="background:#F5F5F5;color:#888;cursor:default">
       </div>
-      <div class="label">חתימה (צייר עם האצבע או העכבר)</div>
+      <label class="label">חתימה (צייר באצבע או עכבר)</label>
       <div class="canvas-wrap">
-        <canvas id="sigCanvas" width="800" height="240"></canvas>
-        <div class="canvas-label" id="canvasLabel">חתום כאן</div>
+        <canvas id="sigCanvas" width="800" height="200"></canvas>
+        <div class="canvas-placeholder" id="canvasHint">
+          <span style="font-size:28px">✍️</span>
+          <span>חתום/י כאן</span>
+        </div>
       </div>
       <div class="canvas-actions">
         <button class="clear-btn" onclick="clearSig()">🗑️ נקה חתימה</button>
       </div>
     </div>
-    <div id="err"></div>
-    <button class="submit-btn" id="submitBtn" onclick="submitConsent()">✓ שלח טופס חתום</button>`;
+    <div id="err3"></div>
+    <div style="display:flex;gap:10px">
+      <button class="submit-btn" style="background:#fff;color:#1B6CA8;border:1.5px solid #DDE8F0;box-shadow:none;flex:0 0 auto;width:auto;padding:16px 20px" onclick="step=2;renderStep2()">← חזור</button>
+      <button class="submit-btn" style="flex:1" id="submitBtn" onclick="submitConsent()">✅ שלח וחתום</button>
+    </div>`;
 
-  // Init canvas
+  initCanvas();
+}
+
+function initCanvas(){
   canvas=document.getElementById('sigCanvas');
+  if(!canvas)return;
   ctx=canvas.getContext('2d');
   ctx.strokeStyle='#1A2332';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.lineJoin='round';
 
-  // Mouse events
-  canvas.addEventListener('mousedown',e=>{isDrawing=true;const r=canvas.getBoundingClientRect();const scaleX=canvas.width/r.width;const scaleY=canvas.height/r.height;lastX=(e.clientX-r.left)*scaleX;lastY=(e.clientY-r.top)*scaleY;});
-  canvas.addEventListener('mousemove',e=>{if(!isDrawing)return;const r=canvas.getBoundingClientRect();const scaleX=canvas.width/r.width;const scaleY=canvas.height/r.height;const x=(e.clientX-r.left)*scaleX;const y=(e.clientY-r.top)*scaleY;ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(x,y);ctx.stroke();lastX=x;lastY=y;hasSig=true;document.getElementById('canvasLabel').style.opacity='0';});
-  canvas.addEventListener('mouseup',()=>isDrawing=false);
-  canvas.addEventListener('mouseleave',()=>isDrawing=false);
+  function getPos(e){
+    const r=canvas.getBoundingClientRect();
+    const sx=canvas.width/r.width;const sy=canvas.height/r.height;
+    if(e.touches){return{x:(e.touches[0].clientX-r.left)*sx,y:(e.touches[0].clientY-r.top)*sy};}
+    return{x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy};
+  }
 
-  // Touch events
-  canvas.addEventListener('touchstart',e=>{e.preventDefault();isDrawing=true;const r=canvas.getBoundingClientRect();const scaleX=canvas.width/r.width;const scaleY=canvas.height/r.height;lastX=(e.touches[0].clientX-r.left)*scaleX;lastY=(e.touches[0].clientY-r.top)*scaleY;},{passive:false});
-  canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!isDrawing)return;const r=canvas.getBoundingClientRect();const scaleX=canvas.width/r.width;const scaleY=canvas.height/r.height;const x=(e.touches[0].clientX-r.left)*scaleX;const y=(e.touches[0].clientY-r.top)*scaleY;ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(x,y);ctx.stroke();lastX=x;lastY=y;hasSig=true;document.getElementById('canvasLabel').style.opacity='0';},{passive:false});
-  canvas.addEventListener('touchend',()=>isDrawing=false);
+  function startDraw(e){e.preventDefault();isDrawing=true;const p=getPos(e);lastX=p.x;lastY=p.y;}
+  function draw(e){e.preventDefault();if(!isDrawing)return;const p=getPos(e);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(p.x,p.y);ctx.stroke();lastX=p.x;lastY=p.y;hasSig=true;const h=document.getElementById('canvasHint');if(h)h.style.opacity='0';}
+  function endDraw(){isDrawing=false;}
+
+  canvas.addEventListener('mousedown',startDraw);
+  canvas.addEventListener('mousemove',draw);
+  canvas.addEventListener('mouseup',endDraw);
+  canvas.addEventListener('mouseleave',endDraw);
+  canvas.addEventListener('touchstart',startDraw,{passive:false});
+  canvas.addEventListener('touchmove',draw,{passive:false});
+  canvas.addEventListener('touchend',endDraw);
 }
 
-function clearSig(){ctx.clearRect(0,0,canvas.width,canvas.height);hasSig=false;document.getElementById('canvasLabel').style.opacity='1';}
+function clearSig(){
+  if(ctx)ctx.clearRect(0,0,canvas.width,canvas.height);
+  hasSig=false;
+  const h=document.getElementById('canvasHint');if(h)h.style.opacity='1';
+}
+
+function goStep2(){
+  const name=document.getElementById('v-name').value.trim();
+  if(!name){document.getElementById('err1').innerHTML='<div class="error-msg">⚠️ נא למלא שם</div>';return}
+  step=2;renderStep2();window.scrollTo(0,0);
+}
+
+function goStep3(){
+  const cb=document.getElementById('agree-check');
+  if(!cb||!cb.checked){document.getElementById('err2').innerHTML='<div class="error-msg">⚠️ נא לאשר קריאת הטופס</div>';return}
+  step=3;renderStep3();window.scrollTo(0,0);
+}
 
 async function submitConsent(){
-  if(!hasSig){document.getElementById('err').innerHTML='<div class="error-msg">⚠️ נא לחתום על הטופס לפני השליחה</div>';return}
+  if(!hasSig){document.getElementById('err3').innerHTML='<div class="error-msg">⚠️ נא לחתום על הטופס</div>';return}
   const btn=document.getElementById('submitBtn');
-  btn.disabled=true;btn.innerHTML='<div style="display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-left:8px"></div> שולח…';
+  btn.disabled=true;btn.innerHTML='<div class="spinner" style="border-color:rgba(255,255,255,.3);border-top-color:#fff;width:18px;height:18px;display:inline-block"></div> שולח…';
 
   const sigData=canvas.toDataURL('image/png');
 
-  // Save to Supabase
+  // Upload signature to Supabase Storage
+  let sigUrl='';
   try{
-    await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}`,{
-      method:'PATCH',
-      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
-      body:JSON.stringify({consent:true,notes:(clientData.notes||'')+'\n[טופס הסכמה נחתם ב-'+new Date().toLocaleDateString('he-IL')+']'})
+    const blob=await(await fetch(sigData)).blob();
+    const filename=`sig-${clientId}-${Date.now()}.png`;
+    const upRes=await fetch(`${SUPABASE_URL}/storage/v1/object/clinic-photos/${filename}`,{
+      method:'POST',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'image/png','x-upsert':'true'},
+      body:blob
     });
+    if(upRes.ok)sigUrl=`${SUPABASE_URL}/storage/v1/object/public/clinic-photos/${filename}`;
   }catch(e){}
 
-  // Send confirmation email if client has email
+  // Update client record
+  const today=new Date().toISOString().slice(0,10);
+  const notesAdd=`\n[טופס הסכמה נחתם ב-${new Date().toLocaleDateString('he-IL')}]`;
+  await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}`,{
+    method:'PATCH',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
+    body:JSON.stringify({consent:true,notes:(clientData.notes||'')+notesAdd,photo_url:sigUrl||clientData.photo_url})
+  });
+
+  // Send confirmation email via Edge Function
   if(clientData.email){
     try{
-      await fetch('https://vizqigecvjpcfrorwowm.supabase.co/functions/v1/send-email',{
+      await fetch(`${SUPABASE_URL}/functions/v1/send-email`,{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
         body:JSON.stringify({
           to:clientData.email,
-          subject:'אישור חתימה על טופס הסכמה — ד"ר אלכסנדר',
-          html:`<div dir="rtl" style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:20px">
-            <h2 style="color:#1B6CA8">ד"ר אלכסנדר | קליניקה לרפואה אסתטית</h2>
-            <p>שלום ${escHtml(clientData.name)},</p>
+          subject:'אישור חתימה על טופס הסכמה — ד"ר קליניק',
+          html:`<div dir="rtl" style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
+            <div style="background:linear-gradient(135deg,#154F7A,#1B6CA8,#4DB8C8);padding:24px;border-radius:12px;text-align:center;margin-bottom:24px">
+              <h2 style="color:#fff;margin:0">ד"ר קליניק</h2>
+              <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px">קליניקה לרפואה אסתטית</p>
+            </div>
+            <p>שלום <strong>${escHtml(clientData.name)}</strong>,</p>
             <p>קיבלנו את חתימתך על טופס ההסכמה לטיפול אסתטי.</p>
             <div style="background:#E8F4FD;border-radius:10px;padding:16px;margin:16px 0">
               <p><strong>תאריך חתימה:</strong> ${new Date().toLocaleDateString('he-IL')}</p>
@@ -200,7 +339,7 @@ async function submitConsent(){
             </div>
             <p>תודה על אמונך בנו. נשמח לראותך בקליניקה!</p>
             <hr style="border:1px solid #DDE8F0;margin:20px 0">
-            <p style="font-size:12px;color:#888">ד"ר אלכסנדר | קליניקה לרפואה אסתטית</p>
+            <p style="font-size:11px;color:#aaa;text-align:center">ד"ר קליניק | קליניקה לרפואה אסתטית</p>
           </div>`
         })
       });
@@ -218,13 +357,15 @@ function renderSuccess(sigData){
         <div class="success-title">טופס ההסכמה נחתם!</div>
         <div class="success-sub">תודה ${escHtml(clientData.name)}</div>
       </div>
-      <div class="card">
-        <div class="card-title"><div class="icon icon-green">✍️</div>החתימה שלך</div>
+      <div class="success-card">
+        <div style="font-size:13px;color:#5A6A7E;margin-bottom:8px">החתימה שלך:</div>
         <img src="${sigData}" class="signed-img" alt="חתימה">
         <div style="font-size:12px;color:#888;margin-top:8px;text-align:center">נחתם ב-${new Date().toLocaleDateString('he-IL')}</div>
       </div>
-      <div style="font-size:13px;color:#888;line-height:1.6;text-align:center">
-        החתימה נשמרה בתיק הרפואי שלך.<br>נשמח לראותך בקליניקה!
+      <div style="font-size:13px;color:#5A6A7E;line-height:1.7;text-align:center">
+        החתימה נשמרה בתיק הרפואי שלך.<br>
+        ${clientData.email?'אימייל אישור נשלח לכתובתך.':''}<br>
+        נשמח לראותך בקליניקה!
       </div>
     </div>`;
 }
