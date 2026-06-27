@@ -369,7 +369,7 @@ function clientAppts(cid){return S.appointments.filter(a=>a.client_id===cid).sor
 function pendingRem(c){return clientReminders(c.id).filter(r=>!r.done).length}
 function getBookingUrl(){return window.location.origin+window.location.pathname.replace('index.html','')+'booking.html'}
 
-let S={clients:[],appointments:[],treatments:[],reminders:[],activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false};
+let S={clients:[],appointments:[],treatments:[],reminders:[],activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true};
 
 function showLoading(){const el=document.getElementById('root');if(!document.getElementById('loading'))el.insertAdjacentHTML('beforeend','<div class="loading-overlay" id="loading"><div class="loading-spinner"></div><div class="loading-text">טוען נתונים…</div></div>')}
 function hideLoading(){const el=document.getElementById('loading');if(el)el.remove()}
@@ -411,18 +411,11 @@ function buildApp(){
   const pendingAppts=S.appointments.filter(a=>a.status==='pending').length;
   const pageLabels={dashboard:'דשבורד',calendar:'יומן תורים',clients:'לקוחות'};
 
-  const clientListHTML=filtered.map(cl=>{
-    const p=PALETTES[cl.color%PALETTES.length];const pr=pendingRem(cl);
-    return`<div class="ci ${cl.id===S.activeId&&S.activePage==='clients'?'active':''}" onclick="selectClient('${cl.id}')">
-      ${cl.photo_url?`<img src="${escHtml(cl.photo_url)}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0">`:`<div class="av" style="background:${p.bg};color:${p.c}">${initials(cl.name)}</div>`}
-      <div class="ci-meta"><div class="ci-name">${escHtml(cl.name)}</div><div class="ci-sub">${(cl.skin||'').split(',')[0]}${pr>0?` · ${pr} תזכ׳`:''}</div></div>
-    </div>`;
-  }).join('')||'<div style="padding:12px;font-size:12px;color:#bbb;text-align:center">לא נמצאו</div>';
 
   const sidebar=`<div class="sidebar ${S.sidebarOpen?'open':''}" id="sidebar">
     <div class="sb-top">
       <div class="sb-brand"><div class="sb-icon"><i class="ti ti-heartbeat"></i></div><div><div class="sb-name">ד"ר אלכסנדר</div><div class="sb-ver">מערכת ניהול</div></div></div>
-      <div class="search-wrap"><i class="ti ti-search"></i><input type="text" placeholder="חיפוש לקוח…" value="${escHtml(S.search)}" oninput="S.search=this.value;reSidebar()"></div>
+      <div class="search-wrap"><i class="ti ti-search"></i><input type="text" placeholder="חיפוש לקוח…" value="${escHtml(S.search)}" oninput="S.search=this.value;searchToClients()"></div>
     </div>
     <div class="nav-section">
       <div class="nav-label">ניווט</div>
@@ -431,13 +424,7 @@ function buildApp(){
       <div class="nav-item ${S.activePage==='clients'?'active':''}" onclick="gotoPage('clients')"><i class="ti ti-users"></i>לקוחות</div>
       <div class="nav-item" onclick="showModal('bookingLink')"><i class="ti ti-link"></i>קישור הזמנה</div>
     </div>
-    <div class="nav-section" style="padding-top:4px">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 6px 6px">
-        <div class="nav-label" style="padding:0">לקוחות</div>
-        <button onclick="showModal('newClient')" style="background:var(--primary);color:#fff;border:none;border-radius:6px;width:22px;height:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">+</button>
-      </div>
-    </div>
-    <div class="client-list" id="clientList">${clientListHTML}</div>
+    <div style="flex:1"></div>
     <button class="add-client-btn" onclick="showModal('newClient')"><i class="ti ti-user-plus"></i> לקוח חדש</button>
     <div class="sb-footer"><button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout"></i> יציאה</button></div>
   </div>`;
@@ -461,10 +448,16 @@ function buildApp(){
   else if(S.activePage==='calendar'){pageContent=`<div style="flex:1;overflow:hidden;display:flex;flex-direction:column"><div class="cal-wrap page-pad" style="flex:1">${buildCalendar()}</div></div>`;}
   else{
     const c=getC();
-    const tabs={overview:'סקירה',treatments:'טיפולים',reminders:'תזכורות',appointments:'תורים',profile:'פרופיל'};
-    pageContent=`${c?buildClientHeader(c):''}
-    <div class="tabs">${c?Object.entries(tabs).map(([k,v])=>`<div class="tab ${S.activeTab===k?'active':''}" onclick="setTab('${k}')">${v}</div>`).join(''):''}</div>
-    <div class="content">${c?buildContent(c):`<div class="empty" style="padding-top:60px"><i class="ti ti-users" style="font-size:40px;display:block;margin-bottom:12px"></i>בחר לקוח מהרשימה<br><br><button class="btn btn-primary" onclick="showModal('newClient')"><i class="ti ti-user-plus"></i> הוסף לקוח חדש</button></div>`}</div>`;
+    const showList=S.clientListView||!c;
+    if(showList){
+      pageContent=`<div class="page-scroll"><div class="page-pad">${buildClientsList()}</div></div>`;
+    } else {
+      const tabs={overview:'סקירה',treatments:'טיפולים',reminders:'תזכורות',appointments:'תורים',profile:'פרופיל'};
+      pageContent=`<div style="padding:10px 16px 0;background:var(--white)"><button class="btn btn-secondary btn-sm" onclick="backToClientList()"><i class="ti ti-arrow-right"></i> חזרה לרשימה</button></div>
+      ${buildClientHeader(c)}
+      <div class="tabs">${Object.entries(tabs).map(([k,v])=>`<div class="tab ${S.activeTab===k?'active':''}" onclick="setTab('${k}')">${v}</div>`).join('')}</div>
+      <div class="content">${buildContent(c)}</div>`;
+    }
   }
 
   return`<div class="app" id="app">${overlay}${sidebar}
@@ -565,6 +558,54 @@ function buildCalendar(){
 }
 
 // CLIENT VIEWS
+function buildClientsList(){
+  const q=S.search.toLowerCase();
+  const filtered=S.clients.filter(c=>c.name.toLowerCase().includes(q));
+  let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div><div class="dash-title">לקוחות</div><div class="dash-sub">${S.clients.length} לקוחות במערכת</div></div>
+    <button class="btn btn-primary" onclick="showModal('newClient')"><i class="ti ti-user-plus"></i> לקוח חדש</button>
+  </div>
+  <div class="card" style="padding:0;margin-bottom:12px">
+    <div style="position:relative;padding:8px"><i class="ti ti-search" style="position:absolute;right:18px;top:50%;transform:translateY(-50%);color:var(--text-sub);font-size:16px"></i>
+    <input type="text" placeholder="חיפוש לקוח…" value="${escHtml(S.search)}" oninput="S.search=this.value;reClientsList()" style="width:100%;padding:10px 38px 10px 12px;border:1px solid var(--border);border-radius:9px;font-size:14px;font-family:'Heebo',sans-serif;outline:none"></div>
+  </div>
+  <div id="clients-list-container">${renderClientRows(filtered)}</div>`;
+  return h;
+}
+
+function renderClientRows(list){
+  if(!list.length)return`<div class="empty" style="padding:30px 0"><i class="ti ti-users" style="font-size:36px;display:block;margin-bottom:10px"></i>לא נמצאו לקוחות</div>`;
+  return list.map(c=>{
+    const p=PALETTES[c.color%PALETTES.length];
+    const pr=pendingRem(c);
+    const tierMap={vip:['b-vip','VIP'],new:['b-new','חדש'],regular:['b-reg','קבוע']};
+    const[tc,tl]=tierMap[c.tier]||['b-reg','קבוע'];
+    return`<div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:8px" onclick="openClientCard('${c.id}')">
+      ${c.photo_url?`<img src="${escHtml(c.photo_url)}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--border)">`:`<div class="av" style="background:${p.bg};color:${p.c};width:46px;height:46px;font-size:15px">${initials(c.name)}</div>`}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(c.name)}</div>
+        <div style="font-size:13px;color:var(--text-sub);margin-top:2px">${c.phone?`<i class="ti ti-phone" style="font-size:12px"></i> ${escHtml(c.phone)}`:'<span style="color:#bbb">אין טלפון</span>'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <span class="badge ${tc}">${tl}</span>
+        ${pr>0?`<span style="font-size:11px;color:var(--amber)">${pr} תזכורות</span>`:''}
+        ${c.consent?'<span style="font-size:11px;color:var(--accent)">✅ חתם</span>':''}
+      </div>
+      <i class="ti ti-chevron-left" style="color:var(--text-sub);font-size:18px"></i>
+    </div>`;
+  }).join('');
+}
+
+function reClientsList(){
+  const q=S.search.toLowerCase();
+  const filtered=S.clients.filter(c=>c.name.toLowerCase().includes(q));
+  const el=document.getElementById('clients-list-container');
+  if(el)el.innerHTML=renderClientRows(filtered);
+}
+
+function openClientCard(id){S.activeId=id;S.clientListView=false;S.activeTab='overview';renderRoot()}
+function backToClientList(){S.clientListView=true;renderRoot()}
+
 function buildClientHeader(c){
   const p=PALETTES[c.color%PALETTES.length];
   const tm={vip:['b-vip','VIP'],new:['b-new','חדש'],regular:['b-reg','קבוע']};
@@ -812,9 +853,9 @@ function buildModal(){
 // ACTIONS
 function toggleSidebar(){S.sidebarOpen=!S.sidebarOpen;const sb=document.getElementById('sidebar');const ov=document.querySelector('.sidebar-overlay');if(sb){sb.classList.toggle('open',S.sidebarOpen);ov&&ov.classList.toggle('show',S.sidebarOpen)}}
 function closeSidebar(){S.sidebarOpen=false;renderRoot()}
-function reSidebar(){const q=S.search.toLowerCase();const f=S.clients.filter(c=>c.name.toLowerCase().includes(q));const el=document.getElementById('clientList');if(el)el.innerHTML=f.map(cl=>{const p=PALETTES[cl.color%PALETTES.length];const pr=pendingRem(cl);return`<div class="ci ${cl.id===S.activeId&&S.activePage==='clients'?'active':''}" onclick="selectClient('${cl.id}')"><div class="av" style="background:${p.bg};color:${p.c}">${initials(cl.name)}</div><div class="ci-meta"><div class="ci-name">${escHtml(cl.name)}</div><div class="ci-sub">${(cl.skin||'').split(',')[0]}${pr>0?` · ${pr} תזכ׳`:''}</div></div></div>`;}).join('')||'<div style="padding:12px;font-size:12px;color:#bbb;text-align:center">לא נמצאו</div>';}
-function selectClient(id){S.activeId=id;S.activePage='clients';S.activeTab='overview';S.sidebarOpen=false;renderRoot()}
-function gotoPage(p){S.activePage=p;S.sidebarOpen=false;renderRoot()}
+function searchToClients(){if(S.activePage!=='clients'||!S.clientListView){S.activePage='clients';S.clientListView=true;renderRoot();const inp=document.querySelector('#clients-list-container');setTimeout(()=>{const si=document.querySelector('input[placeholder="חיפוש לקוח…"]');},10);}else{reClientsList();}}
+function selectClient(id){S.activeId=id;S.activePage='clients';S.activeTab='overview';S.clientListView=false;S.sidebarOpen=false;renderRoot()}
+function gotoPage(p){S.activePage=p;if(p==='clients')S.clientListView=true;S.sidebarOpen=false;renderRoot()}
 function setTab(t){S.activeTab=t;renderRoot()}
 function showModal(type){S.modal=type;S.newSrc='';renderRoot()}
 function closeModal(){S.modal=null;S.prefillDate='';S.prefillTime='';renderRoot()}
