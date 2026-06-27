@@ -640,8 +640,9 @@ function buildProfile(c){
   </div>
   <div class="sec-label">סוג עור</div><div class="card" style="margin-bottom:12px">${chips(c.skin,'skin-chip')||'<span style="color:#aaa;font-size:13px">לא צוין</span>'}</div>
   <div class="sec-label">אלרגיות</div><div class="card" style="margin-bottom:12px">${c.allergies&&c.allergies!=='אין ידועות'?chips(c.allergies,'allergy-chip'):`<span style="font-size:13px;color:#aaa">אין ידועות</span>`}</div>
-  <div class="sec-label">הערות קליניות</div>
-  <div class="card" style="margin-bottom:12px"><textarea class="fi" rows="3" id="notesField" placeholder="הוסף הערות…" dir="rtl">${escHtml(c.notes||'')}</textarea><div class="add-row" style="justify-content:flex-end"><button class="btn btn-primary btn-sm" onclick="saveNotes()"><i class="ti ti-device-floppy"></i> שמור</button></div></div>
+  <div class="sec-label">היסטוריית תיעוד</div>
+  ${c.notes&&c.notes.trim()?`<div class="card" style="margin-bottom:8px;max-height:200px;overflow-y:auto"><div style="font-size:13px;line-height:1.7;white-space:pre-wrap">${escHtml(c.notes)}</div></div>`:'<div class="card" style="margin-bottom:8px;color:#aaa;font-size:13px">אין תיעוד עדיין.</div>'}
+  <div class="card" style="margin-bottom:12px"><textarea class="fi" rows="3" id="notesField" placeholder="הוסף תיעוד חדש…" dir="rtl"></textarea><div class="add-row" style="justify-content:flex-end"><button class="btn btn-primary btn-sm" onclick="saveNotes()"><i class="ti ti-plus"></i> הוסף לתיעוד</button></div></div>
   <div class="sec-label">תמונת לקוח</div>
   <div class="card" style="margin-bottom:12px">
     ${c.photo_url?`<div style="text-align:center;margin-bottom:12px"><img src="${escHtml(c.photo_url)}" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--border)"></div>`:'<div style="text-align:center;margin-bottom:12px"><div style="width:100px;height:100px;border-radius:50%;background:var(--bg);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:32px">👤</div></div>'}
@@ -753,6 +754,23 @@ function buildModal(){
     </div></div>`;
   }
 
+  if(S.modal&&S.modal.startsWith('editappt-')){
+    const aid=S.modal.split('-').slice(1).join('-');
+    const a=S.appointments.find(x=>x.id===aid);if(!a)return'';
+    return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
+      <div class="modal-title"><i class="ti ti-edit"></i> עריכת תור</div>
+      <div class="fg"><div class="fl">שם הלקוח *</div><input class="fi" id="ea-name" value="${escHtml(a.client_name||'')}" dir="rtl"></div>
+      <div class="fg"><div class="fl">טלפון</div><input class="fi" id="ea-phone" type="tel" value="${escHtml(a.client_phone||'')}"></div>
+      <div class="fg"><div class="fl">אימייל</div><input class="fi" id="ea-email" type="email" value="${escHtml(a.client_email||'')}"></div>
+      <div class="fg"><div class="fl">טיפול</div><input class="fi" id="ea-treat" value="${escHtml(a.treatment||'')}" dir="rtl"></div>
+      <div class="fg"><div class="fl">תאריך</div><input class="fi" id="ea-date" type="date" value="${a.date}"></div>
+      <div class="fg"><div class="fl">שעה</div><input class="fi" id="ea-time" type="time" value="${a.time}"></div>
+      <div class="fg"><div class="fl">משך (דקות)</div><input class="fi" id="ea-dur" type="number" value="${a.duration||60}" min="15" max="240"></div>
+      <div class="fg"><div class="fl">הערות</div><textarea class="fi" id="ea-notes" rows="2" dir="rtl">${escHtml(a.notes||'')}</textarea></div>
+      <div class="fg"><div class="fl">סטטוס</div><select class="fi" id="ea-status"><option value="confirmed" ${a.status==='confirmed'?'selected':''}>מאושר</option><option value="pending" ${a.status==='pending'?'selected':''}>ממתין</option><option value="done" ${a.status==='done'?'selected':''}>הסתיים</option></select></div>
+      <div class="ma"><button class="btn btn-secondary" onclick="showApptDetail('${aid}')">ביטול</button><button class="btn btn-primary" onclick="saveEditAppt('${aid}')"><i class="ti ti-device-floppy"></i> שמור שינויים</button></div>
+    </div></div>`;
+  }
   if(S.modal&&S.modal.startsWith('appt-')){
     const aid=S.modal.split('-').slice(1).join('-');
     const a=S.appointments.find(x=>x.id===aid);if(!a)return'';
@@ -775,6 +793,7 @@ function buildModal(){
       ${a.notes?`<div class="sec-label">הערות</div><div class="card" style="margin-bottom:12px">${escHtml(a.notes)}</div>`:''}
       <div class="ma">
         ${a.status==='pending'?`<button class="btn btn-success btn-sm" onclick="confirmAppt('${a.id}')"><i class="ti ti-check"></i> אשר</button><button class="btn btn-danger btn-sm" onclick="cancelAppt('${a.id}')"><i class="ti ti-x"></i> דחה</button>`:''}
+        <button class="btn btn-secondary btn-sm" onclick="editAppt('${a.id}')"><i class="ti ti-edit"></i> ערוך</button>
         <button class="btn btn-secondary btn-sm" onclick="showLinkClient('${a.id}')"><i class="ti ti-user-plus"></i> שייך</button>
         <button class="btn btn-danger btn-sm" onclick="deleteAppt('${a.id}')"><i class="ti ti-trash"></i></button>
         <button class="btn btn-google btn-sm" onclick="exportApptToGoogle('${a.id}')"><i class="ti ti-brand-google"></i></button>
@@ -797,6 +816,25 @@ function closeModal(){S.modal=null;S.prefillDate='';S.prefillTime='';renderRoot(
 function closeModalBg(e){if(e.target===e.currentTarget)closeModal()}
 function selectSrc(k){S.newSrc=k;document.querySelectorAll('.source-opt').forEach(el=>{el.classList.toggle('selected',el.getAttribute('onclick').includes("'"+k+"'"))})}
 function showApptDetail(id){S.modal='appt-'+id;renderRoot()}
+function editAppt(id){S.modal='editappt-'+id;renderRoot()}
+async function saveEditAppt(aid){
+  const body={
+    client_name:document.getElementById('ea-name').value.trim(),
+    client_phone:document.getElementById('ea-phone').value.trim(),
+    client_email:document.getElementById('ea-email').value.trim(),
+    treatment:document.getElementById('ea-treat').value.trim()||'טיפול',
+    date:document.getElementById('ea-date').value,
+    time:document.getElementById('ea-time').value,
+    duration:parseInt(document.getElementById('ea-dur').value)||60,
+    notes:document.getElementById('ea-notes').value.trim(),
+    status:document.getElementById('ea-status').value
+  };
+  if(!body.client_name||!body.date||!body.time){alert('נא למלא שם, תאריך ושעה.');return}
+  await sbPatch('appointments',`?id=eq.${aid}`,body);
+  S.appointments=S.appointments.map(a=>a.id===aid?{...a,...body}:a);
+  S.appointments.sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+  S.modal=null;renderRoot();toast('תור עודכן ✓');
+}
 function showLinkClient(aid){S.modal='link-'+aid;renderRoot()}
 function calPrev(){S.calWeek=addDays(S.calWeek,-7);renderRoot()}
 function calNext(){S.calWeek=addDays(S.calWeek,7);renderRoot()}
@@ -807,7 +845,18 @@ function copyBookingLink(){navigator.clipboard.writeText(getBookingUrl()).then((
 async function markDone(rid){await sbPatch('reminders',`?id=eq.${rid}`,{done:true});S.reminders=S.reminders.map(r=>r.id===rid?{...r,done:true}:r);renderRoot();toast('✓ בוצע!')}
 async function undoDone(rid){await sbPatch('reminders',`?id=eq.${rid}`,{done:false});S.reminders=S.reminders.map(r=>r.id===rid?{...r,done:false}:r);renderRoot()}
 async function addReminder(){const text=document.getElementById('newRemText').value.trim();const due=document.getElementById('newRemDate').value;if(!text)return;const c=getC();const res=await sbPost('reminders',{client_id:c.id,text,due:due||null,done:false});if(res&&res[0]){S.reminders.push(res[0]);renderRoot();toast('תזכורת נוספה')}else toast('שגיאה')}
-async function saveNotes(){const val=document.getElementById('notesField').value.trim();const c=getC();await sbPatch('clients',`?id=eq.${c.id}`,{notes:val});S.clients=S.clients.map(x=>x.id===c.id?{...x,notes:val}:x);toast('הערות נשמרו ✓')}
+async function saveNotes(){
+  const val=document.getElementById('notesField').value.trim();
+  if(!val){toast('נא להזין תיעוד');return}
+  const c=getC();
+  const stamp=new Date().toLocaleDateString('he-IL')+' '+new Date().toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});
+  const entry=`[${stamp}]\n${val}`;
+  const newNotes=c.notes&&c.notes.trim()?entry+'\n\n'+c.notes:entry;
+  await sbPatch('clients',`?id=eq.${c.id}`,{notes:newNotes});
+  S.clients=S.clients.map(x=>x.id===c.id?{...x,notes:newNotes}:x);
+  renderRoot();
+  toast('תיעוד נוסף ✓');
+}
 
 async function saveNewClient(){
   const name=document.getElementById('m-name').value.trim();if(!name){alert('נא להזין שם.');return}
