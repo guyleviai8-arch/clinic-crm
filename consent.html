@@ -45,8 +45,12 @@ canvas{display:block;width:100%;height:160px}
 .checkbox-wrap{display:flex;align-items:flex-start;gap:12px;background:#F4F8FB;border-radius:10px;padding:14px;cursor:pointer;border:2px solid transparent;transition:all .2s}
 .checkbox-wrap:has(input:checked){background:#E8F7F2;border-color:#2AA876}
 .checkbox-wrap:has(input:checked) .checkbox-label{color:#085041;font-weight:500}
-.checkbox-wrap:has(input:checked)::after{content:'✓ אושר';color:#2AA876;font-weight:700;font-size:13px;margin-right:auto;white-space:nowrap;align-self:center}
-.checkbox-wrap input[type=checkbox]{width:22px;height:22px;cursor:pointer;accent-color:#2AA876;flex-shrink:0;margin-top:2px}
+.checkbox-wrap:has(input:checked)::after{content:'אושר';color:#2AA876;font-weight:700;font-size:13px;margin-right:auto;white-space:nowrap;align-self:center}
+.checkbox-wrap input[type=checkbox]{display:none}
+.custom-box{width:24px;height:24px;border:2px solid #B0C0D0;border-radius:6px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;background:#fff;transition:all .2s}
+.checkbox-wrap:has(input:checked) .custom-box{background:#2AA876;border-color:#2AA876}
+.custom-box::after{content:'✓';color:#fff;font-size:16px;font-weight:700;opacity:0;transition:opacity .15s}
+.checkbox-wrap:has(input:checked) .custom-box::after{opacity:1}
 .checkbox-label{font-size:13px;line-height:1.6;color:#1A2332}
 .success-page{text-align:center;padding:20px 0 40px}
 .success-hero{background:linear-gradient(135deg,#2AA876,#4DB8C8);border-radius:20px;padding:32px 24px;margin-bottom:20px;color:#fff}
@@ -202,6 +206,7 @@ function renderStep2(){
     <div class="card">
       <label class="checkbox-wrap" for="agree-check">
         <input type="checkbox" id="agree-check">
+        <div class="custom-box"></div>
         <div class="checkbox-label">קראתי את טופס ההסכמה במלואו, הבנתי את תוכנו, ואני מסכים/ה לתנאים המפורטים בו.</div>
       </label>
     </div>
