@@ -197,21 +197,16 @@ function renderStep2(){
       </div>
     </div>
     <div class="card">
-      <div class="checkbox-wrap" onclick="toggleAgree()">
+      <label class="checkbox-wrap" for="agree-check">
         <input type="checkbox" id="agree-check">
         <div class="checkbox-label">קראתי את טופס ההסכמה במלואו, הבנתי את תוכנו, ואני מסכים/ה לתנאים המפורטים בו.</div>
-      </div>
+      </label>
     </div>
     <div id="err2"></div>
     <div style="display:flex;gap:10px">
       <button class="submit-btn" style="background:#fff;color:#1B6CA8;border:1.5px solid #DDE8F0;box-shadow:none;flex:0 0 auto;width:auto;padding:16px 20px" onclick="step=1;renderStep1()">← חזור</button>
       <button class="submit-btn" style="flex:1" onclick="goStep3()">המשך לחתימה ←</button>
     </div>`;
-}
-
-function toggleAgree(){
-  const cb=document.getElementById('agree-check');
-  if(cb)cb.checked=!cb.checked;
 }
 
 function renderStep3(){
