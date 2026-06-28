@@ -156,7 +156,7 @@ function renderStep1(){
       </div>
       <div class="field"><label class="label">שם מלא</label><input type="text" id="v-name" value="${escHtml(clientData.name)}" dir="rtl"></div>
       <div class="field"><label class="label">תאריך לידה</label><input type="date" id="v-dob" value="${clientData.dob||''}"></div>
-      <div class="field"><label class="label">טלפון</label><input type="tel" id="v-phone" value="${escHtml(clientData.phone||'')}"></div>
+      <div class="field"><label class="label">טלפון</label><input type="tel" inputmode="numeric" id="v-phone" value="${escHtml(clientData.phone||'')}"></div>
     </div>
     <div id="err1"></div>
     <button class="submit-btn" onclick="goStep2()">המשך לקריאת הטופס ←</button>`;
@@ -281,7 +281,17 @@ function clearSig(){
 
 function goStep2(){
   const name=document.getElementById('v-name').value.trim();
-  if(!name){document.getElementById('err1').innerHTML='<div class="error-msg">⚠️ נא למלא שם</div>';return}
+  const dob=document.getElementById('v-dob').value;
+  const phone=document.getElementById('v-phone').value.trim();
+  const err=document.getElementById('err1');
+  if(!name||name.length<2||!/[a-zA-Zא-ת]/.test(name)){err.innerHTML='<div class="error-msg">⚠️ נא להזין שם תקין</div>';return}
+  if(!dob){err.innerHTML='<div class="error-msg">⚠️ נא למלא תאריך לידה</div>';return}
+  const cleanPhone=phone.replace(/[-\s]/g,'');
+  if(!phone||!/^0\d{8,9}$/.test(cleanPhone)){err.innerHTML='<div class="error-msg">⚠️ נא להזין מספר טלפון תקין (לדוגמה: 0501234567)</div>';return}
+  err.innerHTML='';
+  clientData.dob=dob;
+  clientData.phone=phone;
+  clientData.name=name;
   step=2;renderStep2();window.scrollTo(0,0);
 }
 
@@ -312,12 +322,11 @@ async function submitConsent(){
   }catch(e){}
 
   // Update client record
-  const today=new Date().toISOString().slice(0,10);
   const notesAdd=`\n[טופס הסכמה נחתם ב-${new Date().toLocaleDateString('he-IL')}]`;
   await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}`,{
     method:'PATCH',
     headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
-    body:JSON.stringify({consent:true,notes:(clientData.notes||'')+notesAdd,signature_url:sigUrl})
+    body:JSON.stringify({consent:true,notes:(clientData.notes||'')+notesAdd,signature_url:sigUrl,dob:clientData.dob||null,phone:clientData.phone||clientData.phone,name:clientData.name})
   });
 
   // Send confirmation email via Edge Function
