@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>ד"ר אלכסנדר | CRM</title>
+<title>ד"ר קליניק | CRM</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -265,7 +265,7 @@ const RESEND_KEY='re_6MTEMhFC_HNChj4enmkKPZYbxvubmecaW';
 
 const PALETTES=[{bg:'#EEEDFE',c:'#3C3489'},{bg:'#E1F5EE',c:'#085041'},{bg:'#FAECE7',c:'#712B13'},{bg:'#FBEAF0',c:'#72243E'},{bg:'#E6F1FB',c:'#0C447C'},{bg:'#FAEEDA',c:'#633806'},{bg:'#EAF3DE',c:'#27500A'},{bg:'#F1EFE8',c:'#444441'}];
 const SOURCES=[{key:'instagram',label:'אינסטגרם',icon:'ti-brand-instagram'},{key:'facebook',label:'פייסבוק',icon:'ti-brand-facebook'},{key:'google',label:'גוגל',icon:'ti-brand-google'},{key:'referral',label:'המלצה',icon:'ti-users'},{key:'tiktok',label:'טיקטוק',icon:'ti-brand-tiktok'},{key:'other',label:'אחר',icon:'ti-dots'}];
-const HOURS=Array.from({length:13},(_,i)=>i+8);
+const HOURS=Array.from({length:16},(_,i)=>i+7);
 const AUTH={username:'admin',password:'clinic2024'};
 const AUTH_KEY='clinic_crm_auth';
 
@@ -303,21 +303,21 @@ async function sendApptEmail(appt){
   if(!email)return;
   const html=`<div dir="rtl" style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
     <div style="background:linear-gradient(135deg,#154F7A,#1B6CA8,#4DB8C8);padding:24px;border-radius:12px;text-align:center;margin-bottom:24px">
-      <h2 style="color:#fff;margin:0">ד"ר אלכסנדר</h2>
+      <h2 style="color:#fff;margin:0">ד"ר קליניק</h2>
       <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px">קליניקה לרפואה אסתטית</p>
     </div>
     <p>שלום <strong>${appt.client_name}</strong>,</p>
-    <p style="color:#555;margin-bottom:16px">תורך נקבע בהצלחה!</p>
-    <div style="background:#E8F4FD;border-radius:12px;padding:20px;margin-bottom:20px">
+    <p style="color:#085041;margin-bottom:16px;font-weight:600">✅ התור שלך אושר סופית!</p>
+    <div style="background:#E8F7F2;border:1px solid #B6E4CC;border-radius:12px;padding:20px;margin-bottom:20px">
       <p style="margin-bottom:8px">📅 <strong>תאריך:</strong> ${appt.date}</p>
       <p style="margin-bottom:8px">🕐 <strong>שעה:</strong> ${appt.time}</p>
       <p style="margin-bottom:0">💆 <strong>טיפול:</strong> ${appt.treatment}</p>
     </div>
-    <p style="color:#888;font-size:13px">לשינוי או ביטול — צור קשר.</p>
+    <p style="color:#888;font-size:13px">נשמח לראותך! לשינוי או ביטול — צור קשר.</p>
     <hr style="border:1px solid #DDE8F0;margin:20px 0">
-    <p style="font-size:11px;color:#aaa;text-align:center">ד"ר אלכסנדר | קליניקה לרפואה אסתטית</p>
+    <p style="font-size:11px;color:#aaa;text-align:center">ד"ר קליניק | קליניקה לרפואה אסתטית</p>
   </div>`;
-  await sendEmail(email,'✅ אישור תור — ד"ר אלכסנדר',html);
+  await sendEmail(email,'✅ אישור תור — ד"ר קליניק',html);
 }
 
 async function sendConsentEmail(clientId,clientName,clientEmail){
@@ -325,7 +325,7 @@ async function sendConsentEmail(clientId,clientName,clientEmail){
   const url=window.location.origin+window.location.pathname.replace('index.html','')+'consent.html?client='+clientId;
   const html=`<div dir="rtl" style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
     <div style="background:linear-gradient(135deg,#154F7A,#1B6CA8,#4DB8C8);padding:24px;border-radius:12px;text-align:center;margin-bottom:24px">
-      <h2 style="color:#fff;margin:0">ד"ר אלכסנדר</h2>
+      <h2 style="color:#fff;margin:0">ד"ר קליניק</h2>
       <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px">קליניקה לרפואה אסתטית</p>
     </div>
     <p>שלום <strong>${clientName}</strong>,</p>
@@ -335,9 +335,9 @@ async function sendConsentEmail(clientId,clientName,clientEmail){
     </div>
     <p style="color:#888;font-size:12px;text-align:center">הקישור תקף ל-7 ימים</p>
     <hr style="border:1px solid #DDE8F0;margin:20px 0">
-    <p style="font-size:11px;color:#aaa;text-align:center">ד"ר אלכסנדר | קליניקה לרפואה אסתטית</p>
+    <p style="font-size:11px;color:#aaa;text-align:center">ד"ר קליניק | קליניקה לרפואה אסתטית</p>
   </div>`;
-  await sendEmail(clientEmail,'✍️ טופס הסכמה לטיפול — ד"ר אלכסנדר',html);
+  await sendEmail(clientEmail,'✍️ טופס הסכמה לטיפול — ד"ר קליניק',html);
   toast('📧 אימייל עם קישור חתימה נשלח!');
 }
 
@@ -394,7 +394,7 @@ async function loadAll(){
 
 // LOGIN
 function buildLogin(){return`<div class="login-page"><div class="login-box">
-  <div class="login-logo"><div class="login-logo-icon"><i class="ti ti-heartbeat"></i></div><div class="login-logo-text">ד"ר אלכסנדר</div><div class="login-logo-sub">מערכת ניהול קליניקה</div></div>
+  <div class="login-logo"><div class="login-logo-icon"><i class="ti ti-heartbeat"></i></div><div class="login-logo-text">ד"ר קליניק</div><div class="login-logo-sub">מערכת ניהול קליניקה</div></div>
   <div class="login-title">ברוכים הבאים 👋</div>
   <div class="login-sub">התחברו כדי להמשיך</div>
   <div class="login-field"><label class="login-label">שם משתמש</label><input class="login-input" id="l-user" type="text" placeholder="admin" autocomplete="username"></div>
@@ -415,7 +415,7 @@ function buildApp(){
 
   const sidebar=`<div class="sidebar ${S.sidebarOpen?'open':''}" id="sidebar">
     <div class="sb-top">
-      <div class="sb-brand"><div class="sb-icon"><i class="ti ti-heartbeat"></i></div><div><div class="sb-name">ד"ר אלכסנדר</div><div class="sb-ver">מערכת ניהול</div></div></div>
+      <div class="sb-brand"><div class="sb-icon"><i class="ti ti-heartbeat"></i></div><div><div class="sb-name">ד"ר קליניק</div><div class="sb-ver">מערכת ניהול</div></div></div>
     </div>
     <div class="nav-section">
       <div class="nav-label">ניווט</div>
@@ -478,7 +478,7 @@ function buildDashboard(){
   const pendingAppts=S.appointments.filter(a=>a.status==='pending').length;
   const upRems=allPendingRem().sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999')).slice(0,4);
 
-  return`<div class="dash-header"><div class="dash-title">שלום, ד"ר אלכסנדר 👋</div><div class="dash-sub">${fmtDay()} · ${todayAppts.length} תורים היום</div></div>
+  return`<div class="dash-header"><div class="dash-title">שלום, ד"ר קליניק 👋</div><div class="dash-sub">${fmtDay()} · ${todayAppts.length} תורים היום</div></div>
   <div class="kpi-grid">
     <div class="kpi"><div class="kpi-accent" style="background:var(--primary)"></div><div class="kpi-icon" style="background:var(--primary-light);color:var(--primary)"><i class="ti ti-users"></i></div><div class="kpi-val">${S.clients.length}</div><div class="kpi-label">לקוחות</div></div>
     <div class="kpi"><div class="kpi-accent" style="background:var(--accent)"></div><div class="kpi-icon" style="background:var(--accent-light);color:var(--accent)"><i class="ti ti-needle"></i></div><div class="kpi-val">${S.treatments.length}</div><div class="kpi-label">טיפולים</div></div>
@@ -908,7 +908,7 @@ async function saveNewClient(){
   const name=document.getElementById('m-name').value.trim();if(!name){alert('נא להזין שם.');return}
   const body={name,phone:document.getElementById('m-phone').value.trim(),email:document.getElementById('m-email').value.trim(),age:parseInt(document.getElementById('m-age').value)||null,skin:document.getElementById('m-skin').value.trim()||'לא ידוע',allergies:document.getElementById('m-allergy').value.trim()||'אין ידועות',tier:document.getElementById('m-tier').value,source:S.newSrc||null,color:S.clients.length%PALETTES.length,consent:false,notes:''};
   const res=await sbPost('clients',body);
-  if(res&&res[0]){S.clients.unshift(res[0]);S.activeId=res[0].id;S.activePage='clients';S.activeTab='overview';S.modal=null;renderRoot();toast('לקוח נוסף! 🎉')}else toast('שגיאה בשמירה')
+  if(res&&res[0]){S.clients.unshift(res[0]);S.activeId=res[0].id;S.activePage='clients';S.clientListView=false;S.activeTab='overview';S.modal=null;renderRoot();toast('לקוח נוסף! 🎉')}else toast('שגיאה בשמירה')
 }
 
 async function saveEditClient(){
@@ -947,7 +947,16 @@ async function saveAppt(){
   }else toast('שגיאה בשמירה')
 }
 
-async function confirmAppt(id){await sbPatch('appointments',`?id=eq.${id}`,{status:'confirmed'});S.appointments=S.appointments.map(a=>a.id===id?{...a,status:'confirmed'}:a);S.modal=null;renderRoot();toast('תור אושר ✓')}
+async function confirmAppt(id){
+  await sbPatch('appointments',`?id=eq.${id}`,{status:'confirmed'});
+  const appt=S.appointments.find(a=>a.id===id);
+  S.appointments=S.appointments.map(a=>a.id===id?{...a,status:'confirmed'}:a);
+  S.modal=null;renderRoot();toast('תור אושר ✓');
+  // שלח מייל אישור ללקוח
+  if(appt&&appt.client_email){
+    sendApptEmail({...appt,status:'confirmed'}).then(()=>toast('📧 אימייל אישור נשלח ללקוח!'));
+  }
+}
 async function cancelAppt(id){if(!confirm('לדחות את התור?'))return;await sbDelete('appointments',`?id=eq.${id}`);S.appointments=S.appointments.filter(a=>a.id!==id);S.modal=null;renderRoot();toast('תור נדחה')}
 async function deleteAppt(id){if(!confirm('למחוק את התור?'))return;await sbDelete('appointments',`?id=eq.${id}`);S.appointments=S.appointments.filter(a=>a.id!==id);S.modal=null;renderRoot();toast('תור נמחק')}
 
@@ -963,7 +972,7 @@ async function createClientFromAppt(aid){
   const a=S.appointments.find(x=>x.id===aid);if(!a)return;
   if(!a.client_name){alert('אין שם לקוח בתור.');return}
   const res=await sbPost('clients',{name:a.client_name,phone:a.client_phone||'',email:a.client_email||'',tier:'new',color:S.clients.length%8,consent:false,notes:'',allergies:'אין ידועות',skin:'לא ידוע'});
-  if(res&&res[0]){S.clients.unshift(res[0]);await sbPatch('appointments',`?id=eq.${aid}`,{client_id:res[0].id});S.appointments=S.appointments.map(a=>a.id===aid?{...a,client_id:res[0].id}:a);S.modal=null;S.activeId=res[0].id;S.activePage='clients';renderRoot();toast('לקוח נוצר ושויך! 🎉');}else toast('שגיאה')
+  if(res&&res[0]){S.clients.unshift(res[0]);await sbPatch('appointments',`?id=eq.${aid}`,{client_id:res[0].id});S.appointments=S.appointments.map(a=>a.id===aid?{...a,client_id:res[0].id}:a);S.modal=null;S.activeId=res[0].id;S.activePage='clients';S.clientListView=false;S.activeTab='overview';renderRoot();toast('לקוח נוצר ושויך! 🎉');}else toast('שגיאה')
 }
 
 // GOOGLE CALENDAR
@@ -977,13 +986,13 @@ function exportWeekToGoogle(){const dates=Array.from({length:7},(_,i)=>fmtDate(a
 
 function shareWhatsApp(){
   const url=getBookingUrl();
-  const msg=encodeURIComponent('שלום! קבע/י תור אצל ד"ר אלכסנדר דרך הקישור: '+url);
+  const msg=encodeURIComponent('שלום! קבע/י תור אצל ד"ר קליניק דרך הקישור: '+url);
   window.open('https://wa.me/?text='+msg,'_blank');
 }
 
 function shareWhatsAppClient(phone,name){
   const url=getBookingUrl();
-  const msg=encodeURIComponent('שלום '+name+'! קבע/י תור אצל ד"ר אלכסנדר דרך הקישור: '+url);
+  const msg=encodeURIComponent('שלום '+name+'! קבע/י תור אצל ד"ר קליניק דרך הקישור: '+url);
   const cleanPhone=(phone||'').replace(/[^0-9]/g,'');
   const waPhone=cleanPhone.startsWith('0')?'972'+cleanPhone.slice(1):cleanPhone;
   window.open('https://wa.me/'+waPhone+'?text='+msg,'_blank');
