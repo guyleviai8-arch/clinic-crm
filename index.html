@@ -267,7 +267,7 @@ const PALETTES=[{bg:'#EEEDFE',c:'#3C3489'},{bg:'#E1F5EE',c:'#085041'},{bg:'#FAEC
 const FORM_TYPES=[{key:'general',label:'הסכמה כללית',icon:'ti-file-text'},{key:'botox',label:'בוטוקס',icon:'ti-vaccine'},{key:'filler',label:'פילר',icon:'ti-droplet'},{key:'facial',label:'טיפול פנים',icon:'ti-sparkles'}];
 const SOURCES=[{key:'instagram',label:'אינסטגרם',icon:'ti-brand-instagram'},{key:'facebook',label:'פייסבוק',icon:'ti-brand-facebook'},{key:'google',label:'גוגל',icon:'ti-brand-google'},{key:'referral',label:'המלצה',icon:'ti-users'},{key:'tiktok',label:'טיקטוק',icon:'ti-brand-tiktok'},{key:'other',label:'אחר',icon:'ti-dots'}];
 const HOURS=Array.from({length:16},(_,i)=>i+7);
-const AUTH={username:'admin',password:'clinic2024'};
+const AUTH_USER='admin';
 const AUTH_KEY='clinic_crm_auth';
 
 async function sbFetch(table,query=''){
@@ -344,7 +344,17 @@ async function sendConsentEmail(clientId,clientName,clientEmail){
 
 // AUTH
 function isLoggedIn(){return sessionStorage.getItem(AUTH_KEY)==='1'}
-function doLogin(u,p){if(u===AUTH.username&&p===AUTH.password){sessionStorage.setItem(AUTH_KEY,'1');return true}return false}
+async function doLogin(u,p){
+  if(u!==AUTH_USER)return false;
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/settings?id=eq.1&select=admin_password`,{
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
+    });
+    const data=await res.json();
+    if(data&&data[0]&&data[0].admin_password===p){sessionStorage.setItem(AUTH_KEY,'1');return true}
+  }catch(e){console.log('Login error:',e)}
+  return false;
+}
 function doLogout(){sessionStorage.removeItem(AUTH_KEY);renderRoot()}
 
 // UTILS
@@ -404,7 +414,18 @@ function buildLogin(){return`<div class="login-page"><div class="login-box">
   <button class="login-btn" onclick="tryLogin()"><i class="ti ti-lock-open"></i> כניסה למערכת</button>
   <div class="login-err" id="login-err">שם משתמש או סיסמה שגויים</div>
 </div></div>`}
-function tryLogin(){const u=document.getElementById('l-user').value.trim();const p=document.getElementById('l-pass').value;if(doLogin(u,p)){renderRoot();loadAll();}else document.getElementById('login-err').style.display='block'}
+async function tryLogin(){
+  const u=document.getElementById('l-user').value.trim();
+  const p=document.getElementById('l-pass').value;
+  const btn=document.querySelector('.login-btn');
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> מתחבר…';}
+  const ok=await doLogin(u,p);
+  if(ok){renderRoot();loadAll();}
+  else{
+    document.getElementById('login-err').style.display='block';
+    if(btn){btn.disabled=false;btn.innerHTML='<i class="ti ti-login"></i> כניסה';}
+  }
+}
 
 // APP
 function buildApp(){
