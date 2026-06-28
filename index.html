@@ -371,7 +371,7 @@ function clientAppts(cid){return S.appointments.filter(a=>a.client_id===cid).sor
 function pendingRem(c){return clientReminders(c.id).filter(r=>!r.done).length}
 function getBookingUrl(){return window.location.origin+window.location.pathname.replace('index.html','')+'booking.html'}
 
-let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true};
+let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true};
 
 function showLoading(){const el=document.getElementById('root');if(!document.getElementById('loading'))el.insertAdjacentHTML('beforeend','<div class="loading-overlay" id="loading"><div class="loading-spinner"></div><div class="loading-text">טוען נתונים…</div></div>')}
 function hideLoading(){const el=document.getElementById('loading');if(el)el.remove()}
@@ -670,7 +670,15 @@ function buildClientAppts(c){
   return h;
 }
 
-function clientForms(cid){return(S.forms||[]).filter(f=>f.client_id===cid)}
+function clientForms(cid){
+  const c=S.clients.find(x=>x.id===cid);
+  const forms=(S.forms||[]).filter(f=>f.client_id===cid);
+  // תאימות לאחור: לקוח שחתם במערכת הישנה (signature_url בלי רשומה ב-consent_forms)
+  if(c&&c.signature_url&&!forms.some(f=>f.form_type==='general')){
+    forms.push({client_id:cid,form_type:'general',signature_url:c.signature_url,signed_at:c.created_at||new Date().toISOString(),legacy:true});
+  }
+  return forms;
+}
 function getFormUrl(cid,type){return window.location.origin+window.location.pathname.replace('index.html','')+'consent.html?client='+cid+'&type='+type}
 
 function buildFormsChecklist(c){
@@ -680,16 +688,16 @@ function buildFormsChecklist(c){
     const rec=signed.find(s=>s.form_type===ft.key);
     const isSigned=!!rec;
     let dateStr='';
-    if(rec){const d=new Date(rec.signed_at);dateStr=d.toLocaleDateString('he-IL')+' '+d.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});}
+    if(rec&&rec.signed_at){const d=new Date(rec.signed_at);dateStr=d.toLocaleDateString('he-IL')+' '+d.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});}
     h+=`<div style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:9px;margin-bottom:8px;background:${isSigned?'#F4FBF7':'#fff'}">
       <i class="ti ${ft.icon}" style="font-size:18px;color:${isSigned?'var(--accent)':'var(--text-sub)'}"></i>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:500">${ft.label}</div>
-        ${isSigned?`<div style="font-size:11px;color:var(--accent)">✅ נחתם ${dateStr}</div>`:'<div style="font-size:11px;color:var(--text-sub)">⬜ טרם נחתם</div>'}
+        ${isSigned?`<div style="font-size:11px;color:var(--accent)">✅ נחתם${dateStr?' '+dateStr:''}</div>`:'<div style="font-size:11px;color:var(--text-sub)">⬜ טרם נחתם</div>'}
       </div>
       ${isSigned
-        ? `<a href="${escHtml(rec.signature_url||'')}" target="_blank" class="btn btn-secondary btn-sm" title="צפה בחתימה"><i class="ti ti-eye"></i></a>`
-        : `<button class="btn btn-primary btn-sm" onclick="sendFormLink('${c.id}','${escHtml(c.name)}','${escHtml(c.email||'')}','${escHtml(c.phone||'')}','${ft.key}','${ft.label}')"><i class="ti ti-send"></i> שלח</button>`
+        ? `${rec.signature_url?`<a href="${escHtml(rec.signature_url)}" target="_blank" class="btn btn-secondary btn-sm" title="צפה בחתימה"><i class="ti ti-eye"></i></a>`:''}<button class="btn btn-secondary btn-sm" onclick="sendFormLink('${c.id}','${escHtml(c.name)}','${escHtml(c.email||'')}','${escHtml(c.phone||'')}','${ft.key}','${escHtml(ft.label)}')" title="שלח שוב"><i class="ti ti-send"></i></button>`
+        : `<button class="btn btn-primary btn-sm" onclick="sendFormLink('${c.id}','${escHtml(c.name)}','${escHtml(c.email||'')}','${escHtml(c.phone||'')}','${ft.key}','${escHtml(ft.label)}')"><i class="ti ti-send"></i> שלח</button>`
       }
     </div>`;
   });
@@ -697,7 +705,8 @@ function buildFormsChecklist(c){
 }
 
 function sendFormLink(cid,name,email,phone,type,label){
-  S.modal='sendform-'+cid+'-'+type+'-'+encodeURIComponent(label);
+  S.sendForm={cid,type,label};
+  S.modal='sendform';
   renderRoot();
 }
 
@@ -825,9 +834,8 @@ function buildModal(){
     </div></div>`;
   }
 
-  if(S.modal&&S.modal.startsWith('sendform-')){
-    const parts=S.modal.split('-');
-    const cid=parts[1];const type=parts[2];const label=decodeURIComponent(parts.slice(3).join('-'));
+  if(S.modal==='sendform'&&S.sendForm){
+    const cid=S.sendForm.cid;const type=S.sendForm.type;const label=S.sendForm.label;
     const c=S.clients.find(x=>x.id===cid);if(!c)return'';
     const url=getFormUrl(cid,type);
     return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
@@ -902,7 +910,7 @@ function selectClient(id){S.activeId=id;S.activePage='clients';S.activeTab='over
 function gotoPage(p){S.activePage=p;if(p==='clients')S.clientListView=true;S.sidebarOpen=false;renderRoot()}
 function setTab(t){S.activeTab=t;renderRoot()}
 function showModal(type){S.modal=type;S.newSrc='';renderRoot()}
-function closeModal(){S.modal=null;S.prefillDate='';S.prefillTime='';renderRoot()}
+function closeModal(){S.modal=null;S.prefillDate='';S.prefillTime='';S.sendForm=null;renderRoot()}
 function closeModalBg(e){if(e.target===e.currentTarget)closeModal()}
 function selectSrc(k){S.newSrc=k;document.querySelectorAll('.source-opt').forEach(el=>{el.classList.toggle('selected',el.getAttribute('onclick').includes("'"+k+"'"))})}
 function showApptDetail(id){S.modal='appt-'+id;renderRoot()}
