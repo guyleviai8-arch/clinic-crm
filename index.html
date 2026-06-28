@@ -371,7 +371,7 @@ function clientAppts(cid){return S.appointments.filter(a=>a.client_id===cid).sor
 function pendingRem(c){return clientReminders(c.id).filter(r=>!r.done).length}
 function getBookingUrl(){return window.location.origin+window.location.pathname.replace('index.html','')+'booking.html'}
 
-let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true};
+let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:''};
 
 function showLoading(){const el=document.getElementById('root');if(!document.getElementById('loading'))el.insertAdjacentHTML('beforeend','<div class="loading-overlay" id="loading"><div class="loading-spinner"></div><div class="loading-text">טוען נתונים…</div></div>')}
 function hideLoading(){const el=document.getElementById('loading');if(el)el.remove()}
@@ -539,9 +539,11 @@ function buildCalendar(){
     <div style="font-size:14px;font-weight:600;flex:1">${rangeLabel}</div>
     <button class="btn btn-secondary btn-icon" onclick="calNext()"><i class="ti ti-chevron-left"></i></button>
     <button class="btn btn-secondary btn-sm" onclick="calToday()"><i class="ti ti-calendar"></i> היום</button>
+    <input type="date" class="fi" style="width:auto;padding:7px 10px;font-size:13px" value="${fmtDate(S.calWeek)}" onchange="calJumpTo(this.value)" title="קפוץ לתאריך">
     <button class="btn btn-primary btn-sm" onclick="showModal('newAppt')"><i class="ti ti-plus"></i> תור</button>
     <button class="btn btn-google btn-sm" onclick="exportWeekToGoogle()"><i class="ti ti-brand-google"></i></button>
   </div>
+  <div style="margin-bottom:10px;flex-shrink:0"><div style="position:relative"><i class="ti ti-search" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text-sub);font-size:15px"></i><input type="text" placeholder="חיפוש תור לפי שם לקוח…" value="${escHtml(S.apptSearch||'')}" oninput="apptSearchInput(this.value)" style="width:100%;padding:9px 34px 9px 12px;border:1px solid var(--border);border-radius:9px;font-size:13px;font-family:Heebo,sans-serif;outline:none"></div>${S.apptSearch?`<div style="margin-top:8px">${buildApptSearchResults()}</div>`:''}</div>
   <div class="cal-scroll"><div class="cal-head"><div class="cal-day-hdr"></div>`;
   weekDates.forEach((d,i)=>{const isToday=d===todayStr;const[,,day]=d.split('-');html+=`<div class="cal-day-hdr"><div class="cal-day-name">${days[i]}</div><div class="cal-day-num">${isToday?`<span style="width:24px;height:24px;background:var(--primary);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px">${+day}</span>`:`${+day}`}</div></div>`;});
   html+=`</div><div class="cal-body">`;
@@ -550,7 +552,8 @@ function buildCalendar(){
     weekDates.forEach(d=>{
       const appts=S.appointments.filter(a=>a.date===d&&parseInt((a.time||'0').split(':')[0])===h);
       let cells='';
-      appts.forEach(a=>{const p=PALETTES[getClientColor(a.client_id)];const name=a.client_name||getClientName(a.client_id);const mins=parseInt((a.time||'0').split(':')[1])||0;const top=Math.round((mins/60)*52);const ht=Math.max(20,Math.round((a.duration/60)*52)-2);const isPending=a.status==='pending';cells+=`<div class="appt-block" style="top:${top}px;height:${ht}px;background:${isPending?'var(--amber-light)':p.bg};color:${isPending?'#633806':p.c};border-color:${isPending?'var(--amber)':p.c+'30'}" onclick="event.stopPropagation();showApptDetail('${a.id}')"><div class="appt-name">${escHtml(name)}${isPending?' ⏳':''}</div><div class="appt-time-label">${a.time} · ${escHtml(a.treatment)}</div></div>`;});
+      const total=appts.length;
+      appts.forEach((a,idx)=>{const p=PALETTES[getClientColor(a.client_id)];const name=a.client_name||getClientName(a.client_id);const mins=parseInt((a.time||'0').split(':')[1])||0;const top=Math.round((mins/60)*52);const ht=Math.max(20,Math.round((a.duration/60)*52)-2);const isPending=a.status==='pending';const w=total>1?(100/total):100;const leftPos=total>1?(idx*w):0;cells+=`<div class="appt-block" style="top:${top}px;height:${ht}px;width:calc(${w}% - 2px);right:calc(${leftPos}% + 1px);left:auto;background:${isPending?'var(--amber-light)':p.bg};color:${isPending?'#633806':p.c};border-color:${isPending?'var(--amber)':p.c+'30'}" onclick="event.stopPropagation();showApptDetail('${a.id}')"><div class="appt-name">${escHtml(name)}${isPending?' ⏳':''}</div><div class="appt-time-label">${a.time} · ${escHtml(a.treatment)}</div></div>`;});
       html+=`<div class="cal-cell" onclick="quickAddAppt('${d}','${String(h).padStart(2,'0')}:00')">${cells}</div>`;
     });
     html+=`</div>`;
@@ -938,6 +941,30 @@ function showLinkClient(aid){S.modal='link-'+aid;renderRoot()}
 function calPrev(){S.calWeek=addDays(S.calWeek,-7);renderRoot()}
 function calNext(){S.calWeek=addDays(S.calWeek,7);renderRoot()}
 function calToday(){S.calWeek=weekStart(new Date());renderRoot()}
+function calJumpTo(dateStr){if(!dateStr)return;S.calWeek=weekStart(new Date(dateStr));renderRoot()}
+function apptSearchInput(v){S.apptSearch=v;renderRoot()}
+function buildApptSearchResults(){
+  const q=(S.apptSearch||'').toLowerCase().trim();
+  if(!q)return'';
+  const matches=S.appointments.filter(a=>{
+    const name=(a.client_name||getClientName(a.client_id)||'').toLowerCase();
+    const treat=(a.treatment||'').toLowerCase();
+    const phone=(a.client_phone||'').toLowerCase();
+    return name.includes(q)||treat.includes(q)||phone.includes(q);
+  }).sort((a,b)=>b.date.localeCompare(a.date)||b.time.localeCompare(a.time));
+  if(!matches.length)return'<div style="padding:12px;text-align:center;color:var(--text-sub);font-size:12px;background:var(--white);border:1px solid var(--border);border-radius:9px">לא נמצאו תורים</div>';
+  return matches.slice(0,8).map(a=>{
+    const name=a.client_name||getClientName(a.client_id);
+    const p=PALETTES[getClientColor(a.client_id)];
+    const stMap={pending:'⏳ ממתין',confirmed:'✓ מאושר',done:'הסתיים'};
+    return`<div onclick="jumpToAppt('${a.id}','${a.date}')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--white);border:1px solid var(--border);border-radius:9px;margin-bottom:6px;cursor:pointer">
+      <div style="width:6px;height:34px;border-radius:3px;background:${p.c};flex-shrink:0"></div>
+      <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">${escHtml(name)}</div><div style="font-size:11px;color:var(--text-sub)">${escHtml(a.treatment)} · ${fmtFull(a.date)} · ${a.time}</div></div>
+      <span style="font-size:11px;color:var(--text-sub);white-space:nowrap">${stMap[a.status]||''}</span>
+    </div>`;
+  }).join('');
+}
+function jumpToAppt(id,date){S.calWeek=weekStart(new Date(date));S.apptSearch='';showApptDetail(id);}
 function quickAddAppt(date,time){S.prefillDate=date;S.prefillTime=time;showModal('newAppt')}
 function copyBookingLink(){navigator.clipboard.writeText(getBookingUrl()).then(()=>toast('קישור הועתק! 📋')).catch(()=>toast('העתק ידנית'))}
 
