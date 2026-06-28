@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="he">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>קביעת תור | ד"ר אלכסנדר</title>
+<title>קביעת תור | ד"ר קליניק</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -124,7 +125,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0
 
 <div class="hero">
   <div class="hero-logo">✦</div>
-  <div class="hero-name">ד"ר אלכסנדר</div>
+  <div class="hero-name">ד"ר קליניק</div>
   <div class="hero-sub">קליניקה לרפואה אסתטית</div>
   <div class="hero-divider"></div>
   <div class="hero-tag">קביעת תור אונליין</div>
@@ -150,15 +151,16 @@ const TREATMENTS=[
 const WORK_HOURS=['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
 const CLOSED_DAYS=[5,6]; // שישי=5, שבת=6
 
-let B={name:'',phone:'',treatment:'',treatmentLabel:'',treatmentDuration:60,subType:'',date:'',time:'',notes:'',step:1,takenSlots:[],error:''};
+let B={name:'',phone:'',email:'',treatment:'',treatmentLabel:'',treatmentDuration:60,subType:'',date:'',time:'',notes:'',step:1,takenSlots:[],error:''};
 
-function today(){return new Date().toISOString().slice(0,10)}
+function localISO(d){const dt=new Date(d);const off=dt.getTimezoneOffset();return new Date(dt.getTime()-off*60000).toISOString().slice(0,10)}
+function today(){return localISO(new Date())}
 
 function getMinDate(){
   // מחר — בדיקה שלא שישי/שבת
   const d=new Date();d.setDate(d.getDate()+1);
   while(CLOSED_DAYS.includes(d.getDay()))d.setDate(d.getDate()+1);
-  return d.toISOString().slice(0,10);
+  return localISO(d);
 }
 
 function isClosedDay(dateStr){
@@ -226,7 +228,11 @@ function renderStep1(){
       </div>
       <div class="field">
         <label class="label">מספר טלפון *</label>
-        <input type="tel" id="b-phone" placeholder="050-..." value="${escHtml(B.phone)}" oninput="B.phone=this.value">
+        <input type="tel" inputmode="numeric" id="b-phone" placeholder="050-..." value="${escHtml(B.phone)}" oninput="B.phone=this.value">
+      </div>
+      <div class="field">
+        <label class="label">אימייל (לקבלת אישור)</label>
+        <input type="email" id="b-email" placeholder="email@example.com" value="${escHtml(B.email||'')}" oninput="B.email=this.value">
       </div>
     </div>
     <div class="card">
@@ -353,9 +359,9 @@ function renderSuccess(){
   document.getElementById('content').innerHTML=`
     <div class="success-page">
       <div class="success-hero">
-        <div class="success-icon">🎉</div>
-        <div class="success-title">התור נקבע בהצלחה!</div>
-        <div class="success-sub">נחזור אליך בהקדם לאישור סופי</div>
+        <div class="success-icon">⏳</div>
+        <div class="success-title">הבקשה התקבלה!</div>
+        <div class="success-sub">התור ממתין לאישור הקליניקה</div>
       </div>
       <div class="success-card">
         <div class="success-detail"><div class="s-icon">📅</div><span>${fmtDate(B.date)}</span></div>
@@ -365,7 +371,7 @@ function renderSuccess(){
         <div class="success-detail"><div class="s-icon">📞</div><span>${escHtml(B.phone)}</span></div>
       </div>
       <div style="font-size:13px;color:var(--text-sub);margin-bottom:20px;line-height:1.6">
-        נשמח לראות אותך בקליניקה!<br>לשינויים — צור קשר טלפוני.
+        ${B.email?'📧 שלחנו לך אימייל אישור.<br>':''}נעדכן אותך ברגע שהתור יאושר סופית!
       </div>
       <button class="new-btn" onclick="resetBooking()">+ קבע תור נוסף</button>
     </div>`;
@@ -378,8 +384,15 @@ function goStep2(){
   const phoneEl=document.getElementById('b-phone');
   if(nameEl)B.name=nameEl.value.trim();
   if(phoneEl)B.phone=phoneEl.value.trim();
-  if(!B.name||!B.phone){B.error='נא למלא שם וטלפון';renderStep1();return}
+  // שם — חייב להכיל אותיות, לפחות 2 תווים
+  if(!B.name){B.error='נא למלא שם מלא';renderStep1();return}
+  if(B.name.length<2||!/[a-zA-Zא-ת]/.test(B.name)){B.error='נא להזין שם תקין (אותיות)';renderStep1();return}
+  // טלפון — חייב להיות מספרים בלבד, 9-10 ספרות
+  const cleanPhone=B.phone.replace(/[-\s]/g,'');
+  if(!B.phone){B.error='נא למלא מספר טלפון';renderStep1();return}
+  if(!/^0\d{8,9}$/.test(cleanPhone)){B.error='נא להזין מספר טלפון תקין (לדוגמה: 0501234567)';renderStep1();return}
   if(!B.treatment){B.error='נא לבחור סוג טיפול';renderStep1();return}
+  if(!B.subType){B.error='נא לבחור תת-סוג טיפול';renderStep1();return}
   B.error='';B.step=2;renderStep2();window.scrollTo(0,0);
 }
 
@@ -400,9 +413,40 @@ async function submitBooking(){
     const res=await fetch(`${SUPABASE_URL}/rest/v1/appointments`,{
       method:'POST',
       headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=representation'},
-      body:JSON.stringify({client_name:B.name,client_phone:B.phone,treatment:fullLabel,date:B.date,time:B.time,duration:B.treatmentDuration,notes:B.notes,status:'pending'})
+      body:JSON.stringify({client_name:B.name,client_phone:B.phone,client_email:B.email||'',treatment:fullLabel,date:B.date,time:B.time,duration:B.treatmentDuration,notes:B.notes,status:'pending'})
     });
-    if(res.ok)renderSuccess();
+    if(res.ok){
+      // שלח מייל "ממתין לאישור" ללקוח
+      if(B.email){
+        try{
+          await fetch(`${SUPABASE_URL}/functions/v1/send-email`,{
+            method:'POST',
+            headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
+            body:JSON.stringify({
+              to:B.email,
+              subject:'בקשת תור התקבלה — ד"ר קליניק',
+              html:`<div dir="rtl" style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px;color:#1A2332">
+                <div style="background:linear-gradient(135deg,#154F7A,#1B6CA8,#4DB8C8);padding:24px;border-radius:12px;text-align:center;margin-bottom:24px">
+                  <h2 style="color:#fff;margin:0">ד"ר קליניק</h2>
+                  <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px">קליניקה לרפואה אסתטית</p>
+                </div>
+                <p>שלום <strong>${B.name}</strong>,</p>
+                <p>בקשתך לתור התקבלה ונמצאת כעת <strong style="color:#EF9F27">בהמתנה לאישור</strong> מהקליניקה.</p>
+                <div style="background:#FFF7E8;border:1px solid #FAC775;border-radius:10px;padding:16px;margin:16px 0">
+                  <p style="margin:0 0 6px"><strong>טיפול:</strong> ${fullLabel}</p>
+                  <p style="margin:0 0 6px"><strong>תאריך:</strong> ${B.date}</p>
+                  <p style="margin:0"><strong>שעה:</strong> ${B.time}</p>
+                </div>
+                <p>⏳ נעדכן אותך באימייל נוסף ברגע שהתור יאושר סופית.</p>
+                <hr style="border:none;border-top:1px solid #DDE8F0;margin:24px 0">
+                <p style="font-size:11px;color:#aaa;text-align:center">ד"ר קליניק | קליניקה לרפואה אסתטית</p>
+              </div>`
+            })
+          });
+        }catch(e){}
+      }
+      renderSuccess();
+    }
     else{B.error='שגיאה בשמירת התור. נסה שוב.';renderStep3();}
   }catch(e){B.error='שגיאת חיבור. בדוק אינטרנט ונסה שוב.';renderStep3();}
 }
