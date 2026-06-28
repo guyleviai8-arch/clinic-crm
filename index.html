@@ -696,16 +696,17 @@ function buildFormsChecklist(c){
         ${isSigned?`<div style="font-size:11px;color:var(--accent)">✅ נחתם${dateStr?' '+dateStr:''}</div>`:'<div style="font-size:11px;color:var(--text-sub)">⬜ טרם נחתם</div>'}
       </div>
       ${isSigned
-        ? `${rec.signature_url?`<a href="${escHtml(rec.signature_url)}" target="_blank" class="btn btn-secondary btn-sm" title="צפה בחתימה"><i class="ti ti-eye"></i></a>`:''}<button class="btn btn-secondary btn-sm" onclick="sendFormLink('${c.id}','${escHtml(c.name)}','${escHtml(c.email||'')}','${escHtml(c.phone||'')}','${ft.key}','${escHtml(ft.label)}')" title="שלח שוב"><i class="ti ti-send"></i></button>`
-        : `<button class="btn btn-primary btn-sm" onclick="sendFormLink('${c.id}','${escHtml(c.name)}','${escHtml(c.email||'')}','${escHtml(c.phone||'')}','${ft.key}','${escHtml(ft.label)}')"><i class="ti ti-send"></i> שלח</button>`
+        ? `${rec.signature_url?`<a href="${escHtml(rec.signature_url)}" target="_blank" class="btn btn-secondary btn-sm" title="צפה בחתימה"><i class="ti ti-eye"></i></a>`:''}<button class="btn btn-secondary btn-sm" onclick="sendFormLink('${c.id}','${ft.key}')" title="שלח שוב"><i class="ti ti-send"></i></button>`
+        : `<button class="btn btn-primary btn-sm" onclick="sendFormLink('${c.id}','${ft.key}')"><i class="ti ti-send"></i> שלח</button>`
       }
     </div>`;
   });
   return h;
 }
 
-function sendFormLink(cid,name,email,phone,type,label){
-  S.sendForm={cid,type,label};
+function sendFormLink(cid,type){
+  const ft=FORM_TYPES.find(f=>f.key===type);
+  S.sendForm={cid,type,label:ft?ft.label:'טופס'};
   S.modal='sendform';
   renderRoot();
 }
@@ -845,8 +846,8 @@ function buildModal(){
         <div class="link-box-url" onclick="copyText('${url}')"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${url}</span><i class="ti ti-copy"></i></div>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px">
-        ${c.email?`<button class="btn btn-primary" style="width:100%;justify-content:center" onclick="sendFormEmail('${cid}','${type}','${escHtml(label)}')"><i class="ti ti-mail"></i> שלח לאימייל (${escHtml(c.email)})</button>`:'<div style="font-size:12px;color:var(--text-sub);text-align:center">אין אימייל ללקוח</div>'}
-        <button class="btn btn-success" style="width:100%;justify-content:center;background:#25D366;border-color:#25D366;color:#fff" onclick="sendFormWhatsApp('${escHtml(c.phone||'')}','${escHtml(c.name)}','${url}','${escHtml(label)}')"><i class="ti ti-brand-whatsapp"></i> שלח בוואטסאפ</button>
+        ${c.email?`<button class="btn btn-primary" style="width:100%;justify-content:center" onclick="sendFormEmail()"><i class="ti ti-mail"></i> שלח לאימייל (${escHtml(c.email)})</button>`:'<div style="font-size:12px;color:var(--text-sub);text-align:center">אין אימייל ללקוח — הוסף בעריכת פרטים</div>'}
+        <button class="btn btn-success" style="width:100%;justify-content:center;background:#25D366;border-color:#25D366;color:#fff" onclick="sendFormWhatsApp()"><i class="ti ti-brand-whatsapp"></i> שלח בוואטסאפ</button>
         <button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="copyText('${url}')"><i class="ti ti-copy"></i> העתק קישור</button>
       </div>
       <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">סגור</button></div>
@@ -1049,15 +1050,20 @@ function shareWhatsAppClient(phone,name){
   const waPhone=cleanPhone.startsWith('0')?'972'+cleanPhone.slice(1):cleanPhone;
   window.open('https://wa.me/'+waPhone+'?text='+msg,'_blank');
 }
-function sendFormWhatsApp(phone,name,url,label){
-  const msg=encodeURIComponent('שלום '+name+'! לחתימה על '+label+' אצל ד"ר קליניק: '+url);
-  const cleanPhone=(phone||'').replace(/[^0-9]/g,'');
+function sendFormWhatsApp(){
+  if(!S.sendForm)return;
+  const c=S.clients.find(x=>x.id===S.sendForm.cid);if(!c)return;
+  const url=getFormUrl(S.sendForm.cid,S.sendForm.type);
+  const msg=encodeURIComponent('שלום '+c.name+'! לחתימה על '+S.sendForm.label+' אצל ד"ר קליניק: '+url);
+  const cleanPhone=(c.phone||'').replace(/[^0-9]/g,'');
   const waPhone=cleanPhone.startsWith('0')?'972'+cleanPhone.slice(1):cleanPhone;
   window.open('https://wa.me/'+waPhone+'?text='+msg,'_blank');
 }
-async function sendFormEmail(cid,type,label){
-  const c=S.clients.find(x=>x.id===cid);if(!c||!c.email)return;
-  const url=getFormUrl(cid,type);
+async function sendFormEmail(){
+  if(!S.sendForm)return;
+  const c=S.clients.find(x=>x.id===S.sendForm.cid);if(!c||!c.email)return;
+  const url=getFormUrl(S.sendForm.cid,S.sendForm.type);
+  const label=S.sendForm.label;
   const html=`<div dir="rtl" style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
     <div style="background:linear-gradient(135deg,#154F7A,#1B6CA8,#4DB8C8);padding:24px;border-radius:12px;text-align:center;margin-bottom:24px">
       <h2 style="color:#fff;margin:0">ד"ר קליניק</h2>
@@ -1073,7 +1079,7 @@ async function sendFormEmail(cid,type,label){
     <p style="font-size:11px;color:#aaa;text-align:center">ד"ר קליניק | קליניקה לרפואה אסתטית</p>
   </div>`;
   await sendEmail(c.email,'חתימה על '+label+' — ד"ר קליניק',html);
-  S.modal=null;renderRoot();toast('📧 הטופס נשלח לאימייל!');
+  S.modal=null;S.sendForm=null;renderRoot();toast('📧 הטופס נשלח לאימייל!');
 }
 function copyText(t){navigator.clipboard.writeText(t).then(()=>toast('קישור הועתק! 📋')).catch(()=>toast('העתק ידנית'))}
 
