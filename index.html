@@ -347,10 +347,11 @@ function doLogin(u,p){if(u===AUTH.username&&p===AUTH.password){sessionStorage.se
 function doLogout(){sessionStorage.removeItem(AUTH_KEY);renderRoot()}
 
 // UTILS
+function localISO(d){const dt=new Date(d);const off=dt.getTimezoneOffset();const local=new Date(dt.getTime()-off*60000);return local.toISOString().slice(0,10)}
 function weekStart(d){const dt=new Date(d);const day=dt.getDay();dt.setDate(dt.getDate()-(day===0?6:day-1));return dt}
 function addDays(d,n){const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt}
-function fmtDate(d){return d.toISOString().slice(0,10)}
-function today(){return new Date().toISOString().slice(0,10)}
+function fmtDate(d){return localISO(d)}
+function today(){return localISO(new Date())}
 function fmt(d){if(!d)return'';const[y,m,day]=d.split('-');const M=['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'];return`${+day} ${M[+m-1]}`}
 function fmtFull(d){if(!d)return'';const[y,m,day]=d.split('-');const M=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];return`${+day} ${M[+m-1]} ${y}`}
 function fmtDay(){const days=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];const d=new Date();return`יום ${days[d.getDay()]}, ${fmt(today())}`}
@@ -415,7 +416,6 @@ function buildApp(){
   const sidebar=`<div class="sidebar ${S.sidebarOpen?'open':''}" id="sidebar">
     <div class="sb-top">
       <div class="sb-brand"><div class="sb-icon"><i class="ti ti-heartbeat"></i></div><div><div class="sb-name">ד"ר אלכסנדר</div><div class="sb-ver">מערכת ניהול</div></div></div>
-      <div class="search-wrap"><i class="ti ti-search"></i><input type="text" placeholder="חיפוש לקוח…" value="${escHtml(S.search)}" oninput="S.search=this.value;searchToClients()"></div>
     </div>
     <div class="nav-section">
       <div class="nav-label">ניווט</div>
