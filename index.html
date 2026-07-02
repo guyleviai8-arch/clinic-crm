@@ -4,6 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>ד"ר קליניק | CRM</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -380,7 +383,7 @@ function clientAppts(cid){return S.appointments.filter(a=>a.client_id===cid).sor
 function pendingRem(c){return clientReminders(c.id).filter(r=>!r.done).length}
 function getBookingUrl(){return window.location.origin+window.location.pathname.replace('index.html','')+'booking.html'}
 
-let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:''};
+let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:'',showNotif:false};
 
 function showLoading(){const el=document.getElementById('root');if(!document.getElementById('loading'))el.insertAdjacentHTML('beforeend','<div class="loading-overlay" id="loading"><div class="loading-spinner"></div><div class="loading-text">טוען נתונים…</div></div>')}
 function hideLoading(){const el=document.getElementById('loading');if(el)el.remove()}
@@ -437,7 +440,7 @@ function buildApp(){
 
   const sidebar=`<div class="sidebar ${S.sidebarOpen?'open':''}" id="sidebar">
     <div class="sb-top">
-      <div class="sb-brand"><div class="sb-icon"><i class="ti ti-heartbeat"></i></div><div><div class="sb-name">ד"ר קליניק</div><div class="sb-ver">מערכת ניהול</div></div></div>
+      <div class="sb-brand"><div class="sb-icon"><i class="ti ti-heartbeat"></i></div><div style="flex:1"><div class="sb-name">ד"ר קליניק</div><div class="sb-ver">מערכת ניהול</div></div><button onclick="toggleNotif()" style="position:relative;background:none;border:none;cursor:pointer;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--primary)" title="יומן התראות"><i class="ti ti-notebook" style="font-size:22px"></i>${getNotifications().length>0?`<span style="position:absolute;top:4px;left:4px;background:#E24B4A;color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 3px">${getNotifications().length}</span>`:''}</button></div>
     </div>
     <div class="nav-section">
       <div class="nav-label">ניווט</div>
@@ -455,7 +458,7 @@ function buildApp(){
   const topbar=`<div class="topbar">
     <button class="tb-btn" onclick="toggleSidebar()"><i class="ti ti-menu-2"></i></button>
     <div class="topbar-title">${pageLabels[S.activePage]||'לקוחות'}</div>
-    <button class="tb-btn" onclick="loadAll()"><i class="ti ti-refresh"></i></button>
+    <button class="tb-btn" onclick="toggleNotif()" style="position:relative"><i class="ti ti-notebook"></i>${getNotifications().length>0?`<span style="position:absolute;top:2px;left:2px;background:#E24B4A;color:#fff;font-size:9px;font-weight:700;min-width:15px;height:15px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 3px">${getNotifications().length}</span>`:''}</button>
   </div>`;
   const bottomNav=`<div class="bottom-nav"><div class="bn-row">
     <button class="bn-item ${S.activePage==='dashboard'?'active':''}" onclick="gotoPage('dashboard')"><span class="bn-dot"><i class="ti ti-layout-dashboard"></i>${urgentRems>0?'<span class="bn-dot-badge"></span>':''}</span>דשבורד</button>
@@ -488,10 +491,79 @@ function buildApp(){
       ${bottomNav}
     </div>
     ${S.modal?buildModal():''}
+    ${S.showNotif?buildNotifPanel():''}
   </div>`;
 }
 
 // DASHBOARD
+function buildNotifPanel(){
+  const notes=getNotifications();
+  return`<div class="modal-bg" onclick="if(event.target===event.currentTarget)toggleNotif()" style="align-items:flex-start;justify-content:flex-start">
+    <div style="background:var(--white);border-radius:0 0 16px 0;width:100%;max-width:380px;max-height:88vh;overflow-y:auto;box-shadow:4px 4px 24px rgba(0,0,0,.15)">
+      <div style="padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;position:sticky;top:0;background:var(--white);z-index:2">
+        <i class="ti ti-notebook" style="font-size:22px;color:var(--primary)"></i>
+        <div style="flex:1"><div style="font-size:16px;font-weight:600">יומן התראות</div><div style="font-size:12px;color:var(--text-sub)">${notes.length} התראות חדשות</div></div>
+        <button onclick="toggleNotif()" style="background:none;border:none;cursor:pointer;font-size:22px;color:var(--text-sub)"><i class="ti ti-x"></i></button>
+      </div>
+      <div style="padding:12px">
+        ${notes.length===0?`<div class="empty" style="padding:40px 0"><i class="ti ti-check" style="font-size:36px;display:block;margin-bottom:10px;color:var(--accent)"></i>אין התראות חדשות<br><span style="font-size:12px">הכל מעודכן! 🎉</span></div>`:notes.map(n=>`<div onclick="${n.action};S.showNotif=false" style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:11px;cursor:pointer;margin-bottom:6px;border:1px solid var(--border);transition:all .12s" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'">
+          <div style="width:38px;height:38px;border-radius:10px;background:${n.bg};color:${n.color};display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ${n.icon}" style="font-size:18px"></i></div>
+          <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">${n.title}</div><div style="font-size:12px;color:var(--text-sub);margin-top:2px">${n.sub}</div></div>
+          <i class="ti ti-chevron-left" style="color:var(--text-sub);font-size:16px;flex-shrink:0;margin-top:8px"></i>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function getNotifications(){
+  const notes=[];
+  // בקשות תור ממתינות
+  S.appointments.filter(a=>a.status==='pending').forEach(a=>{
+    notes.push({icon:'ti-calendar-clock',color:'#EF9F27',bg:'#FAEEDA',title:'בקשת תור חדשה',sub:`${a.client_name||getClientName(a.client_id)} · ${escHtml(a.treatment)} · ${fmt(a.date)} ${a.time}`,action:`showApptDetail('${a.id}')`});
+  });
+  // ימי הולדת היום/מחר
+  upcomingBirthdays().filter(b=>b.diff<=1).forEach(b=>{
+    notes.push({icon:'ti-cake',color:'#E0589B',bg:'#FDF0F6',title:`יום הולדת ${b.diff===0?'היום! 🎉':'מחר'}`,sub:`${b.name}${b.turning?` · גיל ${b.turning}`:''}`,action:`openClientCard('${b.id}')`});
+  });
+  // תזכורות שהגיע זמנן (היום/באיחור)
+  allPendingRem().filter(r=>duePri(r.due)!=='normal').forEach(r=>{
+    const od=duePri(r.due)==='overdue';
+    notes.push({icon:'ti-clock',color:od?'#E24B4A':'#EF9F27',bg:od?'#FCEBEB':'#FAEEDA',title:od?'תזכורת באיחור':'תזכורת להיום',sub:`${escHtml(r.text)} · ${escHtml(r.clientName)}`,action:`gotoClientReminders('${r.client_id}')`});
+  });
+  return notes;
+}
+function gotoClientReminders(cid){S.activeId=cid;S.activePage='clients';S.clientListView=false;S.activeTab='reminders';S.showNotif=false;renderRoot();}
+function toggleNotif(){S.showNotif=!S.showNotif;renderRoot();}
+
+function upcomingBirthdays(){
+  const today=new Date();
+  const result=[];
+  S.clients.forEach(c=>{
+    if(!c.dob)return;
+    const dob=new Date(c.dob);
+    if(isNaN(dob))return;
+    // יום הולדת השנה
+    const thisYear=new Date(today.getFullYear(),dob.getMonth(),dob.getDate());
+    let diff=Math.ceil((thisYear-today)/(24*3600*1000));
+    if(diff<0){diff+=365;} // עבר השנה — חשב לשנה הבאה
+    if(diff<=14){ // בתוך שבועיים
+      const turning=today.getFullYear()-dob.getFullYear()+(thisYear<today?1:0);
+      let label;
+      if(diff===0)label='🎉 היום!';
+      else if(diff===1)label='מחר';
+      else label=`בעוד ${diff} ימים`;
+      result.push({id:c.id,name:c.name,phone:c.phone,color:c.color||0,diff,label,turning});
+    }
+  });
+  return result.sort((a,b)=>a.diff-b.diff);
+}
+function sendBirthdayWhatsApp(phone,name){
+  const msg=encodeURIComponent(`שלום ${name}! 🎂 כל צוות ד"ר קליניק מאחל לך יום הולדת שמח! לרגל החגיגה — מחכה לך הטבה מיוחדת בטיפול הבא. נשמח לראותך! 🎁`);
+  const cleanPhone=(phone||'').replace(/[^0-9]/g,'');
+  const waPhone=cleanPhone.startsWith('0')?'972'+cleanPhone.slice(1):cleanPhone;
+  window.open('https://wa.me/'+waPhone+'?text='+msg,'_blank');
+}
 function buildDashboard(){
   const todayStr=today();
   const todayAppts=S.appointments.filter(a=>a.date===todayStr).sort((a,b)=>a.time.localeCompare(b.time));
@@ -499,6 +571,14 @@ function buildDashboard(){
   const urgentRems=allPendingRem().filter(r=>duePri(r.due)!=='normal').length;
   const pendingAppts=S.appointments.filter(a=>a.status==='pending').length;
   const upRems=allPendingRem().sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999')).slice(0,4);
+  const birthdays=upcomingBirthdays();
+  // סטטיסטיקות חודשיות
+  const now=new Date();
+  const thisMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  const newClientsThisMonth=S.clients.filter(c=>c.created_at&&c.created_at.startsWith(thisMonth)).length;
+  const apptsThisMonth=S.appointments.filter(a=>a.date&&a.date.startsWith(thisMonth));
+  const revenueThisMonth=S.treatments.filter(t=>t.date&&t.date.startsWith(thisMonth)).reduce((s,t)=>s+(t.price||0),0);
+  const confirmedThisMonth=apptsThisMonth.filter(a=>a.status==='confirmed'||a.status==='done').length;
 
   return`<div class="dash-header"><div class="dash-title">שלום, ד"ר קליניק 👋</div><div class="dash-sub">${fmtDay()} · ${todayAppts.length} תורים היום</div></div>
   <div class="kpi-grid">
@@ -520,6 +600,15 @@ function buildDashboard(){
     </div>`).join('')}</div>
   </div>`:''}
 
+  ${birthdays.length>0?`<div class="dash-card" style="border-color:#F0A6C8">
+    <div class="dc-header" style="background:#FDF0F6"><div class="dc-title" style="color:#9D2C5E"><i class="ti ti-cake" style="color:#E0589B"></i>ימי הולדת קרובים 🎂</div></div>
+    <div class="dc-body">${birthdays.map(b=>{const p=PALETTES[b.color%PALETTES.length];return`<div class="today-appt" style="cursor:pointer" onclick="openClientCard('${b.id}')">
+      <div class="ta-dot" style="background:#E0589B"></div>
+      <div class="ta-info"><div class="ta-name">${escHtml(b.name)}</div><div class="ta-treat">${b.label}${b.turning?` · גיל ${b.turning}`:''}</div></div>
+      <button class="btn btn-success btn-sm" style="background:#25D366;border-color:#25D366;color:#fff" onclick="event.stopPropagation();sendBirthdayWhatsApp('${escHtml(b.phone||'')}','${escHtml(b.name)}')"><i class="ti ti-brand-whatsapp"></i> ברכה</button>
+    </div>`;}).join('')}</div>
+  </div>`:''}
+
   <div class="dash-card">
     <div class="dc-header"><div class="dc-title"><i class="ti ti-calendar-today"></i>תורים היום</div><button class="dc-action" onclick="gotoPage('calendar')">יומן ←</button></div>
     <div class="dc-body">
@@ -532,6 +621,18 @@ function buildDashboard(){
   <div class="dash-card">
     <div class="dc-header"><div class="dc-title"><i class="ti ti-clock"></i>תזכורות דחופות</div></div>
     <div class="dc-body">${upRems.length===0?`<div class="empty" style="padding:12px 0"><i class="ti ti-check" style="font-size:22px;display:block;margin-bottom:6px"></i>הכל מעודכן!</div>`:upRems.map(r=>{const pp=duePri(r.due);const dc={overdue:'d-red',today:'d-amber',normal:'d-teal'}[pp];const cls={overdue:'overdue-text',today:'today-text',normal:''}[pp];const lbl={overdue:'באיחור!',today:'היום',normal:fmt(r.due)}[pp];return`<div class="rem-item"><div class="ri-dot ${dc}"></div><div class="ri-body"><div class="ri-text">${escHtml(r.text)}</div><div class="ri-client">${escHtml(r.clientName)}</div></div><div class="${cls}">${lbl}</div></div>`;}).join('')}</div>
+  </div>
+
+  <div class="dash-card">
+    <div class="dc-header"><div class="dc-title"><i class="ti ti-chart-line"></i>סטטיסטיקות החודש 📊</div></div>
+    <div class="dc-body">
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+        <div style="background:var(--primary-light);border-radius:10px;padding:14px;text-align:center"><div style="font-size:24px;font-weight:700;color:var(--primary)">${newClientsThisMonth}</div><div style="font-size:11px;color:var(--text-sub);margin-top:3px">לקוחות חדשים</div></div>
+        <div style="background:var(--accent-light);border-radius:10px;padding:14px;text-align:center"><div style="font-size:24px;font-weight:700;color:var(--accent)">${apptsThisMonth.length}</div><div style="font-size:11px;color:var(--text-sub);margin-top:3px">תורים החודש</div></div>
+        <div style="background:#EAF3DE;border-radius:10px;padding:14px;text-align:center"><div style="font-size:24px;font-weight:700;color:#27500A">₪${revenueThisMonth.toLocaleString()}</div><div style="font-size:11px;color:var(--text-sub);margin-top:3px">הכנסות החודש</div></div>
+        <div style="background:#FDF0F6;border-radius:10px;padding:14px;text-align:center"><div style="font-size:24px;font-weight:700;color:#9D2C5E">${confirmedThisMonth}</div><div style="font-size:11px;color:var(--text-sub);margin-top:3px">תורים מאושרים</div></div>
+      </div>
+    </div>
   </div>
 
   <div class="dash-card">
@@ -792,7 +893,7 @@ function buildModal(){
       <div class="fg"><div class="fl">שם מלא *</div><input class="fi" id="m-name" placeholder="שם הלקוח" dir="rtl" autofocus></div>
       <div class="fg"><div class="fl">טלפון</div><input class="fi" id="m-phone" type="tel" placeholder="050-..."></div>
       <div class="fg"><div class="fl">אימייל</div><input class="fi" id="m-email" type="email" placeholder="email@example.com"></div>
-      <div class="fg"><div class="fl">גיל</div><input class="fi" id="m-age" type="number" placeholder="30" min="1" max="120"></div>
+      <div class="fg"><div class="fl">תאריך לידה 🎂</div><input class="fi" id="m-dob" type="date"></div>
       <div class="fg"><div class="fl">סוג עור</div><input class="fi" id="m-skin" placeholder="למשל: יבש, בוגר" dir="rtl"></div>
       <div class="fg"><div class="fl">אלרגיות</div><input class="fi" id="m-allergy" placeholder="אין ידועות" dir="rtl"></div>
       <div class="fg"><div class="fl">ערוץ הגעה</div><div class="source-grid">${sg}</div></div>
@@ -1006,7 +1107,9 @@ async function saveNotes(){
 
 async function saveNewClient(){
   const name=document.getElementById('m-name').value.trim();if(!name){alert('נא להזין שם.');return}
-  const body={name,phone:document.getElementById('m-phone').value.trim(),email:document.getElementById('m-email').value.trim(),age:parseInt(document.getElementById('m-age').value)||null,skin:document.getElementById('m-skin').value.trim()||'לא ידוע',allergies:document.getElementById('m-allergy').value.trim()||'אין ידועות',tier:document.getElementById('m-tier').value,source:S.newSrc||null,color:S.clients.length%PALETTES.length,consent:false,notes:''};
+  const dob=document.getElementById('m-dob').value||null;
+  const age=dob?Math.floor((Date.now()-new Date(dob).getTime())/(365.25*24*3600*1000)):null;
+  const body={name,phone:document.getElementById('m-phone').value.trim(),email:document.getElementById('m-email').value.trim(),dob,age,skin:document.getElementById('m-skin').value.trim()||'לא ידוע',allergies:document.getElementById('m-allergy').value.trim()||'אין ידועות',tier:document.getElementById('m-tier').value,source:S.newSrc||null,color:S.clients.length%PALETTES.length,consent:false,notes:''};
   const res=await sbPost('clients',body);
   if(res&&res[0]){S.clients.unshift(res[0]);S.activeId=res[0].id;S.activePage='clients';S.clientListView=false;S.activeTab='overview';S.modal=null;renderRoot();toast('לקוח נוסף! 🎉')}else toast('שגיאה בשמירה')
 }
