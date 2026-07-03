@@ -316,7 +316,10 @@ async function sendApptEmail(appt){
       <p style="margin-bottom:8px">🕐 <strong>שעה:</strong> ${appt.time}</p>
       <p style="margin-bottom:0">💆 <strong>טיפול:</strong> ${appt.treatment}</p>
     </div>
-    <p style="color:#888;font-size:13px">נשמח לראותך! לשינוי או ביטול — צור קשר.</p>
+    <div style="text-align:center;margin:20px 0">
+      <a href="${getManageUrl(appt.id)}" style="background:#1B6CA8;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:600;display:inline-block;font-size:14px">📅 ניהול / שינוי התור</a>
+    </div>
+    <p style="color:#888;font-size:13px">נשמח לראותך! ניתן לשנות או לבטל את התור דרך הכפתור למעלה.</p>
     <hr style="border:1px solid #DDE8F0;margin:20px 0">
     <p style="font-size:11px;color:#aaa;text-align:center">ד"ר קליניק | קליניקה לרפואה אסתטית</p>
   </div>`;
@@ -382,6 +385,15 @@ function clientReminders(cid){return S.reminders.filter(r=>r.client_id===cid)}
 function clientAppts(cid){return S.appointments.filter(a=>a.client_id===cid).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time))}
 function pendingRem(c){return clientReminders(c.id).filter(r=>!r.done).length}
 function getBookingUrl(){return window.location.origin+window.location.pathname.replace('index.html','')+'booking.html'}
+function getManageUrl(apptId){return window.location.origin+window.location.pathname.replace('index.html','')+'manage.html?id='+apptId}
+function sendManageLink(apptId){
+  const a=S.appointments.find(x=>x.id===apptId);if(!a)return;
+  const url=getManageUrl(apptId);
+  const msg=encodeURIComponent(`שלום ${a.client_name}! לניהול או שינוי התור שלך (${a.treatment}, ${a.date} ${a.time}) אצל ד"ר קליניק: ${url}`);
+  const cleanPhone=(a.client_phone||'').replace(/[^0-9]/g,'');
+  const waPhone=cleanPhone.startsWith('0')?'972'+cleanPhone.slice(1):cleanPhone;
+  window.open('https://wa.me/'+waPhone+'?text='+msg,'_blank');
+}
 
 let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:'',showNotif:false};
 
@@ -1017,6 +1029,7 @@ function buildModal(){
       <div class="ma">
         ${a.status==='pending'?`<button class="btn btn-success btn-sm" onclick="confirmAppt('${a.id}')"><i class="ti ti-check"></i> אשר</button><button class="btn btn-danger btn-sm" onclick="cancelAppt('${a.id}')"><i class="ti ti-x"></i> דחה</button>`:''}
         <button class="btn btn-secondary btn-sm" onclick="editAppt('${a.id}')"><i class="ti ti-edit"></i> ערוך</button>
+        <button class="btn btn-success btn-sm" style="background:#25D366;border-color:#25D366;color:#fff" onclick="sendManageLink('${a.id}')"><i class="ti ti-brand-whatsapp"></i> קישור ניהול</button>
         <button class="btn btn-secondary btn-sm" onclick="showLinkClient('${a.id}')"><i class="ti ti-user-plus"></i> שייך</button>
         <button class="btn btn-danger btn-sm" onclick="deleteAppt('${a.id}')"><i class="ti ti-trash"></i></button>
         <button class="btn btn-google btn-sm" onclick="exportApptToGoogle('${a.id}')"><i class="ti ti-brand-google"></i></button>
