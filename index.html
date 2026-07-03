@@ -266,7 +266,12 @@ const SUPABASE_URL='https://vizqigecvjpcfrorwowm.supabase.co';
 const SUPABASE_KEY='sb_publishable_EhhQfiQA2cUDA7BA68ZPWg_0bVeHtlA';
 
 const PALETTES=[{bg:'#EEEDFE',c:'#3C3489'},{bg:'#E1F5EE',c:'#085041'},{bg:'#FAECE7',c:'#712B13'},{bg:'#FBEAF0',c:'#72243E'},{bg:'#E6F1FB',c:'#0C447C'},{bg:'#FAEEDA',c:'#633806'},{bg:'#EAF3DE',c:'#27500A'},{bg:'#F1EFE8',c:'#444441'}];
-const FORM_TYPES=[{key:'general',label:'הסכמה כללית',icon:'ti-file-text'},{key:'botox',label:'בוטוקס',icon:'ti-vaccine'},{key:'filler',label:'פילר',icon:'ti-droplet'},{key:'facial',label:'טיפול פנים',icon:'ti-sparkles'}];
+const FORM_TYPES=[
+  {key:'general',label:'הסכמה כללית',icon:'ti-file-text',desc:'טיפול אסתטי',risks:'כאב קל, אדמומיות, נפיחות וחבורות זמניות באזור הטיפול; במקרים נדירים תגובה אלרגית; תוצאות משתנות בין אדם לאדם ואינן מובטחות.'},
+  {key:'botox',label:'בוטוקס',icon:'ti-vaccine',desc:'הזרקת בוטוקס (Botulinum Toxin)',risks:'כאב, אדמומיות ונפיחות קלה באזור ההזרקה; כאב ראש זמני; במקרים נדירים צניחת עפעף זמנית, אסימטריה, או חולשת שרירים מקומית; התוצאה מתחילה תוך 3-7 ימים ונמשכת 3-4 חודשים.'},
+  {key:'filler',label:'פילר',icon:'ti-droplet',desc:'הזרקת חומרי מילוי (Hyaluronic Acid)',risks:'כאב, אדמומיות, נפיחות וחבורות באזור ההזרקה; גושים או אי-סדירות זמניים; במקרים נדירים חסימת כלי דם, זיהום, או תגובה אלרגית; ייתכן צורך בטיפול משלים.'},
+  {key:'facial',label:'טיפול פנים',icon:'ti-sparkles',desc:'טיפול פנים מתקדם',risks:'אדמומיות וקילופים זמניים; רגישות מוגברת לשמש; במקרים נדירים גירוי או תגובה אלרגית למוצרים; יש להימנע מחשיפה לשמש ולהשתמש בקרם הגנה לאחר הטיפול.'}
+];
 const SOURCES=[{key:'instagram',label:'אינסטגרם',icon:'ti-brand-instagram'},{key:'facebook',label:'פייסבוק',icon:'ti-brand-facebook'},{key:'google',label:'גוגל',icon:'ti-brand-google'},{key:'referral',label:'המלצה',icon:'ti-users'},{key:'tiktok',label:'טיקטוק',icon:'ti-brand-tiktok'},{key:'other',label:'אחר',icon:'ti-dots'}];
 const HOURS=Array.from({length:16},(_,i)=>i+7);
 const AUTH_USER='admin';
@@ -395,7 +400,7 @@ function sendManageLink(apptId){
   window.open('https://wa.me/'+waPhone+'?text='+msg,'_blank');
 }
 
-let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:'',showNotif:false};
+let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:'',showNotif:false,viewForm:null};
 
 function showLoading(){const el=document.getElementById('root');if(!document.getElementById('loading'))el.insertAdjacentHTML('beforeend','<div class="loading-overlay" id="loading"><div class="loading-spinner"></div><div class="loading-text">טוען נתונים…</div></div>')}
 function hideLoading(){const el=document.getElementById('loading');if(el)el.remove()}
@@ -817,6 +822,11 @@ function clientForms(cid){
 }
 function getFormUrl(cid,type){return window.location.origin+window.location.pathname.replace('index.html','')+'consent.html?client='+cid+'&type='+type}
 
+function viewSignedForm(cid,type){
+  S.viewForm={cid,type};
+  S.modal='viewform';
+  renderRoot();
+}
 function buildFormsChecklist(c){
   const signed=clientForms(c.id);
   let h='<div style="font-size:12px;color:var(--text-sub);margin-bottom:12px">סטטוס טפסי הסכמה של הלקוח:</div>';
@@ -832,7 +842,7 @@ function buildFormsChecklist(c){
         ${isSigned?`<div style="font-size:11px;color:var(--accent)">✅ נחתם${dateStr?' '+dateStr:''}</div>`:'<div style="font-size:11px;color:var(--text-sub)">⬜ טרם נחתם</div>'}
       </div>
       ${isSigned
-        ? `${rec.signature_url?`<a href="${escHtml(rec.signature_url)}" target="_blank" class="btn btn-secondary btn-sm" title="צפה בחתימה"><i class="ti ti-eye"></i></a>`:''}<button class="btn btn-secondary btn-sm" onclick="sendFormLink('${c.id}','${ft.key}')" title="שלח שוב"><i class="ti ti-send"></i></button>`
+        ? `<button class="btn btn-secondary btn-sm" onclick="viewSignedForm('${c.id}','${ft.key}')" title="צפה בטופס המלא"><i class="ti ti-file-text"></i> צפה</button><button class="btn btn-secondary btn-sm" onclick="sendFormLink('${c.id}','${ft.key}')" title="שלח שוב"><i class="ti ti-send"></i></button>`
         : `<button class="btn btn-primary btn-sm" onclick="sendFormLink('${c.id}','${ft.key}')"><i class="ti ti-send"></i> שלח</button>`
       }
     </div>`;
@@ -971,6 +981,34 @@ function buildModal(){
     </div></div>`;
   }
 
+  if(S.modal==='viewform'&&S.viewForm){
+    const{cid,type}=S.viewForm;
+    const c=S.clients.find(x=>x.id===cid);if(!c)return'';
+    const ft=FORM_TYPES.find(f=>f.key===type);if(!ft)return'';
+    const rec=clientForms(cid).find(s=>s.form_type===type);
+    const dateStr=rec&&rec.signed_at?new Date(rec.signed_at).toLocaleDateString('he-IL'):new Date().toLocaleDateString('he-IL');
+    return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal" style="max-width:560px">
+      <div class="modal-handle"></div>
+      <div class="modal-title"><i class="ti ${ft.icon}"></i> ${ft.label} — טופס חתום</div>
+      <div style="background:#F8FBFE;border:1px solid var(--border);border-radius:12px;padding:18px;font-size:13px;line-height:1.8;color:#3A4A5E;max-height:50vh;overflow-y:auto">
+        <h3 style="color:#1A2332;font-size:15px;margin:0 0 12px">${ft.label}</h3>
+        <p style="margin-bottom:10px"><strong>הצהרת המטופל/ת:</strong> אני הח"מ, ${escHtml(c.name)}, מצהיר/ה כי קיבלתי הסבר מלא ומפורט מהצוות הרפואי של ד"ר קליניק לגבי <strong>${ft.desc}</strong> המיועד לי, לרבות מהות הטיפול, יתרונותיו, חלופותיו, הסיכונים הכרוכים בו והתוצאות הצפויות.</p>
+        <p style="margin-bottom:10px"><strong>אחריות המטופל/ת:</strong> מסרתי פרטים מלאים ומדויקים על מצבי הרפואי, תרופות, אלרגיות וכל מידע רלוונטי. אני מודע/ת כי הסתרת מידע עלולה לסכן את בריאותי. קיבלתי הסבר על חלופות ועל האפשרות להימנע מהטיפול.</p>
+        <p style="margin-bottom:10px"><strong>הגבלת אחריות הקליניקה:</strong> ד"ר קליניק אינה אחראית לתוצאות במקרים של אי-מסירת מידע מלא, אי-עמידה בהוראות לאחר הטיפול, תגובות אינדיווידואליות בלתי צפויות, גורמים חיצוניים שאינם בשליטת הקליניקה, או ציפיות לא מציאותיות שלא הוסכמו מראש בכתב.</p>
+        <p style="margin-bottom:10px"><strong>סיכונים ידועים — ${ft.desc}:</strong> ${ft.risks}</p>
+        <p style="margin-bottom:0"><strong>הצהרה סופית:</strong> קראתי והבנתי את כל האמור לעיל, קיבלתי מענה לשאלותיי, וחתימתי מהווה הסכמה מדעת חופשית לביצוע הטיפול.</p>
+      </div>
+      ${rec&&rec.signature_url?`<div style="margin-top:16px;text-align:center">
+        <div style="font-size:12px;color:var(--text-sub);margin-bottom:8px">חתימת המטופל/ת:</div>
+        <img src="${escHtml(rec.signature_url)}" style="max-width:280px;max-height:120px;border:1.5px solid var(--border);border-radius:8px;background:#fff">
+        <div style="font-size:11px;color:var(--text-sub);margin-top:6px">נחתם דיגיטלית בתאריך ${dateStr}</div>
+      </div>`:'<div style="text-align:center;color:var(--text-sub);font-size:12px;margin-top:12px">אין חתימה שמורה</div>'}
+      <div class="ma">
+        ${rec&&rec.signature_url?`<a href="${escHtml(rec.signature_url)}" target="_blank" class="btn btn-secondary"><i class="ti ti-download"></i> הורד חתימה</a>`:''}
+        <button class="btn btn-primary" onclick="closeModal()">סגור</button>
+      </div>
+    </div></div>`;
+  }
   if(S.modal==='sendform'&&S.sendForm){
     const cid=S.sendForm.cid;const type=S.sendForm.type;const label=S.sendForm.label;
     const c=S.clients.find(x=>x.id===cid);if(!c)return'';
@@ -1048,7 +1086,7 @@ function selectClient(id){S.activeId=id;S.activePage='clients';S.activeTab='over
 function gotoPage(p){S.activePage=p;if(p==='clients')S.clientListView=true;S.sidebarOpen=false;renderRoot()}
 function setTab(t){S.activeTab=t;renderRoot()}
 function showModal(type){S.modal=type;S.newSrc='';renderRoot()}
-function closeModal(){S.modal=null;S.prefillDate='';S.prefillTime='';S.sendForm=null;renderRoot()}
+function closeModal(){S.modal=null;S.prefillDate='';S.prefillTime='';S.sendForm=null;S.viewForm=null;renderRoot()}
 function closeModalBg(e){if(e.target===e.currentTarget)closeModal()}
 function selectSrc(k){S.newSrc=k;document.querySelectorAll('.source-opt').forEach(el=>{el.classList.toggle('selected',el.getAttribute('onclick').includes("'"+k+"'"))})}
 function showApptDetail(id){S.modal='appt-'+id;renderRoot()}
