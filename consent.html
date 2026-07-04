@@ -116,17 +116,19 @@ async function init(){
   formType=getParam('type')||'general';
   if(!FORM_TYPES[formType])formType='general';
   if(!clientId){showError('קישור לא תקין');return}
-  const res=await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}&select=*`,{
-    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
+  const res=await fetch(`${SUPABASE_URL}/functions/v1/clinic-api`,{
+    method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
+    body:JSON.stringify({action:'select',table:'clients',filters:[{column:'id',value:clientId}]})
   });
-  const clients=await res.json();
+  const cj=await res.json();const clients=cj.data||[];
   if(!clients||!clients.length){showError('לקוח לא נמצא');return}
   clientData=clients[0];
   // בדיקה אם הטופס הספציפי הזה כבר נחתם
-  const formsRes=await fetch(`${SUPABASE_URL}/rest/v1/consent_forms?client_id=eq.${clientId}&form_type=eq.${formType}&select=*`,{
-    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
+  const formsRes=await fetch(`${SUPABASE_URL}/functions/v1/clinic-api`,{
+    method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
+    body:JSON.stringify({action:'select',table:'consent_forms',filters:[{column:'client_id',value:clientId},{column:'form_type',value:formType}]})
   });
-  const forms=await formsRes.json();
+  const fj=await formsRes.json();const forms=fj.data||[];
   if(forms&&forms.length){renderAlreadySigned();return}
   renderStep1();
 }
@@ -336,17 +338,15 @@ async function submitConsent(){
   }catch(e){}
 
   // Save to consent_forms table (separate record per form type)
-  await fetch(`${SUPABASE_URL}/rest/v1/consent_forms`,{
-    method:'POST',
-    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
-    body:JSON.stringify({client_id:clientId,form_type:formType,signature_url:sigUrl})
+  await fetch(`${SUPABASE_URL}/functions/v1/clinic-api`,{
+    method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
+    body:JSON.stringify({action:'insert',table:'consent_forms',data:{client_id:clientId,form_type:formType,signature_url:sigUrl}})
   });
   // Update client record (mark general consent + save details)
   const notesAdd=`\n[${FORM_TYPES[formType].label} נחתם ב-${new Date().toLocaleDateString('he-IL')}]`;
-  await fetch(`${SUPABASE_URL}/rest/v1/clients?id=eq.${clientId}`,{
-    method:'PATCH',
-    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
-    body:JSON.stringify({consent:true,notes:(clientData.notes||'')+notesAdd,signature_url:sigUrl,dob:clientData.dob||null,name:clientData.name})
+  await fetch(`${SUPABASE_URL}/functions/v1/clinic-api`,{
+    method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
+    body:JSON.stringify({action:'update',table:'clients',filters:[{column:'id',value:clientId}],data:{consent:true,notes:(clientData.notes||'')+notesAdd,signature_url:sigUrl,dob:clientData.dob||null,name:clientData.name}})
   });
 
   // Send confirmation email via Edge Function
