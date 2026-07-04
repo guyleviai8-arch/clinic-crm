@@ -277,21 +277,61 @@ const HOURS=Array.from({length:16},(_,i)=>i+7);
 const AUTH_USER='admin';
 const AUTH_KEY='clinic_crm_auth';
 
+const API_URL=`${SUPABASE_URL}/functions/v1/clinic-api`;
+// שומר את סיסמת המנהל בזיכרון בזמן הסשן (לא נחשף בקוד)
+let ADMIN_PW='';
+
+async function apiCall(payload){
+  const res=await fetch(API_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
+    body:JSON.stringify({...payload,password:ADMIN_PW})
+  });
+  if(!res.ok)return null;
+  const j=await res.json();
+  return j;
+}
+
+// ממיר query string ישן (?id=eq.X) ל-filters
+function parseFilters(query){
+  const filters=[];
+  if(!query)return filters;
+  const q=query.replace(/^\?/,'');
+  q.split('&').forEach(part=>{
+    if(part.startsWith('order='))return; // מיון מתבצע בצד הלקוח
+    const[col,val]=part.split('=');
+    if(col&&val&&val.startsWith('eq.')){filters.push({column:col,value:decodeURIComponent(val.slice(3))});}
+  });
+  return filters;
+}
+
 async function sbFetch(table,query=''){
-  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-  if(!res.ok)return null;const t=await res.text();return t?JSON.parse(t):null;
+  const r=await apiCall({action:'select',table,select:'*'});
+  if(!r||!r.data)return null;
+  let rows=r.data;
+  // מיון בצד הלקוח לפי ה-query המקורי
+  if(query.includes('order=')){
+    const m=query.match(/order=([\w]+)\.(asc|desc)/);
+    if(m){const[,col,dir]=m;rows.sort((a,b)=>{const av=a[col]||'',bv=b[col]||'';return dir==='desc'?String(bv).localeCompare(String(av)):String(av).localeCompare(String(bv));});}
+  }
+  return rows;
 }
+
 async function sbPost(table,body){
-  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}`,{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify(body)});
-  if(!res.ok)return null;const t=await res.text();return t?JSON.parse(t):null;
+  const r=await apiCall({action:'insert',table,data:body});
+  return r&&r.data?r.data:null;
 }
+
 async function sbPatch(table,query,body){
-  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`,{method:'PATCH',headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
-  return res.ok;
+  const filters=parseFilters(query);
+  const r=await apiCall({action:'update',table,filters,data:body});
+  return r&&!r.error;
 }
+
 async function sbDelete(table,query){
-  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`,{method:'DELETE',headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-  return res.ok;
+  const filters=parseFilters(query);
+  const r=await apiCall({action:'delete',table,filters});
+  return r&&!r.error;
 }
 
 // EMAIL
@@ -357,11 +397,19 @@ function isLoggedIn(){return sessionStorage.getItem(AUTH_KEY)==='1'}
 async function doLogin(u,p){
   if(u!==AUTH_USER)return false;
   try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/settings?id=eq.1&select=admin_password`,{
-      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
+    // בדיקה מול clinic-api (השומר) — הסיסמה נבדקת בשרת
+    const res=await fetch(API_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
+      body:JSON.stringify({action:'select',table:'settings',select:'admin_password',password:p})
     });
-    const data=await res.json();
-    if(data&&data[0]&&data[0].admin_password===p){sessionStorage.setItem(AUTH_KEY,'1');return true}
+    const j=await res.json();
+    if(j&&j.data&&j.data[0]&&j.data[0].admin_password===p){
+      ADMIN_PW=p; // שמור בזיכרון לצורך פעולות כתיבה
+      sessionStorage.setItem(AUTH_KEY,'1');
+      sessionStorage.setItem('clinic_pw',p);
+      return true;
+    }
   }catch(e){console.log('Login error:',e)}
   return false;
 }
@@ -1336,6 +1384,8 @@ async function uploadClientPhoto(input){
   }
 }
 
+// שחזור סיסמת מנהל מהסשן (לאחר רענון דף)
+if(isLoggedIn()){ADMIN_PW=sessionStorage.getItem('clinic_pw')||'';}
 renderRoot();
 if(isLoggedIn())loadAll();
 </script>
