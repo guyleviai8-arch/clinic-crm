@@ -211,10 +211,12 @@ function stepsBar(active){
 
 async function fetchSlots(date){
   try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/appointments?date=eq.${date}&select=time,duration`,{
-      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
+    const res=await fetch(`${SUPABASE_URL}/functions/v1/clinic-api`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
+      body:JSON.stringify({action:'select',table:'appointments',select:'time,duration,date'})
     });
-    if(res.ok)B.takenSlots=await res.json()||[];
+    if(res.ok){const j=await res.json();B.takenSlots=(j.data||[]).filter(a=>a.date===date);}
   }catch(e){B.takenSlots=[];}
   renderTimeSlots();
 }
@@ -413,10 +415,10 @@ async function submitBooking(){
   const btn=document.getElementById('submitBtn');
   if(btn){btn.disabled=true;btn.innerHTML='<div class="spinner" style="border-color:rgba(255,255,255,.3);border-top-color:#fff;width:18px;height:18px"></div> שולח…';}
   try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/appointments`,{
+    const res=await fetch(`${SUPABASE_URL}/functions/v1/clinic-api`,{
       method:'POST',
-      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=representation'},
-      body:JSON.stringify({client_name:B.name,client_phone:B.phone,client_email:B.email||'',treatment:fullLabel,date:B.date,time:B.time,duration:B.treatmentDuration,notes:B.notes,status:'pending'})
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
+      body:JSON.stringify({action:'insert',table:'appointments',data:{client_name:B.name,client_phone:B.phone,client_email:B.email||'',treatment:fullLabel,date:B.date,time:B.time,duration:B.treatmentDuration,notes:B.notes,status:'pending'}})
     });
     if(res.ok){
       // שלח מייל "ממתין לאישור" ללקוח
