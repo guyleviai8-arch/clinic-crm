@@ -1001,11 +1001,13 @@ function buildModal(){
   }
 
   if(S.modal==='newAppt'){
+    // אם נכנסים ללקוח וקובעים תור — מלא אוטומטית
+    const activeC=(S.activePage==='clients'&&!S.clientListView)?getC():null;
     return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
-      <div class="modal-title"><i class="ti ti-calendar-plus"></i> תור חדש</div>
-      <div class="fg"><div class="fl">שם הלקוח *</div><input class="fi" id="a-name" placeholder="שם מלא" dir="rtl"></div>
-      <div class="fg"><div class="fl">טלפון</div><input class="fi" id="a-phone" type="tel" placeholder="050-..."></div>
-      <div class="fg"><div class="fl">אימייל (לשליחת אישור)</div><input class="fi" id="a-email" type="email" placeholder="email@example.com"></div>
+      <div class="modal-title"><i class="ti ti-calendar-plus"></i> תור חדש${activeC?` — ${escHtml(activeC.name)}`:''}</div>
+      <div class="fg"><div class="fl">שם הלקוח *</div><input class="fi" id="a-name" placeholder="שם מלא" dir="rtl" value="${activeC?escHtml(activeC.name):''}"></div>
+      <div class="fg"><div class="fl">טלפון</div><input class="fi" id="a-phone" type="tel" placeholder="050-..." value="${activeC?escHtml(activeC.phone||''):''}"></div>
+      <div class="fg"><div class="fl">אימייל (לשליחת אישור)</div><input class="fi" id="a-email" type="email" placeholder="email@example.com" value="${activeC?escHtml(activeC.email||''):''}"></div>
       <div class="fg"><div class="fl">טיפול</div><input class="fi" id="a-treat" placeholder="בוטוקס, פילר…" dir="rtl"></div>
       <div class="fg"><div class="fl">תאריך</div><input class="fi" id="a-date" type="date" value="${S.prefillDate||today()}"></div>
       <div class="fg"><div class="fl">שעה</div><input class="fi" id="a-time" type="time" value="${S.prefillTime||'10:00'}"></div>
@@ -1241,6 +1243,9 @@ async function saveAppt(){
   if(!name.trim()){alert('נא להזין שם לקוח.');return}
   if(!date||!time){alert('נא למלא תאריך ושעה.');return}
   const body={client_name:name.trim(),client_phone:phone.trim(),client_email:email.trim(),treatment:treat||'טיפול',date,time,duration:dur,notes,status:'confirmed'};
+  // אם נכנסים ללקוח וקובעים תור — שייך אותו ללקוח
+  const activeC=(S.activePage==='clients'&&!S.clientListView)?getC():null;
+  if(activeC)body.client_id=activeC.id;
   const res=await sbPost('appointments',body);
   if(res&&res[0]){
     S.appointments.push(res[0]);S.appointments.sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
