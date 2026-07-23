@@ -35,6 +35,19 @@ body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);min-h
 .hero-name{font-size:26px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:.5px}
 .hero-sub{font-size:14px;color:rgba(255,255,255,.75);font-weight:300;letter-spacing:.5px}
 .hero-divider{width:40px;height:2px;background:var(--gold);margin:14px auto;border-radius:99px}
+.lang-switch{position:absolute;top:14px;left:14px;z-index:20}
+.lang-toggle{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.32);color:#fff;font-size:12px;padding:7px 12px;border-radius:99px;cursor:pointer;font-family:'Heebo',sans-serif;transition:all .15s;backdrop-filter:blur(6px)}
+.lang-toggle:hover{background:rgba(255,255,255,.3)}
+.lang-toggle .chev{font-size:9px;opacity:.8;transition:transform .2s}
+.lang-switch.open .chev{transform:rotate(180deg)}
+.lang-menu{position:absolute;top:calc(100% + 6px);left:0;background:#fff;border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);overflow:hidden;min-width:150px;opacity:0;visibility:hidden;transform:translateY(-6px);transition:all .18s}
+.lang-switch.open .lang-menu{opacity:1;visibility:visible;transform:translateY(0)}
+.lang-item{display:flex;align-items:center;gap:9px;padding:11px 14px;cursor:pointer;font-size:13px;color:#1A2332;font-family:'Heebo',sans-serif;transition:background .12s;white-space:nowrap;text-align:left;direction:ltr}
+.lang-item:hover{background:#F0F6FC}
+.lang-item.active{background:#E8F4FD;font-weight:600;color:#1B6CA8}
+.lang-item .flag{font-size:15px}
+.lang-item .check{margin-left:auto;color:#1B6CA8;font-size:13px}
+.hero{position:relative}
 .hero-tag{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;padding:5px 14px;border-radius:99px;backdrop-filter:blur(8px)}
 
 /* MAIN */
@@ -127,11 +140,17 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0
 <body>
 
 <div class="hero">
+  <div class="lang-switch" id="lang-switch">
+    <button class="lang-toggle" onclick="event.stopPropagation();toggleLangMenu()">
+      <span>🌐</span><span id="lang-current">עברית</span><span class="chev">▼</span>
+    </button>
+    <div class="lang-menu" id="lang-menu"></div>
+  </div>
   <div class="hero-logo">✦</div>
   <div class="hero-name">ד"ר קליניק</div>
-  <div class="hero-sub">קליניקה לרפואה אסתטית</div>
+  <div class="hero-sub" id="hero-sub">קליניקה לרפואה אסתטית</div>
   <div class="hero-divider"></div>
-  <div class="hero-tag">קביעת תור אונליין</div>
+  <div class="hero-tag" id="hero-tag">קביעת תור אונליין</div>
 </div>
 
 <div class="wrap">
@@ -142,14 +161,177 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0
 const SUPABASE_URL='https://vizqigecvjpcfrorwowm.supabase.co';
 const SUPABASE_KEY='sb_publishable_EhhQfiQA2cUDA7BA68ZPWg_0bVeHtlA';
 
-const TREATMENTS=[
-  {key:'botox',label:'בוטוקס',icon:'💉',duration:45,subs:['מצח','גלבלה (בין הגבות)','עורביים (עיניים)','מצח + גלבלה','פנים מלא']},
-  {key:'filler',label:'פילר',icon:'✨',duration:60,subs:['שפתיים','קפלי אף-שפה','לחיים','תחת עיניים','סנטר']},
-  {key:'profhilo',label:'פרופהילו',icon:'💧',duration:60,subs:['פנים','צוואר','ידיים']},
-  {key:'peel',label:'פילינג',icon:'🌟',duration:45,subs:['פילינג שטחי','פילינג בינוני (TCA)','פילינג כימי','פילינג פירות']},
-  {key:'laser',label:'לייזר',icon:'⚡',duration:30,subs:['הסרת שיער','כתמים','כלי דם','פיגמנטציה']},
-  {key:'consult',label:'ייעוץ',icon:'🩺',duration:30,subs:['ייעוץ כללי','ניתוח עור','תכנית טיפולים']},
+// ============ מערכת שפות ============
+const I18N={
+  he:{
+    dir:'rtl', sub:'קליניקה לרפואה אסתטית', tag:'קביעת תור אונליין',
+    personalDetails:'פרטים אישיים', fullName:'שם מלא *', namePlaceholder:'שם ושם משפחה',
+    phone:'מספר טלפון *', email:'אימייל (לקבלת אישור)',
+    chooseTreatment:'בחר טיפול', chooseSubType:'בחר סוג',
+    continueToDate:'המשך לבחירת תאריך ←', chooseDate:'בחר תאריך',
+    continueToConfirm:'המשך לאישור ←', chooseTime:'בחר שעה',
+    strikeTaken:'שעות מוקרעות — תפוסות', summary:'סיכום ואישור',
+    name:'שם', treatment:'טיפול', date:'תאריך', time:'שעה',
+    notes:'הערות (אופציונלי)', notesPlaceholder:'משהו שכדאי שנדע?',
+    submit:'שלח בקשת תור', sending:'שולח…', back:'← חזור',
+    successTitle:'הבקשה התקבלה!', successSub:'התור ממתין לאישור הקליניקה',
+    emailSent:'📧 שלחנו לך אימייל אישור.', willUpdate:'נעדכן אותך ברגע שהתור יאושר סופית!',
+    newBooking:'קביעת תור נוסף',
+    errName:'נא להזין שם תקין (אותיות)', errPhone:'נא להזין מספר טלפון תקין (לדוגמה: 0501234567)',
+    errNameEmpty:'נא למלא שם מלא', errPhoneEmpty:'נא למלא מספר טלפון',
+    errTreatment:'נא לבחור סוג טיפול', errSubType:'נא לבחור תת-סוג טיפול',
+    errDate:'נא לבחור תאריך (לא שישי/שבת)', errTime:'נא לבחור שעה',
+    errSave:'שגיאה בשמירת התור. נסה שוב.', errConn:'שגיאת חיבור. בדוק אינטרנט ונסה שוב.',
+    closedDay:'הקליניקה סגורה בימי שישי ושבת', loading:'טוען שעות פנויות…',
+    minutes:'דק׳',
+    treatments:{botox:'בוטוקס',filler:'פילר',profhilo:'פרופהילו',peel:'פילינג',laser:'לייזר',consult:'ייעוץ'},
+    subs:{forehead:'מצח',glabella:'גלבלה (בין הגבות)',crowsfeet:'עורביים (עיניים)',forehead_glabella:'מצח + גלבלה',fullface:'פנים מלא',
+      lips:'שפתיים',nasolabial:'קפלי אף-שפה',cheeks:'לחיים',undereye:'תחת עיניים',chin:'סנטר',
+      face:'פנים',neck:'צוואר',hands:'ידיים',
+      superficial:'פילינג שטחי',medium_tca:'פילינג בינוני (TCA)',chemical:'פילינג כימי',fruit:'פילינג פירות',
+      hairremoval:'הסרת שיער',spots:'כתמים',vessels:'כלי דם',pigmentation:'פיגמנטציה',
+      general:'ייעוץ כללי',skinanalysis:'ניתוח עור',treatmentplan:'תכנית טיפולים'}
+  },
+  ka:{
+    dir:'ltr', sub:'ესთეტიკური მედიცინის კლინიკა', tag:'ონლაინ ჩაწერა',
+    personalDetails:'პირადი ინფორმაცია', fullName:'სრული სახელი *', namePlaceholder:'სახელი და გვარი',
+    phone:'ტელეფონის ნომერი *', email:'ელ. ფოსტა (დადასტურებისთვის)',
+    chooseTreatment:'აირჩიეთ პროცედურა', chooseSubType:'აირჩიეთ ტიპი',
+    continueToDate:'თარიღის არჩევა →', chooseDate:'აირჩიეთ თარიღი',
+    continueToConfirm:'დადასტურება →', chooseTime:'აირჩიეთ დრო',
+    strikeTaken:'გადახაზული საათები — დაკავებულია', summary:'შეჯამება და დადასტურება',
+    name:'სახელი', treatment:'პროცედურა', date:'თარიღი', time:'დრო',
+    notes:'შენიშვნები (არასავალდებულო)', notesPlaceholder:'რამე რაც უნდა ვიცოდეთ?',
+    submit:'ჯავშნის გაგზავნა', sending:'იგზავნება…', back:'← უკან',
+    successTitle:'მოთხოვნა მიღებულია!', successSub:'ჯავშანი ელოდება კლინიკის დადასტურებას',
+    emailSent:'📧 დადასტურების წერილი გამოგზავნილია.', willUpdate:'შეგატყობინებთ როგორც კი ჯავშანი დადასტურდება!',
+    newBooking:'ახალი ჩაწერა',
+    errName:'გთხოვთ შეიყვანოთ სწორი სახელი', errPhone:'გთხოვთ შეიყვანოთ სწორი ტელეფონის ნომერი',
+    errNameEmpty:'გთხოვთ შეავსოთ სახელი', errPhoneEmpty:'გთხოვთ შეავსოთ ტელეფონის ნომერი',
+    errTreatment:'გთხოვთ აირჩიოთ პროცედურა', errSubType:'გთხოვთ აირჩიოთ ქვეტიპი',
+    errDate:'გთხოვთ აირჩიოთ თარიღი (არა პარ/შაბ)', errTime:'გთხოვთ აირჩიოთ დრო',
+    errSave:'შენახვის შეცდომა. სცადეთ თავიდან.', errConn:'კავშირის შეცდომა. შეამოწმეთ ინტერნეტი.',
+    closedDay:'კლინიკა დაკეტილია პარასკევს და შაბათს', loading:'იტვირთება თავისუფალი საათები…',
+    minutes:'წთ',
+    treatments:{botox:'ბოტოქსი',filler:'ფილერი',profhilo:'პროფაილო',peel:'პილინგი',laser:'ლაზერი',consult:'კონსულტაცია'},
+    subs:{forehead:'შუბლი',glabella:'წარბებს შორის',crowsfeet:'თვალის კუთხეები',forehead_glabella:'შუბლი + წარბებს შორის',fullface:'სრული სახე',
+      lips:'ტუჩები',nasolabial:'ნაზოლაბიალური ნაოჭები',cheeks:'ლოყები',undereye:'თვალქვეშ',chin:'ნიკაპი',
+      face:'სახე',neck:'კისერი',hands:'ხელები',
+      superficial:'ზედაპირული პილინგი',medium_tca:'საშუალო პილინგი (TCA)',chemical:'ქიმიური პილინგი',fruit:'ხილის პილინგი',
+      hairremoval:'თმის მოცილება',spots:'ლაქები',vessels:'სისხლძარღვები',pigmentation:'პიგმენტაცია',
+      general:'ზოგადი კონსულტაცია',skinanalysis:'კანის ანალიზი',treatmentplan:'მკურნალობის გეგმა'}
+  },
+  ru:{
+    dir:'ltr', sub:'Клиника эстетической медицины', tag:'Онлайн-запись',
+    personalDetails:'Личные данные', fullName:'Полное имя *', namePlaceholder:'Имя и фамилия',
+    phone:'Номер телефона *', email:'Email (для подтверждения)',
+    chooseTreatment:'Выберите процедуру', chooseSubType:'Выберите тип',
+    continueToDate:'Выбрать дату →', chooseDate:'Выберите дату',
+    continueToConfirm:'К подтверждению →', chooseTime:'Выберите время',
+    strikeTaken:'Зачёркнутое время — занято', summary:'Итог и подтверждение',
+    name:'Имя', treatment:'Процедура', date:'Дата', time:'Время',
+    notes:'Примечания (необязательно)', notesPlaceholder:'Что нам следует знать?',
+    submit:'Отправить заявку', sending:'Отправка…', back:'← Назад',
+    successTitle:'Заявка принята!', successSub:'Запись ожидает подтверждения клиники',
+    emailSent:'📧 Письмо с подтверждением отправлено.', willUpdate:'Мы сообщим вам, как только запись будет подтверждена!',
+    newBooking:'Записаться ещё раз',
+    errName:'Пожалуйста, введите корректное имя', errPhone:'Введите корректный номер телефона (напр. 0501234567)',
+    errNameEmpty:'Пожалуйста, введите имя', errPhoneEmpty:'Пожалуйста, введите номер телефона',
+    errTreatment:'Пожалуйста, выберите процедуру', errSubType:'Пожалуйста, выберите подтип',
+    errDate:'Выберите дату (не пт/сб)', errTime:'Пожалуйста, выберите время',
+    errSave:'Ошибка сохранения. Попробуйте снова.', errConn:'Ошибка соединения. Проверьте интернет.',
+    closedDay:'Клиника закрыта в пятницу и субботу', loading:'Загрузка свободного времени…',
+    minutes:'мин',
+    treatments:{botox:'Ботокс',filler:'Филлер',profhilo:'Профайло',peel:'Пилинг',laser:'Лазер',consult:'Консультация'},
+    subs:{forehead:'Лоб',glabella:'Межбровье',crowsfeet:'Гусиные лапки',forehead_glabella:'Лоб + межбровье',fullface:'Всё лицо',
+      lips:'Губы',nasolabial:'Носогубные складки',cheeks:'Скулы',undereye:'Под глазами',chin:'Подбородок',
+      face:'Лицо',neck:'Шея',hands:'Руки',
+      superficial:'Поверхностный пилинг',medium_tca:'Срединный пилинг (TCA)',chemical:'Химический пилинг',fruit:'Фруктовый пилинг',
+      hairremoval:'Удаление волос',spots:'Пигментные пятна',vessels:'Сосуды',pigmentation:'Пигментация',
+      general:'Общая консультация',skinanalysis:'Анализ кожи',treatmentplan:'План лечения'}
+  },
+  en:{
+    dir:'ltr', sub:'Aesthetic Medicine Clinic', tag:'Online Booking',
+    personalDetails:'Personal Details', fullName:'Full Name *', namePlaceholder:'First and last name',
+    phone:'Phone Number *', email:'Email (for confirmation)',
+    chooseTreatment:'Choose Treatment', chooseSubType:'Choose type',
+    continueToDate:'Continue to Date →', chooseDate:'Choose Date',
+    continueToConfirm:'Continue to Confirm →', chooseTime:'Choose Time',
+    strikeTaken:'Crossed out times — unavailable', summary:'Summary & Confirmation',
+    name:'Name', treatment:'Treatment', date:'Date', time:'Time',
+    notes:'Notes (optional)', notesPlaceholder:'Anything we should know?',
+    submit:'Send Booking Request', sending:'Sending…', back:'← Back',
+    successTitle:'Request Received!', successSub:'Your appointment awaits clinic approval',
+    emailSent:'📧 Confirmation email sent.', willUpdate:"We'll notify you once your appointment is confirmed!",
+    newBooking:'Book Another',
+    errName:'Please enter a valid name', errPhone:'Please enter a valid phone number (e.g. 0501234567)',
+    errNameEmpty:'Please enter your full name', errPhoneEmpty:'Please enter your phone number',
+    errTreatment:'Please select a treatment', errSubType:'Please select a sub-type',
+    errDate:'Please select a date (not Fri/Sat)', errTime:'Please select a time',
+    errSave:'Error saving appointment. Please try again.', errConn:'Connection error. Check your internet.',
+    closedDay:'The clinic is closed on Fridays and Saturdays', loading:'Loading available times…',
+    minutes:'min',
+    treatments:{botox:'Botox',filler:'Filler',profhilo:'Profhilo',peel:'Peeling',laser:'Laser',consult:'Consultation'},
+    subs:{forehead:'Forehead',glabella:'Glabella (between brows)',crowsfeet:"Crow's Feet",forehead_glabella:'Forehead + Glabella',fullface:'Full Face',
+      lips:'Lips',nasolabial:'Nasolabial Folds',cheeks:'Cheeks',undereye:'Under Eyes',chin:'Chin',
+      face:'Face',neck:'Neck',hands:'Hands',
+      superficial:'Superficial Peel',medium_tca:'Medium Peel (TCA)',chemical:'Chemical Peel',fruit:'Fruit Peel',
+      hairremoval:'Hair Removal',spots:'Spots',vessels:'Blood Vessels',pigmentation:'Pigmentation',
+      general:'General Consultation',skinanalysis:'Skin Analysis',treatmentplan:'Treatment Plan'}
+  }
+};
+
+const LANGS=[
+  {code:'he',name:'עברית',flag:'🇮🇱'},
+  {code:'ru',name:'Русский',flag:'🇷🇺'},
+  {code:'ka',name:'ქართული',flag:'🇬🇪'},
+  {code:'en',name:'English',flag:'🇬🇧'}
 ];
+let LANG=localStorage.getItem('clinic_lang')||'he';
+if(!I18N[LANG])LANG='he';
+function t(key){return (I18N[LANG]&&I18N[LANG][key])||I18N.he[key]||key;}
+function toggleLangMenu(){
+  const el=document.getElementById('lang-switch');
+  if(el)el.classList.toggle('open');
+}
+function setLang(l){
+  LANG=l;
+  try{localStorage.setItem('clinic_lang',l);}catch(e){}
+  const el=document.getElementById('lang-switch');if(el)el.classList.remove('open');
+  applyLang();
+  if(B.step===1)renderStep1();else if(B.step===2)renderStep2();else renderStep3();
+}
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.body.dir=I18N[LANG].dir;
+  const hs=document.getElementById('hero-sub');if(hs)hs.textContent=t('sub');
+  const ht=document.getElementById('hero-tag');if(ht)ht.textContent=t('tag');
+  const cur=LANGS.find(x=>x.code===LANG);
+  const lc=document.getElementById('lang-current');if(lc&&cur)lc.textContent=cur.name;
+  const menu=document.getElementById('lang-menu');
+  if(menu){
+    menu.innerHTML=LANGS.map(l=>`<div class="lang-item ${l.code===LANG?'active':''}" onclick="event.stopPropagation();setLang('${l.code}')"><span class="flag">${l.flag}</span><span>${l.name}</span>${l.code===LANG?'<span class="check">✓</span>':''}</div>`).join('');
+  }
+}
+// סגירת התפריט בלחיצה בחוץ
+document.addEventListener('click',()=>{
+  const el=document.getElementById('lang-switch');
+  if(el)el.classList.remove('open');
+});
+
+
+
+const TREATMENTS=[
+  {key:'botox',icon:'💉',duration:45,subs:['forehead','glabella','crowsfeet','forehead_glabella','fullface']},
+  {key:'filler',icon:'✨',duration:60,subs:['lips','nasolabial','cheeks','undereye','chin']},
+  {key:'profhilo',icon:'💧',duration:60,subs:['face','neck','hands']},
+  {key:'peel',icon:'🌟',duration:45,subs:['superficial','medium_tca','chemical','fruit']},
+  {key:'laser',icon:'⚡',duration:30,subs:['hairremoval','spots','vessels','pigmentation']},
+  {key:'consult',icon:'🩺',duration:30,subs:['general','skinanalysis','treatmentplan']},
+];
+// שמות טיפולים מתורגמים
+function treatName(key){return (I18N[LANG].treatments&&I18N[LANG].treatments[key])||I18N.he.treatments[key]||key;}
+function subName(key){return (I18N[LANG].subs&&I18N[LANG].subs[key])||I18N.he.subs[key]||key;}
 
 const WORK_HOURS=['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
 const CLOSED_DAYS=[5,6]; // שישי=5, שבת=6
@@ -222,42 +404,42 @@ async function fetchSlots(date){
 }
 
 function renderStep1(){
-  const currentTreat=TREATMENTS.find(t=>t.key===B.treatment);
+  const currentTreat=TREATMENTS.find(x=>x.key===B.treatment);
   document.getElementById('content').innerHTML=`
     ${stepsBar(1)}
     <div class="card">
-      <div class="card-title"><div class="icon icon-blue">👤</div>פרטים אישיים</div>
+      <div class="card-title"><div class="icon icon-blue">👤</div>${t('personalDetails')}</div>
       <div class="field">
-        <label class="label">שם מלא *</label>
-        <input type="text" id="b-name" placeholder="שם ושם משפחה" dir="rtl" value="${escHtml(B.name)}" oninput="B.name=this.value">
+        <label class="label">${t('fullName')}</label>
+        <input type="text" id="b-name" placeholder="${t('namePlaceholder')}" dir="${I18N[LANG].dir}" value="${escHtml(B.name)}" oninput="B.name=this.value">
       </div>
       <div class="field">
-        <label class="label">מספר טלפון *</label>
+        <label class="label">${t('phone')}</label>
         <input type="tel" inputmode="numeric" id="b-phone" placeholder="050-..." value="${escHtml(B.phone)}" oninput="B.phone=this.value">
       </div>
       <div class="field">
-        <label class="label">אימייל (לקבלת אישור)</label>
+        <label class="label">${t('email')}</label>
         <input type="email" id="b-email" placeholder="email@example.com" value="${escHtml(B.email||'')}" oninput="B.email=this.value">
       </div>
     </div>
     <div class="card">
-      <div class="card-title"><div class="icon icon-teal">💆</div>בחר טיפול</div>
+      <div class="card-title"><div class="icon icon-teal">💆</div>${t('chooseTreatment')}</div>
       <div class="treat-grid">
-        ${TREATMENTS.map(t=>`
-          <div class="treat-opt ${B.treatment===t.key?'selected':''}" onclick="selectTreat('${t.key}')">
-            <span class="treat-icon">${t.icon}</span>${t.label}
+        ${TREATMENTS.map(tr=>`
+          <div class="treat-opt ${B.treatment===tr.key?'selected':''}" onclick="selectTreat('${tr.key}')">
+            <span class="treat-icon">${tr.icon}</span>${treatName(tr.key)}
           </div>`).join('')}
       </div>
       ${currentTreat?`
-        <div class="sub-title">בחר סוג ${currentTreat.label}:</div>
+        <div class="sub-title">${t('chooseSubType')} — ${treatName(currentTreat.key)}:</div>
         <div class="sub-grid">
           ${currentTreat.subs.map(s=>`
-            <div class="sub-opt ${B.subType===s?'selected':''}" onclick="selectSub('${s}')">${s}</div>
+            <div class="sub-opt ${B.subType===s?'selected':''}" onclick="selectSub('${s}')">${subName(s)}</div>
           `).join('')}
         </div>`:''}
     </div>
     ${B.error?`<div class="error-msg">⚠️ ${B.error}</div>`:''}
-    <button class="submit-btn" onclick="goStep2()">המשך לבחירת תאריך ←</button>`;
+    <button class="submit-btn" onclick="goStep2()">${t('continueToDate')}</button>`;
 }
 
 function selectTreat(key){
@@ -265,8 +447,7 @@ function selectTreat(key){
   const phoneEl=document.getElementById('b-phone');
   if(nameEl)B.name=nameEl.value;
   if(phoneEl)B.phone=phoneEl.value;
-  const t=TREATMENTS.find(x=>x.key===key);
-  B.treatment=key;B.treatmentLabel=t?t.label:'';B.treatmentDuration=t?t.duration:60;B.subType='';
+  const tr=TREATMENTS.find(x=>x.key===key);B.treatment=key;B.treatmentLabel=tr?treatName(tr.key):'';B.treatmentDuration=tr?tr.duration:60;B.subType='';
   renderStep1();
 }
 
@@ -279,7 +460,7 @@ function renderStep2(){
   document.getElementById('content').innerHTML=`
     ${stepsBar(2)}
     <div class="card">
-      <div class="card-title"><div class="icon icon-blue">📅</div>בחר תאריך</div>
+      <div class="card-title"><div class="icon icon-blue">📅</div>${t('chooseDate')}</div>
       <input type="date" id="b-date" min="${getMinDate()}" value="${B.date}"
         onchange="onDateChange(this.value)"
         style="width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:11px;font-size:15px;font-family:'Heebo',sans-serif;outline:none;-webkit-appearance:none;color:var(--text)">
@@ -291,8 +472,8 @@ function renderStep2(){
     </div>
     ${B.error?`<div class="error-msg">⚠️ ${B.error}</div>`:''}
     <div class="btn-row">
-      <button class="back-btn" onclick="goStep1()">← חזור</button>
-      <button class="submit-btn" onclick="goStep3()">המשך לאישור ←</button>
+      <button class="back-btn" onclick="goStep1()">${t('back')}</button>
+      <button class="submit-btn" onclick="goStep3()">${t('continueToConfirm')}</button>
     </div>`;
   if(B.date&&!isClosedDay(B.date))fetchSlots(B.date);
 }
@@ -302,15 +483,15 @@ function renderTimeSlots(){
   if(!wrap||!B.date||isClosedDay(B.date))return;
   wrap.innerHTML=`
     <div class="card">
-      <div class="card-title"><div class="icon icon-teal">🕐</div>בחר שעה — ${fmtDate(B.date)}</div>
+      <div class="card-title"><div class="icon icon-teal">🕐</div>${t('chooseTime')} — ${fmtDate(B.date)}</div>
       <div class="time-grid">
-        ${WORK_HOURS.map(t=>{
-          const taken=isSlotTaken(t);
-          return`<div class="time-opt ${taken?'taken':''}${B.time===t&&!taken?' selected':''}"
-            onclick="${taken?'':'selectTime(\''+t+'\')'}">${t}</div>`;
+        ${WORK_HOURS.map(hr=>{
+          const taken=isSlotTaken(hr);
+          return`<div class="time-opt ${taken?'taken':''}${B.time===hr&&!taken?' selected':''}"
+            onclick="${taken?'':'selectTime(\''+hr+'\')'}">${hr}</div>`;
         }).join('')}
       </div>
-      <div style="font-size:11px;color:var(--text-sub);margin-top:10px;text-align:center">שעות מוקרעות — תפוסות</div>
+      <div style="font-size:11px;color:var(--text-sub);margin-top:10px;text-align:center">${t('strikeTaken')}</div>
     </div>`;
 }
 
@@ -333,40 +514,40 @@ function selectTime(time){
 }
 
 function renderStep3(){
-  const treat=TREATMENTS.find(t=>t.key===B.treatment);
-  const fullLabel=B.subType?`${treat?treat.label:''} — ${B.subType}`:treat?treat.label:'';
+  const treat=TREATMENTS.find(x=>x.key===B.treatment);
+  const fullLabel=B.subType?`${treat?treatName(treat.key):''} — ${subName(B.subType)}`:treat?treatName(treat.key):'';
   document.getElementById('content').innerHTML=`
     ${stepsBar(3)}
     <div class="card">
-      <div class="card-title"><div class="icon icon-green">✅</div>סיכום ואישור</div>
+      <div class="card-title"><div class="icon icon-green">✅</div>${t('summary')}</div>
       <div class="summary-box">
-        <div class="summary-row"><span class="summary-label">שם</span><span class="summary-val">${escHtml(B.name)}</span></div>
-        <div class="summary-row"><span class="summary-label">טלפון</span><span class="summary-val">${escHtml(B.phone)}</span></div>
-        <div class="summary-row"><span class="summary-label">טיפול</span><span class="summary-val">${treat?treat.icon:''} ${escHtml(fullLabel)}</span></div>
-        <div class="summary-row"><span class="summary-label">תאריך</span><span class="summary-val">${fmtDate(B.date)}</span></div>
-        <div class="summary-row"><span class="summary-label">שעה</span><span class="summary-val">${B.time}</span></div>
+        <div class="summary-row"><span class="summary-label">${t('name')}</span><span class="summary-val">${escHtml(B.name)}</span></div>
+        <div class="summary-row"><span class="summary-label">${t('phone').replace(" *","")}</span><span class="summary-val">${escHtml(B.phone)}</span></div>
+        <div class="summary-row"><span class="summary-label">${t('treatment')}</span><span class="summary-val">${treat?treat.icon:''} ${escHtml(fullLabel)}</span></div>
+        <div class="summary-row"><span class="summary-label">${t('date')}</span><span class="summary-val">${fmtDate(B.date)}</span></div>
+        <div class="summary-row"><span class="summary-label">${t('time')}</span><span class="summary-val">${B.time}</span></div>
       </div>
       <div class="field">
-        <label class="label">הערות (אופציונלי)</label>
-        <textarea id="b-notes" rows="2" placeholder="אלרגיות, בקשות מיוחדות…" dir="rtl" oninput="B.notes=this.value">${escHtml(B.notes)}</textarea>
+        <label class="label">${t('notes')}</label>
+        <textarea id="b-notes" rows="2" placeholder="${t('notesPlaceholder')}" dir="${I18N[LANG].dir}" oninput="B.notes=this.value">${escHtml(B.notes)}</textarea>
       </div>
     </div>
     ${B.error?`<div class="error-msg">⚠️ ${B.error}</div>`:''}
     <div class="btn-row">
-      <button class="back-btn" onclick="goStep2()">← חזור</button>
-      <button class="submit-btn" id="submitBtn" onclick="submitBooking()">✓ אשר וקבע תור</button>
+      <button class="back-btn" onclick="goStep2()">${t('back')}</button>
+      <button class="submit-btn" id="submitBtn" onclick="submitBooking()">${t('submit')}</button>
     </div>`;
 }
 
 function renderSuccess(){
-  const treat=TREATMENTS.find(t=>t.key===B.treatment);
-  const fullLabel=B.subType?`${treat?treat.label:''} — ${B.subType}`:treat?treat.label:'';
+  const treat=TREATMENTS.find(x=>x.key===B.treatment);
+  const fullLabel=B.subType?`${treat?treatName(treat.key):''} — ${subName(B.subType)}`:treat?treatName(treat.key):'';
   document.getElementById('content').innerHTML=`
     <div class="success-page">
       <div class="success-hero">
         <div class="success-icon">⏳</div>
-        <div class="success-title">הבקשה התקבלה!</div>
-        <div class="success-sub">התור ממתין לאישור הקליניקה</div>
+        <div class="success-title">${t('successTitle')}</div>
+        <div class="success-sub">${t('successSub')}</div>
       </div>
       <div class="success-card">
         <div class="success-detail"><div class="s-icon">📅</div><span>${fmtDate(B.date)}</span></div>
@@ -390,28 +571,28 @@ function goStep2(){
   if(nameEl)B.name=nameEl.value.trim();
   if(phoneEl)B.phone=phoneEl.value.trim();
   // שם — חייב להכיל אותיות, לפחות 2 תווים
-  if(!B.name){B.error='נא למלא שם מלא';renderStep1();return}
-  if(B.name.length<2||!/[a-zA-Zא-ת]/.test(B.name)){B.error='נא להזין שם תקין (אותיות)';renderStep1();return}
+  if(!B.name){B.error=t('errNameEmpty');renderStep1();return}
+  if(B.name.length<2||!/[a-zA-Zא-ת]/.test(B.name)){B.error=t('errName');renderStep1();return}
   // טלפון — חייב להיות מספרים בלבד, 9-10 ספרות
   const cleanPhone=B.phone.replace(/[-\s]/g,'');
-  if(!B.phone){B.error='נא למלא מספר טלפון';renderStep1();return}
-  if(!/^0\d{8,9}$/.test(cleanPhone)){B.error='נא להזין מספר טלפון תקין (לדוגמה: 0501234567)';renderStep1();return}
-  if(!B.treatment){B.error='נא לבחור סוג טיפול';renderStep1();return}
-  if(!B.subType){B.error='נא לבחור תת-סוג טיפול';renderStep1();return}
+  if(!B.phone){B.error=t('errPhoneEmpty');renderStep1();return}
+  if(!/^0\d{8,9}$/.test(cleanPhone)){B.error=t('errPhone');renderStep1();return}
+  if(!B.treatment){B.error=t('errTreatment');renderStep1();return}
+  if(!B.subType){B.error=t('errSubType');renderStep1();return}
   B.error='';B.step=2;renderStep2();window.scrollTo(0,0);
 }
 
 function goStep3(){
-  if(!B.date||isClosedDay(B.date)){B.error='נא לבחור תאריך (לא שישי/שבת)';renderStep2();return}
-  if(!B.time){B.error='נא לבחור שעה';renderStep2();return}
+  if(!B.date||isClosedDay(B.date)){B.error=t('errDate');renderStep2();return}
+  if(!B.time){B.error=t('errTime');renderStep2();return}
   B.error='';B.step=3;renderStep3();window.scrollTo(0,0);
 }
 
 async function submitBooking(){
   const notesEl=document.getElementById('b-notes');
   if(notesEl)B.notes=notesEl.value.trim();
-  const treat=TREATMENTS.find(t=>t.key===B.treatment);
-  const fullLabel=B.subType?`${treat?treat.label:''} — ${B.subType}`:treat?treat.label:'';
+  const treat=TREATMENTS.find(x=>x.key===B.treatment);
+  const fullLabel=B.subType?`${treat?treatName(treat.key):''} — ${subName(B.subType)}`:treat?treatName(treat.key):'';
   const btn=document.getElementById('submitBtn');
   if(btn){btn.disabled=true;btn.innerHTML='<div class="spinner" style="border-color:rgba(255,255,255,.3);border-top-color:#fff;width:18px;height:18px"></div> שולח…';}
   try{
@@ -452,8 +633,8 @@ async function submitBooking(){
       }
       renderSuccess();
     }
-    else{B.error='שגיאה בשמירת התור. נסה שוב.';renderStep3();}
-  }catch(e){B.error='שגיאת חיבור. בדוק אינטרנט ונסה שוב.';renderStep3();}
+    else{B.error=t('errSave');renderStep3();}
+  }catch(e){B.error=t('errConn');renderStep3();}
 }
 
 function resetBooking(){
@@ -461,6 +642,7 @@ function resetBooking(){
   renderStep1();window.scrollTo(0,0);
 }
 
+applyLang();
 renderStep1();
 </script>
 </body>
