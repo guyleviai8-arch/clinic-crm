@@ -44,6 +44,9 @@ body{font-family:'Heebo',sans-serif;font-size:14px;background:var(--bg);color:va
 .lang-item:hover{background:var(--bg)}
 .lang-item.active{background:var(--primary-light);font-weight:600;color:var(--primary)}
 .lang-item .check{margin-left:auto;color:var(--primary)}
+.login-lang .lang-menu{bottom:auto;top:calc(100% + 6px);transform:translateY(-6px)}
+.login-lang .lang-switch.open .lang-menu{transform:translateY(0)}
+.login-lang .lang-switch{min-width:150px}
 .app{display:flex;height:100vh;overflow:hidden;background:var(--bg)}
 .sidebar{width:240px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;z-index:50}
 .sb-top{padding:16px 14px 12px;border-bottom:1px solid var(--border)}
@@ -335,7 +338,14 @@ const I18N={
   frBotox:'כאב, אדמומיות ונפיחות קלה באזור ההזרקה; כאב ראש זמני; במקרים נדירים צניחת עפעף זמנית, אסימטריה, או חולשת שרירים מקומית; התוצאה מתחילה תוך 3-7 ימים ונמשכת 3-4 חודשים.',
   frFiller:'כאב, אדמומיות, נפיחות וחבורות באזור ההזרקה; גושים או אי-סדירות זמניים; במקרים נדירים חסימת כלי דם, זיהום, או תגובה אלרגית; ייתכן צורך בטיפול משלים.',
   frFacial:'אדמומיות וקילופים זמניים; רגישות מוגברת לשמש; במקרים נדירים גירוי או תגובה אלרגית למוצרים; יש להימנע מחשיפה לשמש ולהשתמש בקרם הגנה לאחר הטיפול.',
-  srcInstagram:'אינסטגרם',srcFacebook:'פייסבוק',srcGoogle:'גוגל',srcReferral:'המלצה',srcTiktok:'טיקטוק',srcOther:'אחר'},
+  srcInstagram:'אינסטגרם',srcFacebook:'פייסבוק',srcGoogle:'גוגל',srcReferral:'המלצה',srcTiktok:'טיקטוק',srcOther:'אחר',
+  dShort:['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'],
+  dLong:['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'],
+  mShort:['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'],
+  mLong:['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'],
+  dayPrefix:'יום ',
+  phName:'שם מלא',phClientName:'שם הלקוח',phNone:'אין ידועות',phTreatEx:'בוטוקס, פילר…',
+  phDoseEx:'למשל: 20 יחידות',phTreatName:'למשל: בוטוקס',phSkinEx:'למשל: יבש, בוגר'},
 
  ru:{dir:'ltr',
   welcome:'Добро пожаловать 👋',loginSub:'Войдите, чтобы продолжить',username:'Имя пользователя',password:'Пароль',
@@ -392,7 +402,14 @@ const I18N={
   frBotox:'Боль, покраснение и лёгкий отёк в месте инъекции; временная головная боль; в редких случаях временное опущение века, асимметрия или локальная мышечная слабость; результат через 3-7 дней, длится 3-4 месяца.',
   frFiller:'Боль, покраснение, отёк и синяки в месте инъекции; временные уплотнения или неровности; в редких случаях окклюзия сосуда, инфекция или аллергия; может потребоваться коррекция.',
   frFacial:'Временное покраснение и шелушение; повышенная чувствительность к солнцу; в редких случаях раздражение или аллергия на продукты; избегайте солнца и используйте защитный крем.',
-  srcInstagram:'Instagram',srcFacebook:'Facebook',srcGoogle:'Google',srcReferral:'Рекомендация',srcTiktok:'TikTok',srcOther:'Другое'},
+  srcInstagram:'Instagram',srcFacebook:'Facebook',srcGoogle:'Google',srcReferral:'Рекомендация',srcTiktok:'TikTok',srcOther:'Другое',
+  dShort:['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+  dLong:['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+  mShort:['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'],
+  mLong:['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'],
+  dayPrefix:'',
+  phName:'Полное имя',phClientName:'Имя клиента',phNone:'Не выявлено',phTreatEx:'Ботокс, филлер…',
+  phDoseEx:'напр.: 20 единиц',phTreatName:'напр.: Ботокс',phSkinEx:'напр.: сухая, зрелая'},
 
  ka:{dir:'ltr',
   welcome:'კეთილი იყოს თქვენი მობრძანება 👋',loginSub:'შედით გასაგრძელებლად',username:'მომხმარებელი',password:'პაროლი',
@@ -449,7 +466,14 @@ const I18N={
   frBotox:'ტკივილი, სიწითლე და მსუბუქი შეშუპება ინექციის ადგილას; დროებითი თავის ტკივილი; იშვიათად ქუთუთოს ჩამოშვება ან ასიმეტრია; შედეგი 3-7 დღეში, გრძელდება 3-4 თვე.',
   frFiller:'ტკივილი, სიწითლე, შეშუპება და სისხლჩაქცევები; დროებითი გამკვრივება; იშვიათად სისხლძარღვის ბლოკირება, ინფექცია ან ალერგია; შესაძლოა საჭირო გახდეს კორექცია.',
   frFacial:'დროებითი სიწითლე და აქერცვლა; მზისადმი მგრძნობელობა; იშვიათად გაღიზიანება ან ალერგია; მოერიდეთ მზეს და გამოიყენეთ დამცავი კრემი.',
-  srcInstagram:'Instagram',srcFacebook:'Facebook',srcGoogle:'Google',srcReferral:'რეკომენდაცია',srcTiktok:'TikTok',srcOther:'სხვა'},
+  srcInstagram:'Instagram',srcFacebook:'Facebook',srcGoogle:'Google',srcReferral:'რეკომენდაცია',srcTiktok:'TikTok',srcOther:'სხვა',
+  dShort:['კვ','ორ','სა','ოთ','ხუ','პა','შა'],
+  dLong:['კვირა','ორშაბათი','სამშაბათი','ოთხშაბათი','ხუთშაბათი','პარასკევი','შაბათი'],
+  mShort:['იან','თებ','მარ','აპრ','მაი','ივნ','ივლ','აგვ','სექ','ოქტ','ნოე','დეკ'],
+  mLong:['იანვარი','თებერვალი','მარტი','აპრილი','მაისი','ივნისი','ივლისი','აგვისტო','სექტემბერი','ოქტომბერი','ნოემბერი','დეკემბერი'],
+  dayPrefix:'',
+  phName:'სრული სახელი',phClientName:'კლიენტის სახელი',phNone:'არ არის ცნობილი',phTreatEx:'ბოტოქსი, ფილერი…',
+  phDoseEx:'მაგ.: 20 ერთეული',phTreatName:'მაგ.: ბოტოქსი',phSkinEx:'მაგ.: მშრალი, მომწიფებული'},
 
  en:{dir:'ltr',
   welcome:'Welcome 👋',loginSub:'Log in to continue',username:'Username',password:'Password',
@@ -506,7 +530,14 @@ const I18N={
   frBotox:'Pain, redness and mild swelling at the injection site; temporary headache; in rare cases temporary eyelid drooping, asymmetry, or localized muscle weakness; results begin within 3-7 days and last 3-4 months.',
   frFiller:'Pain, redness, swelling and bruising at the injection site; temporary lumps or irregularities; in rare cases vascular occlusion, infection, or allergic reaction; a follow-up may be needed.',
   frFacial:'Temporary redness and peeling; increased sun sensitivity; in rare cases irritation or allergic reaction to products; avoid sun exposure and use sunscreen after treatment.',
-  srcInstagram:'Instagram',srcFacebook:'Facebook',srcGoogle:'Google',srcReferral:'Referral',srcTiktok:'TikTok',srcOther:'Other'}
+  srcInstagram:'Instagram',srcFacebook:'Facebook',srcGoogle:'Google',srcReferral:'Referral',srcTiktok:'TikTok',srcOther:'Other',
+  dShort:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+  dLong:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+  mShort:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+  mLong:['January','February','March','April','May','June','July','August','September','October','November','December'],
+  dayPrefix:'',
+  phName:'Full name',phClientName:'Client name',phNone:'None known',phTreatEx:'Botox, Filler…',
+  phDoseEx:'e.g. 20 units',phTreatName:'e.g. Botox',phSkinEx:'e.g. dry, mature'}
 };
 const LANGS=[{code:'he',name:'עברית',flag:'🇮🇱'},{code:'ru',name:'Русский',flag:'🇷🇺'},{code:'ka',name:'ქართული',flag:'🇬🇪'},{code:'en',name:'English',flag:'🇬🇧'}];
 let LANG=localStorage.getItem('clinic_lang')||'he';
@@ -730,9 +761,9 @@ function weekStart(d){const dt=new Date(d);const day=dt.getDay();dt.setDate(dt.g
 function addDays(d,n){const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt}
 function fmtDate(d){return localISO(d)}
 function today(){return localISO(new Date())}
-function fmt(d){if(!d)return'';const[y,m,day]=d.split('-');const M=['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'];return`${+day} ${M[+m-1]}`}
-function fmtFull(d){if(!d)return'';const[y,m,day]=d.split('-');const M=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];return`${+day} ${M[+m-1]} ${y}`}
-function fmtDay(){const days=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];const d=new Date();return`יום ${days[d.getDay()]}, ${fmt(today())}`}
+function fmt(d){if(!d)return'';const[y,m,day]=d.split('-');const M=I18N[LANG].mShort||I18N.he.mShort;return`${+day} ${M[+m-1]}`}
+function fmtFull(d){if(!d)return'';const[y,m,day]=d.split('-');const M=I18N[LANG].mLong||I18N.he.mLong;return`${+day} ${M[+m-1]} ${y}`}
+function fmtDay(){const days=I18N[LANG].dLong||I18N.he.dLong;const d=new Date();return`${I18N[LANG].dayPrefix||''}${days[d.getDay()]}, ${fmt(today())}`}
 function duePri(d){if(!d)return'normal';if(d<today())return'overdue';if(d===today())return'today';return'normal'}
 function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2)}
 function getSrc(k){return SOURCES_LIST().find(s=>s.key===k)||null}
@@ -782,7 +813,9 @@ async function loadAll(){
 
 // LOGIN
 function buildLogin(){return`<div class="login-page"><div class="login-box">
-  <div class="login-logo"><div class="login-logo-icon"><i class="ti ti-heartbeat"></i></div><div class="login-logo-text">ד"ר קליניק</div><div class="login-logo-sub">${t('sysFull')}</div></div>
+  <div class="login-logo"><div class="login-logo-icon"><i class="ti ti-heartbeat"></i></div><div class="login-logo-text">ד"ר קליניק</div><div class="login-logo-sub">${t('sysFull')}</div>
+  </div>
+  <div class="login-lang" style="display:flex;justify-content:center;margin-bottom:18px">${langMenuHTML()}</div>
   <div class="login-title">${t('welcome')}</div>
   <div class="login-sub">${t('loginSub')}</div>
   <div class="login-field"><label class="login-label">${t('username')}</label><input class="login-input" id="l-user" type="text" placeholder="admin" autocomplete="username"></div>
@@ -1023,11 +1056,11 @@ function buildDashboard(){
 
 // CALENDAR
 function buildCalendar(){
-  const days=['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'];
+  const days=I18N[LANG].dShort||I18N.he.dShort;
   const weekDates=Array.from({length:7},(_,i)=>fmtDate(addDays(S.calWeek,i)));
   const todayStr=today();
   const[,fm,fd]=weekDates[0].split('-');const[ty,tm,td]=weekDates[6].split('-');
-  const months=['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'];
+  const months=I18N[LANG].mShort||I18N.he.mShort;
   const rangeLabel=`${+fd} ${months[+fm-1]} – ${+td} ${months[+tm-1]} ${ty}`;
 
   let html=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;flex-shrink:0;flex-wrap:wrap">
@@ -1270,12 +1303,12 @@ function buildModal(){
     const sg=SOURCES_LIST().map(s=>`<div class="source-opt ${S.newSrc===s.key?'selected':''}" onclick="selectSrc('${s.key}')"><i class="ti ${s.icon}" style="font-size:18px;display:block;margin-bottom:3px"></i>${s.label}</div>`).join('');
     return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
       <div class="modal-title"><i class="ti ti-user-plus"></i> ${t('newClient')}</div>
-      <div class="fg"><div class="fl">${t('fullNameReq')}</div><input class="fi" id="m-name" placeholder="שם הלקוח" dir="rtl" autofocus></div>
+      <div class="fg"><div class="fl">${t('fullNameReq')}</div><input class="fi" id="m-name" placeholder="${t('phClientName')}" dir="rtl" autofocus></div>
       <div class="fg"><div class="fl">${t('phone')}</div><input class="fi" id="m-phone" type="tel" placeholder="050-..."></div>
       <div class="fg"><div class="fl">${t('email')}</div><input class="fi" id="m-email" type="email" placeholder="email@example.com"></div>
       <div class="fg"><div class="fl">${t('dobEmoji')}</div><input class="fi" id="m-dob" type="date"></div>
-      <div class="fg"><div class="fl">${t('skinType')}</div><input class="fi" id="m-skin" placeholder="למשל: יבש, בוגר" dir="rtl"></div>
-      <div class="fg"><div class="fl">${t('allergies')}</div><input class="fi" id="m-allergy" placeholder="אין ידועות" dir="rtl"></div>
+      <div class="fg"><div class="fl">${t('skinType')}</div><input class="fi" id="m-skin" placeholder="${t('phSkinEx')}" dir="rtl"></div>
+      <div class="fg"><div class="fl">${t('allergies')}</div><input class="fi" id="m-allergy" placeholder="${t('phNone')}" dir="rtl"></div>
       <div class="fg"><div class="fl">${t('source')}</div><div class="source-grid">${sg}</div></div>
       <div class="fg"><div class="fl">${t('status')}</div><select class="fi" id="m-tier"><option value="new">${t('tierNew')}</option><option value="regular">${t('tierRegular')}</option><option value="vip">VIP</option></select></div>
       <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button><button class="btn btn-primary" onclick="saveNewClient()"><i class="ti ti-check"></i> ${t('addClient')}</button></div>
@@ -1300,10 +1333,10 @@ function buildModal(){
   if(S.modal==='newTreatment'){
     return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
       <div class="modal-title"><i class="ti ti-needle"></i> ${t('registerTreat')}</div>
-      <div class="fg"><div class="fl">${t('treatNameReq')}</div><input class="fi" id="t-name" placeholder="למשל: בוטוקס" dir="rtl" autofocus></div>
+      <div class="fg"><div class="fl">${t('treatNameReq')}</div><input class="fi" id="t-name" placeholder="${t('phTreatName')}" dir="rtl" autofocus></div>
       <div class="fg"><div class="fl">${t('date')}</div><input class="fi" id="t-date" type="date" value="${today()}"></div>
       <div class="fg"><div class="fl">${t('provider')}</div><input class="fi" id="t-prov" placeholder='ד"ר ...' dir="rtl"></div>
-      <div class="fg"><div class="fl">${t('dose')}</div><input class="fi" id="t-dose" placeholder="למשל: 20 יחידות" dir="rtl"></div>
+      <div class="fg"><div class="fl">${t('dose')}</div><input class="fi" id="t-dose" placeholder="${t('phDoseEx')}" dir="rtl"></div>
       <div class="fg"><div class="fl">${t('notes')}</div><textarea class="fi" id="t-notes" rows="2" dir="rtl"></textarea></div>
       <div class="fg"><div class="fl">${t('price')}</div><input class="fi" id="t-price" type="number" placeholder="0" min="0"></div>
       <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button><button class="btn btn-primary" onclick="saveTreatment()"><i class="ti ti-device-floppy"></i> ${t('save')}</button></div>
@@ -1315,10 +1348,10 @@ function buildModal(){
     const activeC=(S.activePage==='clients'&&!S.clientListView)?getC():null;
     return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
       <div class="modal-title"><i class="ti ti-calendar-plus"></i> תור חדש${activeC?` — ${escHtml(activeC.name)}`:''}</div>
-      <div class="fg"><div class="fl">${t('clientNameReq')}</div><input class="fi" id="a-name" placeholder="שם מלא" dir="rtl" value="${activeC?escHtml(activeC.name):''}"></div>
+      <div class="fg"><div class="fl">${t('clientNameReq')}</div><input class="fi" id="a-name" placeholder="${t('phName')}" dir="rtl" value="${activeC?escHtml(activeC.name):''}"></div>
       <div class="fg"><div class="fl">${t('phone')}</div><input class="fi" id="a-phone" type="tel" placeholder="050-..." value="${activeC?escHtml(activeC.phone||''):''}"></div>
       <div class="fg"><div class="fl">${t('emailConfirm')}</div><input class="fi" id="a-email" type="email" placeholder="email@example.com" value="${activeC?escHtml(activeC.email||''):''}"></div>
-      <div class="fg"><div class="fl">${t('treatment')}</div><input class="fi" id="a-treat" placeholder="בוטוקס, פילר…" dir="rtl"></div>
+      <div class="fg"><div class="fl">${t('treatment')}</div><input class="fi" id="a-treat" placeholder="${t('phTreatEx')}" dir="rtl"></div>
       <div class="fg"><div class="fl">${t('date')}</div><input class="fi" id="a-date" type="date" value="${S.prefillDate||today()}"></div>
       <div class="fg"><div class="fl">${t('time')}</div><input class="fi" id="a-time" type="time" value="${S.prefillTime||'10:00'}"></div>
       <div class="fg"><div class="fl">${t('durationMin')}</div><input class="fi" id="a-dur" type="number" value="60" min="15" max="240"></div>
