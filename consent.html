@@ -11,7 +11,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Heebo',sans-serif;background:#F4F8FB;color:#1A2332;min-height:100vh;direction:rtl}
+body{font-family:'Heebo',sans-serif;background:#F4F8FB;color:#1A2332;min-height:100vh}
+.lang-switch{position:absolute;top:14px;left:14px;z-index:20}
+.lang-toggle{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.32);color:#fff;font-size:12px;padding:7px 12px;border-radius:99px;cursor:pointer;font-family:'Heebo',sans-serif;transition:all .15s}
+.lang-toggle:hover{background:rgba(255,255,255,.3)}
+.lang-toggle .chev{font-size:9px;opacity:.8;transition:transform .2s}
+.lang-switch.open .chev{transform:rotate(180deg)}
+.lang-menu{position:absolute;top:calc(100% + 6px);left:0;background:#fff;border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);overflow:hidden;min-width:150px;opacity:0;visibility:hidden;transform:translateY(-6px);transition:all .18s}
+.lang-switch.open .lang-menu{opacity:1;visibility:visible;transform:translateY(0)}
+.lang-item{display:flex;align-items:center;gap:9px;padding:11px 14px;cursor:pointer;font-size:13px;color:#1A2332;font-family:'Heebo',sans-serif;transition:background .12s;white-space:nowrap;direction:ltr}
+.lang-item:hover{background:#F0F6FC}
+.lang-item.active{background:#E8F4FD;font-weight:600;color:#1B6CA8}
+.lang-item .check{margin-left:auto;color:#1B6CA8}
+.hero{position:relative}
 .hero{background:linear-gradient(135deg,#154F7A,#1B6CA8,#4DB8C8);padding:28px 20px 36px;text-align:center}
 .hero-name{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
 .hero-sub{font-size:13px;color:rgba(255,255,255,.75)}
@@ -81,8 +93,14 @@ canvas{display:block;width:100%;height:160px}
 </head>
 <body>
 <div class="hero">
+  <div class="lang-switch" id="lang-switch">
+    <button class="lang-toggle" onclick="event.stopPropagation();toggleLangMenu()">
+      <span>🌐</span><span id="lang-current">עברית</span><span class="chev">▼</span>
+    </button>
+    <div class="lang-menu" id="lang-menu"></div>
+  </div>
   <div class="hero-name">ד"ר קליניק</div>
-  <div class="hero-sub">קליניקה לרפואה אסתטית</div>
+  <div class="hero-sub" id="hero-sub">קליניקה לרפואה אסתטית</div>
   <div class="hero-divider"></div>
   <div class="hero-tag" id="hero-tag">✍️ טופס הסכמה לטיפול</div>
 </div>
@@ -95,6 +113,168 @@ canvas{display:block;width:100%;height:160px}
 const SUPABASE_URL='https://vizqigecvjpcfrorwowm.supabase.co';
 const SUPABASE_KEY='sb_publishable_EhhQfiQA2cUDA7BA68ZPWg_0bVeHtlA';
 
+
+// ============ מערכת שפות ============
+const I18N={
+  he:{dir:'rtl',sub:'קליניקה לרפואה אסתטית',
+    steps:['פרטים','קריאת טופס','חתימה'],
+    verifyDetails:'אימות פרטים',verifyMsg:'אנא אמת/י שהפרטים נכונים לפני החתימה',
+    fullName:'שם מלא',dob:'תאריך לידה',phone:'טלפון',
+    continueRead:'המשך לקריאת הטופס ←',continueSign:'המשך לחתימה ←',back:'← חזור',
+    agreeText:'קראתי את טופס ההסכמה במלואו, הבנתי את תוכנו, ואני מסכים/ה לתנאים המפורטים בו.',
+    approved:'אושר',eSign:'חתימה אלקטרונית',signDate:'תאריך חתימה',
+    signHere:'חתום/י כאן',signLabel:'חתימה (צייר באצבע או עכבר)',clearSig:'🗑️ נקה חתימה',
+    submitSign:'✅ שלח וחתום',sending:'שולח…',
+    errName:'⚠️ נא להזין שם תקין',errDob:'⚠️ נא למלא תאריך לידה',errPhone:'⚠️ נא להזין מספר טלפון תקין',
+    errAgree:'⚠️ נא לאשר קריאת הטופס',errSign:'⚠️ נא לחתום על הטופס',
+    signedTitle:'טופס ההסכמה נחתם!',thanks:'תודה',yourSig:'החתימה שלך:',signedOn:'נחתם ב',
+    savedMsg:'החתימה נשמרה בתיק הרפואי שלך.',emailSent:'אימייל אישור נשלח לכתובתך.',seeYou:'נשמח לראותך בקליניקה!',
+    alreadyTitle:'טופס ההסכמה כבר נחתם',alreadyMsg:'החתימה שלך כבר נמצאת בתיק.',
+    errLink:'קישור לא תקין',errClient:'לקוח לא נמצא',contactClinic:'פנה לקליניקה לקבלת קישור חדש.',
+    loading:'טוען…',
+    // סעיפי הטופס
+    declaration:'הצהרת המטופל/ת',
+    declText:'אני הח"מ, {name}, מצהיר/ה בזאת כי קיבלתי הסבר מלא ומפורט מהצוות הרפואי של {clinic} לגבי {desc} המיועד לי, לרבות מהות הטיפול, יתרונותיו, חלופותיו, הסיכונים הכרוכים בו והתוצאות הצפויות ממנו.',
+    responsibility:'אחריות המטופל/ת',
+    resp1:'מסרתי פרטים מלאים ומדויקים על מצבי הרפואי, תרופות שאני נוטל/ת, אלרגיות וכל מידע רפואי רלוונטי.',
+    resp2:'אני מודע/ת כי הסתרת מידע רפואי עלולה לסכן את בריאותי ולגרום לתוצאות בלתי צפויות.',
+    resp3:'קיבלתי הסבר על חלופות לטיפול המוצע ועל האפשרות להימנע מהטיפול.',
+    liability:'הגבלת אחריות הקליניקה',
+    liabIntro:'{clinic} אינה אחראית לתוצאות הטיפול במקרים הבאים:',
+    liab1:'אי-מסירת מידע רפואי מלא ומדויק על ידי המטופל/ת.',
+    liab2:'אי-עמידה בהוראות הטיפול לאחר הפרוצדורה.',
+    liab3:'תגובות אינדיווידואליות בלתי צפויות לטיפול.',
+    liab4:'גורמים חיצוניים שאינם בשליטת הקליניקה.',
+    liab5:'ציפיות לא מציאותיות שלא הוסכמו מראש בכתב.',
+    risks:'סיכונים ידועים',
+    photography:'צילום ותיעוד',
+    photoText:'אני מסכים/ה כי הקליניקה תוכל לצלם תמונות לפני ואחרי הטיפול לצורכי תיעוד רפואי פנימי בלבד, אלא אם הסכמתי בנפרד לשימוש שיווקי.',
+    finalDecl:'הצהרה סופית',
+    finalText:'אני מאשר/ת כי קראתי והבנתי את כל האמור לעיל, קיבלתי מענה לכל שאלותיי, וחתימתי להלן מהווה הסכמה מדעת חופשית לביצוע הטיפול.'},
+  ru:{dir:'ltr',sub:'Клиника эстетической медицины',
+    steps:['Данные','Чтение формы','Подпись'],
+    verifyDetails:'Проверка данных',verifyMsg:'Пожалуйста, проверьте данные перед подписанием',
+    fullName:'Полное имя',dob:'Дата рождения',phone:'Телефон',
+    continueRead:'Перейти к форме →',continueSign:'Перейти к подписи →',back:'← Назад',
+    agreeText:'Я полностью прочитал(а) форму согласия, понял(а) её содержание и согласен(на) с указанными условиями.',
+    approved:'Подтверждено',eSign:'Электронная подпись',signDate:'Дата подписания',
+    signHere:'Подпишите здесь',signLabel:'Подпись (пальцем или мышью)',clearSig:'🗑️ Очистить',
+    submitSign:'✅ Отправить и подписать',sending:'Отправка…',
+    errName:'⚠️ Введите корректное имя',errDob:'⚠️ Укажите дату рождения',errPhone:'⚠️ Введите корректный телефон',
+    errAgree:'⚠️ Подтвердите прочтение формы',errSign:'⚠️ Пожалуйста, подпишите форму',
+    signedTitle:'Форма согласия подписана!',thanks:'Спасибо',yourSig:'Ваша подпись:',signedOn:'Подписано',
+    savedMsg:'Подпись сохранена в вашей медицинской карте.',emailSent:'Письмо с подтверждением отправлено.',seeYou:'Будем рады видеть вас в клинике!',
+    alreadyTitle:'Форма согласия уже подписана',alreadyMsg:'Ваша подпись уже в карте.',
+    errLink:'Неверная ссылка',errClient:'Клиент не найден',contactClinic:'Свяжитесь с клиникой для новой ссылки.',
+    loading:'Загрузка…',
+    declaration:'Заявление пациента',
+    declText:'Я, {name}, настоящим заявляю, что получил(а) полное и подробное объяснение от медицинского персонала {clinic} относительно {desc}, включая суть процедуры, её преимущества, альтернативы, связанные риски и ожидаемые результаты.',
+    responsibility:'Ответственность пациента',
+    resp1:'Я предоставил(а) полную и точную информацию о состоянии здоровья, принимаемых лекарствах, аллергиях и всех значимых медицинских данных.',
+    resp2:'Я понимаю, что сокрытие медицинской информации может поставить под угрозу моё здоровье и привести к непредвиденным последствиям.',
+    resp3:'Мне разъяснены альтернативы предлагаемой процедуре и возможность отказаться от неё.',
+    liability:'Ограничение ответственности клиники',
+    liabIntro:'{clinic} не несёт ответственности за результаты процедуры в следующих случаях:',
+    liab1:'Непредоставление пациентом полной и точной медицинской информации.',
+    liab2:'Несоблюдение указаний по уходу после процедуры.',
+    liab3:'Индивидуальные непредвиденные реакции на процедуру.',
+    liab4:'Внешние факторы, не зависящие от клиники.',
+    liab5:'Нереалистичные ожидания, не согласованные заранее в письменной форме.',
+    risks:'Известные риски',
+    photography:'Фотографирование и документация',
+    photoText:'Я согласен(на), что клиника может делать фотографии до и после процедуры исключительно для внутренней медицинской документации, если я отдельно не дал(а) согласия на маркетинговое использование.',
+    finalDecl:'Заключительное заявление',
+    finalText:'Я подтверждаю, что прочитал(а) и понял(а) всё вышеизложенное, получил(а) ответы на все вопросы, и моя подпись ниже является информированным добровольным согласием на проведение процедуры.'},
+  ka:{dir:'ltr',sub:'ესთეტიკური მედიცინის კლინიკა',
+    steps:['მონაცემები','ფორმის წაკითხვა','ხელმოწერა'],
+    verifyDetails:'მონაცემების დადასტურება',verifyMsg:'გთხოვთ შეამოწმოთ მონაცემები ხელმოწერამდე',
+    fullName:'სრული სახელი',dob:'დაბადების თარიღი',phone:'ტელეფონი',
+    continueRead:'ფორმაზე გადასვლა →',continueSign:'ხელმოწერაზე გადასვლა →',back:'← უკან',
+    agreeText:'სრულად წავიკითხე თანხმობის ფორმა, გავიგე მისი შინაარსი და ვეთანხმები მითითებულ პირობებს.',
+    approved:'დადასტურებულია',eSign:'ელექტრონული ხელმოწერა',signDate:'ხელმოწერის თარიღი',
+    signHere:'ხელი მოაწერეთ აქ',signLabel:'ხელმოწერა (თითით ან მაუსით)',clearSig:'🗑️ გასუფთავება',
+    submitSign:'✅ გაგზავნა და ხელმოწერა',sending:'იგზავნება…',
+    errName:'⚠️ შეიყვანეთ სწორი სახელი',errDob:'⚠️ მიუთითეთ დაბადების თარიღი',errPhone:'⚠️ შეიყვანეთ სწორი ტელეფონი',
+    errAgree:'⚠️ დაადასტურეთ ფორმის წაკითხვა',errSign:'⚠️ გთხოვთ ხელი მოაწეროთ',
+    signedTitle:'თანხმობის ფორმა ხელმოწერილია!',thanks:'გმადლობთ',yourSig:'თქვენი ხელმოწერა:',signedOn:'ხელმოწერილია',
+    savedMsg:'ხელმოწერა შენახულია თქვენს სამედიცინო ბარათში.',emailSent:'დადასტურების წერილი გამოგზავნილია.',seeYou:'სიამოვნებით გიხილავთ კლინიკაში!',
+    alreadyTitle:'თანხმობის ფორმა უკვე ხელმოწერილია',alreadyMsg:'თქვენი ხელმოწერა უკვე ბარათშია.',
+    errLink:'არასწორი ბმული',errClient:'კლიენტი ვერ მოიძებნა',contactClinic:'დაუკავშირდით კლინიკას ახალი ბმულისთვის.',
+    loading:'იტვირთება…',
+    declaration:'პაციენტის განცხადება',
+    declText:'მე, {name}, ვაცხადებ, რომ მივიღე სრული და დეტალური ახსნა {clinic}-ის სამედიცინო პერსონალისგან {desc}-ის შესახებ, მათ შორის პროცედურის არსი, უპირატესობები, ალტერნატივები, რისკები და მოსალოდნელი შედეგები.',
+    responsibility:'პაციენტის პასუხისმგებლობა',
+    resp1:'მივაწოდე სრული და ზუსტი ინფორმაცია ჩემი ჯანმრთელობის, მედიკამენტების, ალერგიების და ყველა რელევანტური სამედიცინო მონაცემის შესახებ.',
+    resp2:'ვიცი, რომ სამედიცინო ინფორმაციის დამალვამ შეიძლება საფრთხე შეუქმნას ჩემს ჯანმრთელობას.',
+    resp3:'მივიღე ახსნა შემოთავაზებული პროცედურის ალტერნატივებზე და უარის თქმის შესაძლებლობაზე.',
+    liability:'კლინიკის პასუხისმგებლობის შეზღუდვა',
+    liabIntro:'{clinic} არ არის პასუხისმგებელი პროცედურის შედეგებზე შემდეგ შემთხვევებში:',
+    liab1:'პაციენტის მიერ სრული და ზუსტი სამედიცინო ინფორმაციის მიუწოდებლობა.',
+    liab2:'პროცედურის შემდგომი ინსტრუქციების დაუცველობა.',
+    liab3:'ინდივიდუალური გაუთვალისწინებელი რეაქციები.',
+    liab4:'კლინიკისგან დამოუკიდებელი გარე ფაქტორები.',
+    liab5:'არარეალისტური მოლოდინები, რომლებიც წინასწარ წერილობით არ შეთანხმებულა.',
+    risks:'ცნობილი რისკები',
+    photography:'ფოტოგრაფირება და დოკუმენტაცია',
+    photoText:'ვეთანხმები, რომ კლინიკამ გადაიღოს ფოტოები პროცედურამდე და შემდეგ მხოლოდ შიდა სამედიცინო დოკუმენტაციისთვის, თუ ცალკე არ დავთანხმდი მარკეტინგულ გამოყენებაზე.',
+    finalDecl:'საბოლოო განცხადება',
+    finalText:'ვადასტურებ, რომ წავიკითხე და გავიგე ყოველივე ზემოთქმული, მივიღე პასუხები ჩემს კითხვებზე და ჩემი ხელმოწერა წარმოადგენს ინფორმირებულ ნებაყოფლობით თანხმობას.'},
+  en:{dir:'ltr',sub:'Aesthetic Medicine Clinic',
+    steps:['Details','Read Form','Signature'],
+    verifyDetails:'Verify Details',verifyMsg:'Please verify your details before signing',
+    fullName:'Full Name',dob:'Date of Birth',phone:'Phone',
+    continueRead:'Continue to Form →',continueSign:'Continue to Signature →',back:'← Back',
+    agreeText:'I have read the consent form in full, understood its contents, and agree to the terms specified.',
+    approved:'Approved',eSign:'Electronic Signature',signDate:'Date of Signature',
+    signHere:'Sign here',signLabel:'Signature (draw with finger or mouse)',clearSig:'🗑️ Clear',
+    submitSign:'✅ Submit & Sign',sending:'Sending…',
+    errName:'⚠️ Please enter a valid name',errDob:'⚠️ Please enter date of birth',errPhone:'⚠️ Please enter a valid phone number',
+    errAgree:'⚠️ Please confirm you read the form',errSign:'⚠️ Please sign the form',
+    signedTitle:'Consent Form Signed!',thanks:'Thank you',yourSig:'Your signature:',signedOn:'Signed on',
+    savedMsg:'Your signature has been saved to your medical file.',emailSent:'A confirmation email was sent to you.',seeYou:'We look forward to seeing you at the clinic!',
+    alreadyTitle:'Consent form already signed',alreadyMsg:'Your signature is already on file.',
+    errLink:'Invalid link',errClient:'Client not found',contactClinic:'Please contact the clinic for a new link.',
+    loading:'Loading…',
+    declaration:'Patient Declaration',
+    declText:'I, {name}, hereby declare that I have received a full and detailed explanation from the medical staff of {clinic} regarding the {desc} intended for me, including the nature of the treatment, its benefits, alternatives, associated risks, and expected results.',
+    responsibility:'Patient Responsibility',
+    resp1:'I have provided full and accurate information about my medical condition, medications I take, allergies, and all relevant medical information.',
+    resp2:'I understand that withholding medical information may endanger my health and lead to unforeseen outcomes.',
+    resp3:'I have been informed about alternatives to the proposed treatment and the option to decline it.',
+    liability:'Limitation of Clinic Liability',
+    liabIntro:'{clinic} is not responsible for treatment outcomes in the following cases:',
+    liab1:'Failure by the patient to provide full and accurate medical information.',
+    liab2:'Non-compliance with post-procedure care instructions.',
+    liab3:'Individual unforeseen reactions to the treatment.',
+    liab4:'External factors beyond the clinic\'s control.',
+    liab5:'Unrealistic expectations not agreed upon in writing in advance.',
+    risks:'Known Risks',
+    photography:'Photography & Documentation',
+    photoText:'I agree that the clinic may take before and after photographs solely for internal medical documentation purposes, unless I have separately consented to marketing use.',
+    finalDecl:'Final Declaration',
+    finalText:'I confirm that I have read and understood all of the above, received answers to all my questions, and my signature below constitutes informed, voluntary consent to undergo the treatment.'}
+};
+const LANGS=[{code:'he',name:'עברית',flag:'🇮🇱'},{code:'ru',name:'Русский',flag:'🇷🇺'},{code:'ka',name:'ქართული',flag:'🇬🇪'},{code:'en',name:'English',flag:'🇬🇧'}];
+let LANG=localStorage.getItem('clinic_lang')||'he';
+if(!I18N[LANG])LANG='he';
+function t(key){return (I18N[LANG]&&I18N[LANG][key])||I18N.he[key]||key;}
+function toggleLangMenu(){const el=document.getElementById('lang-switch');if(el)el.classList.toggle('open');}
+function setLang(l){
+  LANG=l;try{localStorage.setItem('clinic_lang',l);}catch(e){}
+  const el=document.getElementById('lang-switch');if(el)el.classList.remove('open');
+  applyLang();
+  if(clientData){if(step===1)renderStep1();else if(step===2)renderStep2();else renderStep3();}
+}
+function applyLang(){
+  document.documentElement.lang=LANG;document.body.dir=I18N[LANG].dir;
+  const hs=document.getElementById('hero-sub');if(hs)hs.textContent=t('sub');
+  const cur=LANGS.find(x=>x.code===LANG);
+  const lc=document.getElementById('lang-current');if(lc&&cur)lc.textContent=cur.name;
+  const menu=document.getElementById('lang-menu');
+  if(menu)menu.innerHTML=LANGS.map(l=>`<div class="lang-item ${l.code===LANG?'active':''}" onclick="event.stopPropagation();setLang('${l.code}')"><span>${l.flag}</span><span>${l.name}</span>${l.code===LANG?'<span class="check">✓</span>':''}</div>`).join('');
+}
+document.addEventListener('click',()=>{const el=document.getElementById('lang-switch');if(el)el.classList.remove('open');});
+
 let clientId=null;
 let formType='general';
 let clientData=null;
@@ -102,11 +282,35 @@ let canvas,ctx,isDrawing=false,hasSig=false,lastX=0,lastY=0;
 let step=1;
 
 const FORM_TYPES={
-  general:{label:'הסכמה כללית לטיפול',icon:'📋',risks:'כאב קל, אדמומיות, נפיחות וחבורות זמניות באזור הטיפול; במקרים נדירים תגובה אלרגית; תוצאות משתנות בין אדם לאדם ואינן מובטחות.',desc:'טיפול אסתטי'},
-  botox:{label:'הסכמה לטיפול בוטוקס',icon:'💉',risks:'כאב, אדמומיות ונפיחות קלה באזור ההזרקה; כאב ראש זמני; במקרים נדירים צניחת עפעף זמנית, אסימטריה, או חולשת שרירים מקומית; התוצאה מתחילה תוך 3-7 ימים ונמשכת 3-4 חודשים.',desc:'הזרקת בוטוקס (Botulinum Toxin)'},
-  filler:{label:'הסכמה לטיפול בחומרי מילוי (פילר)',icon:'💧',risks:'כאב, אדמומיות, נפיחות וחבורות באזור ההזרקה; גושים או אי-סדירות זמניים; במקרים נדירים חסימת כלי דם, זיהום, או תגובה אלרגית; ייתכן צורך בטיפול משלים.',desc:'הזרקת חומרי מילוי (Hyaluronic Acid)'},
-  facial:{label:'הסכמה לטיפול פנים',icon:'✨',risks:'אדמומיות וקילופים זמניים; רגישות מוגברת לשמש; במקרים נדירים גירוי או תגובה אלרגית למוצרים; יש להימנע מחשיפה לשמש ולהשתמש בקרם הגנה לאחר הטיפול.',desc:'טיפול פנים מתקדם'}
+  general:{icon:'📋'}, botox:{icon:'💉'}, filler:{icon:'💧'}, facial:{icon:'✨'}
 };
+const FORM_I18N={
+  he:{
+    general:{label:'הסכמה כללית לטיפול',desc:'טיפול אסתטי',risks:'כאב קל, אדמומיות, נפיחות וחבורות זמניות באזור הטיפול; במקרים נדירים תגובה אלרגית; תוצאות משתנות בין אדם לאדם ואינן מובטחות.'},
+    botox:{label:'הסכמה לטיפול בוטוקס',desc:'הזרקת בוטוקס (Botulinum Toxin)',risks:'כאב, אדמומיות ונפיחות קלה באזור ההזרקה; כאב ראש זמני; במקרים נדירים צניחת עפעף זמנית, אסימטריה, או חולשת שרירים מקומית; התוצאה מתחילה תוך 3-7 ימים ונמשכת 3-4 חודשים.'},
+    filler:{label:'הסכמה לטיפול בחומרי מילוי (פילר)',desc:'הזרקת חומרי מילוי (Hyaluronic Acid)',risks:'כאב, אדמומיות, נפיחות וחבורות באזור ההזרקה; גושים או אי-סדירות זמניים; במקרים נדירים חסימת כלי דם, זיהום, או תגובה אלרגית; ייתכן צורך בטיפול משלים.'},
+    facial:{label:'הסכמה לטיפול פנים',desc:'טיפול פנים מתקדם',risks:'אדמומיות וקילופים זמניים; רגישות מוגברת לשמש; במקרים נדירים גירוי או תגובה אלרגית למוצרים; יש להימנע מחשיפה לשמש ולהשתמש בקרם הגנה לאחר הטיפול.'}
+  },
+  ru:{
+    general:{label:'Общее согласие на процедуру',desc:'эстетическая процедура',risks:'Лёгкая боль, покраснение, отёк и временные синяки в зоне обработки; в редких случаях аллергическая реакция; результаты индивидуальны и не гарантированы.'},
+    botox:{label:'Согласие на процедуру ботокса',desc:'инъекция ботокса (Botulinum Toxin)',risks:'Боль, покраснение и лёгкий отёк в месте инъекции; временная головная боль; в редких случаях временное опущение века, асимметрия или локальная мышечная слабость; результат наступает через 3-7 дней и длится 3-4 месяца.'},
+    filler:{label:'Согласие на процедуру с филлерами',desc:'инъекция филлеров (гиалуроновая кислота)',risks:'Боль, покраснение, отёк и синяки в месте инъекции; временные уплотнения или неровности; в редких случаях окклюзия сосуда, инфекция или аллергическая реакция; может потребоваться коррекция.'},
+    facial:{label:'Согласие на процедуру для лица',desc:'продвинутая процедура для лица',risks:'Временное покраснение и шелушение; повышенная чувствительность к солнцу; в редких случаях раздражение или аллергия на продукты; избегайте солнца и используйте солнцезащитный крем.'}
+  },
+  ka:{
+    general:{label:'ზოგადი თანხმობა პროცედურაზე',desc:'ესთეტიკური პროცედურა',risks:'მსუბუქი ტკივილი, სიწითლე, შეშუპება და დროებითი სისხლჩაქცევები; იშვიათად ალერგიული რეაქცია; შედეგები ინდივიდუალურია და არ არის გარანტირებული.'},
+    botox:{label:'თანხმობა ბოტოქსის პროცედურაზე',desc:'ბოტოქსის ინექცია (Botulinum Toxin)',risks:'ტკივილი, სიწითლე და მსუბუქი შეშუპება ინექციის ადგილას; დროებითი თავის ტკივილი; იშვიათად ქუთუთოს დროებითი ჩამოშვება, ასიმეტრია ან კუნთის ლოკალური სისუსტე; შედეგი ვლინდება 3-7 დღეში და გრძელდება 3-4 თვე.'},
+    filler:{label:'თანხმობა ფილერის პროცედურაზე',desc:'ფილერის ინექცია (ჰიალურონის მჟავა)',risks:'ტკივილი, სიწითლე, შეშუპება და სისხლჩაქცევები ინექციის ადგილას; დროებითი გამკვრივება ან უსწორმასწორობა; იშვიათად სისხლძარღვის ბლოკირება, ინფექცია ან ალერგია; შესაძლოა საჭირო გახდეს კორექცია.'},
+    facial:{label:'თანხმობა სახის პროცედურაზე',desc:'სახის მოწინავე პროცედურა',risks:'დროებითი სიწითლე და აქერცვლა; მზისადმი მომატებული მგრძნობელობა; იშვიათად გაღიზიანება ან ალერგია; მოერიდეთ მზეს და გამოიყენეთ დამცავი კრემი.'}
+  },
+  en:{
+    general:{label:'General Treatment Consent',desc:'aesthetic treatment',risks:'Mild pain, redness, swelling and temporary bruising at the treatment area; in rare cases an allergic reaction; results vary between individuals and are not guaranteed.'},
+    botox:{label:'Botox Treatment Consent',desc:'Botox injection (Botulinum Toxin)',risks:'Pain, redness and mild swelling at the injection site; temporary headache; in rare cases temporary eyelid drooping, asymmetry, or localized muscle weakness; results begin within 3-7 days and last 3-4 months.'},
+    filler:{label:'Dermal Filler Treatment Consent',desc:'dermal filler injection (Hyaluronic Acid)',risks:'Pain, redness, swelling and bruising at the injection site; temporary lumps or irregularities; in rare cases vascular occlusion, infection, or allergic reaction; a follow-up treatment may be needed.'},
+    facial:{label:'Facial Treatment Consent',desc:'advanced facial treatment',risks:'Temporary redness and peeling; increased sun sensitivity; in rare cases irritation or allergic reaction to products; avoid sun exposure and use sunscreen after treatment.'}
+  }
+};
+function ft(key){const L=FORM_I18N[LANG]||FORM_I18N.he;return (L[formType]&&L[formType][key])||FORM_I18N.he[formType][key]||'';}
 
 function getParam(name){return new URLSearchParams(window.location.search).get(name)}
 function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
@@ -115,13 +319,13 @@ async function init(){
   clientId=getParam('client');
   formType=getParam('type')||'general';
   if(!FORM_TYPES[formType])formType='general';
-  if(!clientId){showError('קישור לא תקין');return}
+  if(!clientId){showError(t('errLink'));return}
   const res=await fetch(`${SUPABASE_URL}/functions/v1/clinic-api`,{
     method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
     body:JSON.stringify({action:'select',table:'clients',filters:[{column:'id',value:clientId}]})
   });
   const cj=await res.json();const clients=cj.data||[];
-  if(!clients||!clients.length){showError('לקוח לא נמצא');return}
+  if(!clients||!clients.length){showError(t('errClient'));return}
   clientData=clients[0];
   // בדיקה אם הטופס הספציפי הזה כבר נחתם
   const formsRes=await fetch(`${SUPABASE_URL}/functions/v1/clinic-api`,{
@@ -137,12 +341,12 @@ function showError(msg){
   document.getElementById('content').innerHTML=`<div class="card" style="text-align:center;padding:32px">
     <div style="font-size:40px;margin-bottom:12px">❌</div>
     <div style="font-size:16px;font-weight:500;margin-bottom:8px">${msg}</div>
-    <div style="font-size:13px;color:#888">פנה לקליניקה לקבלת קישור חדש.</div>
+    <div style="font-size:13px;color:#888">${t('contactClinic')}</div>
   </div>`;
 }
 
 function stepBar(active){
-  const steps=['פרטים','קריאת טופס','חתימה'];
+  const steps=I18N[LANG].steps;
   return`<div class="step-bar">
     ${steps.map((s,i)=>{
       const n=i+1;
@@ -160,76 +364,76 @@ function stepBar(active){
 function renderAlreadySigned(){
   document.getElementById('content').innerHTML=`<div class="card" style="text-align:center;padding:32px">
     <div style="font-size:48px;margin-bottom:12px">✅</div>
-    <div style="font-size:17px;font-weight:600;margin-bottom:8px">טופס ההסכמה כבר נחתם</div>
-    <div style="font-size:13px;color:#888">תודה ${escHtml(clientData.name)}! החתימה שלך כבר נמצאת בתיק.</div>
+    <div style="font-size:17px;font-weight:600;margin-bottom:8px">${t('alreadyTitle')}</div>
+    <div style="font-size:13px;color:#888">${t('thanks')} ${escHtml(clientData.name)}! ${t('alreadyMsg')}</div>
   </div>`;
 }
 
 function renderStep1(){
-  const ht=document.getElementById('hero-tag');if(ht)ht.innerHTML=FORM_TYPES[formType].icon+' '+FORM_TYPES[formType].label;
+  const ht=document.getElementById('hero-tag');if(ht)ht.innerHTML=FORM_TYPES[formType].icon+' '+ft('label');
   document.getElementById('content').innerHTML=`
     ${stepBar(1)}
     <div class="card">
-      <div class="card-title"><div class="icon icon-blue">👤</div>אימות פרטים</div>
+      <div class="card-title"><div class="icon icon-blue">👤</div>${t('verifyDetails')}</div>
       <div class="patient-info">
         <div class="patient-name">${escHtml(clientData.name)}</div>
-        <div class="patient-sub">אנא אמת/י שהפרטים נכונים לפני החתימה</div>
+        <div class="patient-sub">${t('verifyMsg')}</div>
       </div>
-      <div class="field"><label class="label">שם מלא</label><input type="text" id="v-name" value="${escHtml(clientData.name)}" dir="rtl"></div>
-      <div class="field"><label class="label">תאריך לידה</label><input type="date" id="v-dob" value="${clientData.dob||''}"></div>
-      <div class="field"><label class="label">טלפון</label><input type="tel" inputmode="numeric" id="v-phone" value="${escHtml(clientData.phone||'')}"></div>
+      <div class="field"><label class="label">${t('fullName')}</label><input type="text" id="v-name" value="${escHtml(clientData.name)}" dir="rtl"></div>
+      <div class="field"><label class="label">${t('dob')}</label><input type="date" id="v-dob" value="${clientData.dob||''}"></div>
+      <div class="field"><label class="label">${t('phone')}</label><input type="tel" inputmode="numeric" id="v-phone" value="${escHtml(clientData.phone||'')}"></div>
     </div>
     <div id="err1"></div>
-    <button class="submit-btn" onclick="goStep2()">המשך לקריאת הטופס ←</button>`;
+    <button class="submit-btn" onclick="goStep2()">${t('continueRead')}</button>`;
 }
 
 function renderStep2(){
   document.getElementById('content').innerHTML=`
     ${stepBar(2)}
     <div class="card">
-      <div class="card-title"><div class="icon icon-blue">${FORM_TYPES[formType].icon}</div>${FORM_TYPES[formType].label}</div>
+      <div class="card-title"><div class="icon icon-blue">${FORM_TYPES[formType].icon}</div>${ft('label')}</div>
       <div class="consent-text">
-        <h4>הצהרת המטופל/ת</h4>
-        <p>אני הח"מ, <strong>${escHtml(clientData.name)}</strong>, מצהיר/ה בזאת כי קיבלתי הסבר מלא ומפורט מהצוות הרפואי של ד"ר קליניק לגבי <strong>${FORM_TYPES[formType].desc}</strong> המיועד לי, לרבות מהות הטיפול, יתרונותיו, חלופותיו, הסיכונים הכרוכים בו והתוצאות הצפויות ממנו.</p>
+        <h4>${t('declaration')}</h4>
+        <p>${t('declText').replace('{name}','<strong>'+escHtml(clientData.name)+'</strong>').replace('{clinic}','ד"ר קליניק').replace('{desc}','<strong>'+ft('desc')+'</strong>')}</p>
 
-        <h4>אחריות המטופל/ת</h4>
+        <h4>${t('responsibility')}</h4>
         <ul>
-          <li>מסרתי פרטים מלאים ומדויקים על מצבי הרפואי, תרופות שאני נוטל/ת, אלרגיות וכל מידע רפואי רלוונטי.</li>
-          <li>אני מודע/ת כי הסתרת מידע רפואי עלולה לסכן את בריאותי ולגרום לתוצאות בלתי צפויות.</li>
-          <li>קיבלתי הסבר על חלופות לטיפול המוצע ועל האפשרות להימנע מהטיפול.</li>
+          <li>${t('resp1')}</li>
+          <li>${t('resp2')}</li>
+          <li>${t('resp3')}</li>
         </ul>
 
-        <h4>הגבלת אחריות הקליניקה</h4>
-        <p>ד"ר קליניק אינה אחראית לתוצאות הטיפול במקרים הבאים:</p>
+        <h4>${t('liability')}</h4>
+        <p>${t('liabIntro').replace('{clinic}','ד"ר קליניק')}</p>
         <ul>
-          <li>אי-מסירת מידע רפואי מלא ומדויק על ידי המטופל/ת.</li>
-          <li>אי-עמידה בהוראות הטיפול לאחר הפרוצדורה.</li>
-          <li>תגובות אינדיווידואליות בלתי צפויות לטיפול.</li>
-          <li>גורמים חיצוניים שאינם בשליטת הקליניקה.</li>
-          <li>ציפיות לא מציאותיות שלא הוסכמו מראש בכתב.</li>
+          <li>${t('liab1')}</li>
+          <li>${t('liab2')}</li>
+          <li>${t('liab3')}</li>
+          <li>${t('liab4')}</li>
+          <li>${t('liab5')}</li>
         </ul>
 
-        <h4>סיכונים ידועים — ${FORM_TYPES[formType].desc}</h4>
-        <p>${FORM_TYPES[formType].risks}</p>
+        <h4>${t('risks')} — ${ft('desc')}</h4>
+        <p>${ft('risks')}</p>
 
-        <h4>צילום ותיעוד</h4>
-        <p>אני מסכים/ה כי הקליניקה תוכל לצלם תמונות לפני ואחרי הטיפול לצורכי תיעוד רפואי פנימי בלבד, אלא אם הסכמתי בנפרד לשימוש שיווקי.</p>
+        <h4>${t('photography')}</h4>
+        <p>${t('photoText')}</p>
 
-        <h4>הצהרה סופית</h4>
-        <p>אני מאשר/ת כי קראתי והבנתי את כל האמור לעיל, קיבלתי מענה לכל שאלותיי, וחתימתי להלן מהווה הסכמה מדעת חופשית לביצוע הטיפול.</p>
+        <h4>${t('finalDecl')}</h4>
+        <p>${t('finalText')}</p>
       </div>
     </div>
     <div class="card">
       <label class="checkbox-wrap" for="agree-check">
         <input type="checkbox" id="agree-check">
         <div class="custom-box"></div>
-        <div class="checkbox-label">קראתי את טופס ההסכמה במלואו, הבנתי את תוכנו, ואני מסכים/ה לתנאים המפורטים בו.</div>
+        <div class="checkbox-label">${t('agreeText')}</div>
       </label>
     </div>
     <div id="err2"></div>
     <div style="display:flex;gap:10px">
-      <button class="submit-btn" style="background:#fff;color:#1B6CA8;border:1.5px solid #DDE8F0;box-shadow:none;flex:0 0 auto;width:auto;padding:16px 20px" onclick="step=1;renderStep1()">← חזור</button>
-      <button class="submit-btn" style="flex:1" onclick="goStep3()">המשך לחתימה ←</button>
+      <button class="submit-btn" style="background:#fff;color:#1B6CA8;border:1.5px solid #DDE8F0;box-shadow:none;flex:0 0 auto;width:auto;padding:16px 20px" onclick="step=1;renderStep1()">${t('back')}</button>
+      <button class="submit-btn" style="flex:1" onclick="goStep3()">${t('continueSign')}</button>
     </div>`;
 }
 
@@ -237,27 +441,27 @@ function renderStep3(){
   document.getElementById('content').innerHTML=`
     ${stepBar(3)}
     <div class="card">
-      <div class="card-title"><div class="icon icon-green">✍️</div>חתימה אלקטרונית</div>
+      <div class="card-title"><div class="icon icon-green">✍️</div>${t('eSign')}</div>
       <div class="field">
-        <label class="label">תאריך חתימה</label>
+        <label class="label">${t('signDate')}</label>
         <input type="text" value="${new Date().toLocaleDateString('he-IL')}" readonly style="background:#F5F5F5;color:#888;cursor:default">
       </div>
-      <label class="label">חתימה (צייר באצבע או עכבר)</label>
+      <label class="label">${t('signLabel')}</label>
       <div class="canvas-wrap">
         <canvas id="sigCanvas" width="800" height="200"></canvas>
         <div class="canvas-placeholder" id="canvasHint">
           <span style="font-size:28px">✍️</span>
-          <span>חתום/י כאן</span>
+          <span>${t('signHere')}</span>
         </div>
       </div>
       <div class="canvas-actions">
-        <button class="clear-btn" onclick="clearSig()">🗑️ נקה חתימה</button>
+        <button class="clear-btn" onclick="clearSig()">${t('clearSig')}</button>
       </div>
     </div>
     <div id="err3"></div>
     <div style="display:flex;gap:10px">
-      <button class="submit-btn" style="background:#fff;color:#1B6CA8;border:1.5px solid #DDE8F0;box-shadow:none;flex:0 0 auto;width:auto;padding:16px 20px" onclick="step=2;renderStep2()">← חזור</button>
-      <button class="submit-btn" style="flex:1" id="submitBtn" onclick="submitConsent()">✅ שלח וחתום</button>
+      <button class="submit-btn" style="background:#fff;color:#1B6CA8;border:1.5px solid #DDE8F0;box-shadow:none;flex:0 0 auto;width:auto;padding:16px 20px" onclick="step=2;renderStep2()">${t('back')}</button>
+      <button class="submit-btn" style="flex:1" id="submitBtn" onclick="submitConsent()">${t('submitSign')}</button>
     </div>`;
 
   initCanvas();
@@ -300,10 +504,10 @@ function goStep2(){
   const dob=document.getElementById('v-dob').value;
   const phone=document.getElementById('v-phone').value.trim();
   const err=document.getElementById('err1');
-  if(!name||name.length<2||!/[a-zA-Zא-ת]/.test(name)){err.innerHTML='<div class="error-msg">⚠️ נא להזין שם תקין</div>';return}
-  if(!dob){err.innerHTML='<div class="error-msg">⚠️ נא למלא תאריך לידה</div>';return}
+  if(!name||name.length<2||!/[a-zA-Zא-ת]/.test(name)){err.innerHTML='<div class="error-msg">'+t('errName')+'</div>';return}
+  if(!dob){err.innerHTML='<div class="error-msg">'+t('errDob')+'</div>';return}
   const cleanPhone=phone.replace(/[-\s]/g,'');
-  if(!phone||!/^0\d{8,9}$/.test(cleanPhone)){err.innerHTML='<div class="error-msg">⚠️ נא להזין מספר טלפון תקין (לדוגמה: 0501234567)</div>';return}
+  if(!phone||!/^0\d{8,9}$/.test(cleanPhone)){err.innerHTML='<div class="error-msg">'+t('errPhone')+'</div>';return}
   err.innerHTML='';
   clientData.dob=dob;
   clientData.phone=phone;
@@ -313,14 +517,14 @@ function goStep2(){
 
 function goStep3(){
   const cb=document.getElementById('agree-check');
-  if(!cb||!cb.checked){document.getElementById('err2').innerHTML='<div class="error-msg">⚠️ נא לאשר קריאת הטופס</div>';return}
+  if(!cb||!cb.checked){document.getElementById('err2').innerHTML='<div class="error-msg">'+t('errAgree')+'</div>';return}
   step=3;renderStep3();window.scrollTo(0,0);
 }
 
 async function submitConsent(){
-  if(!hasSig){document.getElementById('err3').innerHTML='<div class="error-msg">⚠️ נא לחתום על הטופס</div>';return}
+  if(!hasSig){document.getElementById('err3').innerHTML='<div class="error-msg">'+t('errSign')+'</div>';return}
   const btn=document.getElementById('submitBtn');
-  btn.disabled=true;btn.innerHTML='<div class="spinner" style="border-color:rgba(255,255,255,.3);border-top-color:#fff;width:18px;height:18px;display:inline-block"></div> שולח…';
+  btn.disabled=true;btn.innerHTML='<div class="spinner" style="border-color:rgba(255,255,255,.3);border-top-color:#fff;width:18px;height:18px;display:inline-block"></div> '+t('sending');
 
   const sigData=canvas.toDataURL('image/png');
 
@@ -343,7 +547,7 @@ async function submitConsent(){
     body:JSON.stringify({action:'insert',table:'consent_forms',data:{client_id:clientId,form_type:formType,signature_url:sigUrl}})
   });
   // Update client record (mark general consent + save details)
-  const notesAdd=`\n[${FORM_TYPES[formType].label} נחתם ב-${new Date().toLocaleDateString('he-IL')}]`;
+  const notesAdd=`\n[${FORM_TYPES[formType].label} ${t('signedOn')} ${new Date().toLocaleDateString('he-IL')}]`;
   await fetch(`${SUPABASE_URL}/functions/v1/clinic-api`,{
     method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
     body:JSON.stringify({action:'update',table:'clients',filters:[{column:'id',value:clientId}],data:{consent:true,notes:(clientData.notes||'')+notesAdd,signature_url:sigUrl,dob:clientData.dob||null,name:clientData.name}})
@@ -398,22 +602,23 @@ function renderSuccess(sigData){
     <div class="success-page">
       <div class="success-hero">
         <div class="success-icon">✅</div>
-        <div class="success-title">טופס ההסכמה נחתם!</div>
-        <div class="success-sub">תודה ${escHtml(clientData.name)}</div>
+        <div class="success-title">${t('signedTitle')}</div>
+        <div class="success-sub">${t('thanks')} ${escHtml(clientData.name)}</div>
       </div>
       <div class="success-card">
-        <div style="font-size:13px;color:#5A6A7E;margin-bottom:8px">החתימה שלך:</div>
+        <div style="font-size:13px;color:#5A6A7E;margin-bottom:8px">${t('yourSig')}</div>
         <img src="${sigData}" class="signed-img" alt="חתימה">
-        <div style="font-size:12px;color:#888;margin-top:8px;text-align:center">נחתם ב-${new Date().toLocaleDateString('he-IL')}</div>
+        <div style="font-size:12px;color:#888;margin-top:8px;text-align:center">${t('signedOn')} ${new Date().toLocaleDateString('he-IL')}</div>
       </div>
       <div style="font-size:13px;color:#5A6A7E;line-height:1.7;text-align:center">
-        החתימה נשמרה בתיק הרפואי שלך.<br>
-        ${clientData.email?'אימייל אישור נשלח לכתובתך.':''}<br>
-        נשמח לראותך בקליניקה!
+        ${t('savedMsg')}<br>
+        ${clientData.email?t('emailSent'):''}<br>
+        ${t('seeYou')}
       </div>
     </div>`;
 }
 
+applyLang();
 init();
 </script>
 </body>
