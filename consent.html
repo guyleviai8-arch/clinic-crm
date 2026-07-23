@@ -132,6 +132,8 @@ const I18N={
     alreadyTitle:'טופס ההסכמה כבר נחתם',alreadyMsg:'החתימה שלך כבר נמצאת בתיק.',
     errLink:'קישור לא תקין',errClient:'לקוח לא נמצא',contactClinic:'פנה לקליניקה לקבלת קישור חדש.',
     loading:'טוען…',
+    emSubject:'אישור חתימה',emHello:'שלום',emThanks:'תודה שחתמת על טופס ההסכמה. מצורף העתק מלא של הטופס עליו חתמת, לתיעודך.',
+    emName:'שם',emSignDate:'תאריך חתימה',emClinicSub:'קליניקה לרפואה אסתטית',emLocale:'he-IL',
     // סעיפי הטופס
     declaration:'הצהרת המטופל/ת',
     declText:'אני הח"מ, {name}, מצהיר/ה בזאת כי קיבלתי הסבר מלא ומפורט מהצוות הרפואי של {clinic} לגבי {desc} המיועד לי, לרבות מהות הטיפול, יתרונותיו, חלופותיו, הסיכונים הכרוכים בו והתוצאות הצפויות ממנו.',
@@ -167,6 +169,8 @@ const I18N={
     alreadyTitle:'Форма согласия уже подписана',alreadyMsg:'Ваша подпись уже в карте.',
     errLink:'Неверная ссылка',errClient:'Клиент не найден',contactClinic:'Свяжитесь с клиникой для новой ссылки.',
     loading:'Загрузка…',
+    emSubject:'Подтверждение подписи',emHello:'Здравствуйте',emThanks:'Благодарим за подписание формы согласия. Прилагаем полную копию подписанной формы для вашего архива.',
+    emName:'Имя',emSignDate:'Дата подписания',emClinicSub:'Клиника эстетической медицины',emLocale:'ru-RU',
     declaration:'Заявление пациента',
     declText:'Я, {name}, настоящим заявляю, что получил(а) полное и подробное объяснение от медицинского персонала {clinic} относительно {desc}, включая суть процедуры, её преимущества, альтернативы, связанные риски и ожидаемые результаты.',
     responsibility:'Ответственность пациента',
@@ -201,6 +205,8 @@ const I18N={
     alreadyTitle:'თანხმობის ფორმა უკვე ხელმოწერილია',alreadyMsg:'თქვენი ხელმოწერა უკვე ბარათშია.',
     errLink:'არასწორი ბმული',errClient:'კლიენტი ვერ მოიძებნა',contactClinic:'დაუკავშირდით კლინიკას ახალი ბმულისთვის.',
     loading:'იტვირთება…',
+    emSubject:'ხელმოწერის დადასტურება',emHello:'გამარჯობა',emThanks:'გმადლობთ თანხმობის ფორმის ხელმოწერისთვის. თან ერთვის ხელმოწერილი ფორმის სრული ასლი.',
+    emName:'სახელი',emSignDate:'ხელმოწერის თარიღი',emClinicSub:'ესთეტიკური მედიცინის კლინიკა',emLocale:'ka-GE',
     declaration:'პაციენტის განცხადება',
     declText:'მე, {name}, ვაცხადებ, რომ მივიღე სრული და დეტალური ახსნა {clinic}-ის სამედიცინო პერსონალისგან {desc}-ის შესახებ, მათ შორის პროცედურის არსი, უპირატესობები, ალტერნატივები, რისკები და მოსალოდნელი შედეგები.',
     responsibility:'პაციენტის პასუხისმგებლობა',
@@ -235,6 +241,8 @@ const I18N={
     alreadyTitle:'Consent form already signed',alreadyMsg:'Your signature is already on file.',
     errLink:'Invalid link',errClient:'Client not found',contactClinic:'Please contact the clinic for a new link.',
     loading:'Loading…',
+    emSubject:'Signature Confirmation',emHello:'Hello',emThanks:'Thank you for signing the consent form. A full copy of the signed form is attached for your records.',
+    emName:'Name',emSignDate:'Date signed',emClinicSub:'Aesthetic Medicine Clinic',emLocale:'en-GB',
     declaration:'Patient Declaration',
     declText:'I, {name}, hereby declare that I have received a full and detailed explanation from the medical staff of {clinic} regarding the {desc} intended for me, including the nature of the treatment, its benefits, alternatives, associated risks, and expected results.',
     responsibility:'Patient Responsibility',
@@ -558,7 +566,7 @@ async function submitConsent(){
   const notesAdd=`\n[${FORM_TYPES[formType].label} ${t('signedOn')} ${new Date().toLocaleDateString('he-IL')}]`;
   await fetch(`${SUPABASE_URL}/functions/v1/clinic-api`,{
     method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
-    body:JSON.stringify({action:'update',table:'clients',filters:[{column:'id',value:clientId}],data:{consent:true,notes:(clientData.notes||'')+notesAdd,signature_url:sigUrl,dob:clientData.dob||null,name:clientData.name}})
+    body:JSON.stringify({action:'update',table:'clients',filters:[{column:'id',value:clientId}],data:{consent:true,notes:(clientData.notes||'')+notesAdd,signature_url:sigUrl,dob:clientData.dob||null,name:clientData.name,lang:LANG}})
   });
 
   // Send confirmation email via Edge Function
@@ -569,33 +577,33 @@ async function submitConsent(){
         headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
         body:JSON.stringify({
           to:clientData.email,
-          subject:'אישור חתימה — '+FORM_TYPES[formType].label+' — ד"ר קליניק',
-          html:`<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1A2332">
+          subject:t('emSubject')+' — '+ft('label')+' — ד"ר קליניק',
+          html:`<div dir="${I18N[LANG].dir}" style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1A2332">
             <div style="background:linear-gradient(135deg,#154F7A,#1B6CA8,#4DB8C8);padding:24px;border-radius:12px;text-align:center;margin-bottom:24px">
               <h2 style="color:#fff;margin:0">ד"ר קליניק</h2>
-              <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px">קליניקה לרפואה אסתטית</p>
+              <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px">${t('emClinicSub')}</p>
             </div>
-            <p>שלום <strong>${escHtml(clientData.name)}</strong>,</p>
-            <p>תודה שחתמת על טופס ההסכמה לטיפול אסתטי. מצורף העתק מלא של הטופס עליו חתמת, לתיעודך.</p>
+            <p>${t('emHello')} <strong>${escHtml(clientData.name)}</strong>,</p>
+            <p>${t('emThanks')}</p>
             <div style="background:#E8F4FD;border-radius:10px;padding:16px;margin:16px 0">
-              <p style="margin:0 0 6px"><strong>שם:</strong> ${escHtml(clientData.name)}</p>
-              <p style="margin:0"><strong>תאריך חתימה:</strong> ${new Date().toLocaleDateString('he-IL')}</p>
+              <p style="margin:0 0 6px"><strong>${t('emName')}:</strong> ${escHtml(clientData.name)}</p>
+              <p style="margin:0"><strong>${t('emSignDate')}:</strong> ${new Date().toLocaleDateString(t('emLocale'))}</p>
             </div>
             <div style="background:#F8FBFE;border:1px solid #DDE8F0;border-radius:10px;padding:18px;font-size:13px;line-height:1.8;color:#3A4A5E">
-              <h3 style="color:#1A2332;font-size:15px;margin:0 0 10px">${FORM_TYPES[formType].label}</h3>
-              <p><strong>הצהרת המטופל/ת:</strong> אני הח"מ, ${escHtml(clientData.name)}, מצהיר/ה כי קיבלתי הסבר מלא ומפורט מהצוות הרפואי של ד"ר קליניק לגבי הטיפול האסתטי המיועד לי, לרבות מהותו, יתרונותיו, חלופותיו, הסיכונים והתוצאות הצפויות.</p>
-              <p><strong>אחריות המטופל/ת:</strong> מסרתי פרטים מלאים ומדויקים על מצבי הרפואי, תרופות, אלרגיות וכל מידע רלוונטי. אני מודע/ת כי הסתרת מידע עלולה לסכן את בריאותי. קיבלתי הסבר על חלופות ועל האפשרות להימנע מהטיפול.</p>
-              <p><strong>הגבלת אחריות הקליניקה:</strong> ד"ר קליניק אינה אחראית לתוצאות במקרים של אי-מסירת מידע מלא, אי-עמידה בהוראות לאחר הטיפול, תגובות אינדיווידואליות בלתי צפויות, גורמים חיצוניים שאינם בשליטת הקליניקה, או ציפיות לא מציאותיות שלא הוסכמו מראש בכתב.</p>
-              <p><strong>סיכונים ידועים:</strong> כאב קל, אדמומיות, נפיחות וחבורות זמניות; במקרים נדירים תגובה אלרגית; אסימטריה זמנית; תוצאות משתנות בין אדם לאדם ואינן מובטחות.</p>
-              <p><strong>הצהרה סופית:</strong> קראתי והבנתי את כל האמור לעיל, קיבלתי מענה לשאלותיי, וחתימתי מהווה הסכמה מדעת חופשית לביצוע הטיפול.</p>
+              <h3 style="color:#1A2332;font-size:15px;margin:0 0 10px">${ft('label')}</h3>
+              <p><strong>${t('declaration')}:</strong> ${t('declText').replace('{name}',escHtml(clientData.name)).replace('{clinic}','ד"ר קליניק').replace('{desc}',ft('desc'))}</p>
+              <p><strong>${t('responsibility')}:</strong> ${t('resp1')} ${t('resp2')} ${t('resp3')}</p>
+              <p><strong>${t('liability')}:</strong> ${t('liabIntro').replace('{clinic}','ד"ר קליניק')} ${t('liab1')} ${t('liab2')} ${t('liab3')} ${t('liab4')} ${t('liab5')}</p>
+              <p><strong>${t('risks')}:</strong> ${ft('risks')}</p>
+              <p><strong>${t('finalDecl')}:</strong> ${t('finalText')}</p>
             </div>
             ${sigUrl?`<div style="margin-top:20px;text-align:center">
-              <div style="font-size:12px;color:#5A6A7E;margin-bottom:8px">חתימת המטופל/ת:</div>
-              <img src="${sigUrl}" style="max-width:280px;border:1.5px solid #DDE8F0;border-radius:8px;background:#fff" alt="חתימה">
-              <div style="font-size:11px;color:#888;margin-top:6px">נחתם דיגיטלית בתאריך ${new Date().toLocaleDateString('he-IL')}</div>
+              <div style="font-size:12px;color:#5A6A7E;margin-bottom:8px">${t('patientSig')}</div>
+              <img src="${sigUrl}" style="max-width:280px;border:1.5px solid #DDE8F0;border-radius:8px;background:#fff" alt="signature">
+              <div style="font-size:11px;color:#888;margin-top:6px">${t('signedOn')} ${new Date().toLocaleDateString(t('emLocale'))}</div>
             </div>`:''}
             <hr style="border:none;border-top:1px solid #DDE8F0;margin:24px 0">
-            <p style="font-size:11px;color:#aaa;text-align:center">ד"ר קליניק | קליניקה לרפואה אסתטית</p>
+            <p style="font-size:11px;color:#aaa;text-align:center">ד"ר קליניק | ${t('emClinicSub')}</p>
           </div>`
         })
       });
