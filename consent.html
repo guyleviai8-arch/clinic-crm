@@ -255,7 +255,15 @@ const I18N={
     finalText:'I confirm that I have read and understood all of the above, received answers to all my questions, and my signature below constitutes informed, voluntary consent to undergo the treatment.'}
 };
 const LANGS=[{code:'he',name:'עברית',flag:'🇮🇱'},{code:'ru',name:'Русский',flag:'🇷🇺'},{code:'ka',name:'ქართული',flag:'🇬🇪'},{code:'en',name:'English',flag:'🇬🇧'}];
-let LANG=localStorage.getItem('clinic_lang')||'he';
+let LANG=localStorage.getItem('clinic_lang')||detectBrowserLang();
+function detectBrowserLang(){
+  const nav=(navigator.language||navigator.userLanguage||'he').toLowerCase();
+  if(nav.startsWith('ru'))return 'ru';
+  if(nav.startsWith('ka'))return 'ka';
+  if(nav.startsWith('he')||nav.startsWith('iw'))return 'he';
+  if(nav.startsWith('en'))return 'en';
+  return 'he';
+}
 if(!I18N[LANG])LANG='he';
 function t(key){return (I18N[LANG]&&I18N[LANG][key])||I18N.he[key]||key;}
 function toggleLangMenu(){const el=document.getElementById('lang-switch');if(el)el.classList.toggle('open');}
