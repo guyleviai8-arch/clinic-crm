@@ -11,7 +11,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Heebo',sans-serif;background:#F4F8FB;color:#1A2332;min-height:100vh;direction:rtl}
+body{font-family:'Heebo',sans-serif;background:#F4F8FB;color:#1A2332;min-height:100vh}
+.lang-switch{position:absolute;top:14px;left:14px;z-index:20}
+.lang-toggle{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.32);color:#fff;font-size:12px;padding:7px 12px;border-radius:99px;cursor:pointer;font-family:'Heebo',sans-serif;transition:all .15s}
+.lang-toggle:hover{background:rgba(255,255,255,.3)}
+.lang-toggle .chev{font-size:9px;opacity:.8;transition:transform .2s}
+.lang-switch.open .chev{transform:rotate(180deg)}
+.lang-menu{position:absolute;top:calc(100% + 6px);left:0;background:#fff;border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);overflow:hidden;min-width:150px;opacity:0;visibility:hidden;transform:translateY(-6px);transition:all .18s}
+.lang-switch.open .lang-menu{opacity:1;visibility:visible;transform:translateY(0)}
+.lang-item{display:flex;align-items:center;gap:9px;padding:11px 14px;cursor:pointer;font-size:13px;color:#1A2332;font-family:'Heebo',sans-serif;transition:background .12s;white-space:nowrap;direction:ltr}
+.lang-item:hover{background:#F0F6FC}
+.lang-item.active{background:#E8F4FD;font-weight:600;color:#1B6CA8}
+.lang-item .check{margin-left:auto;color:#1B6CA8}
+.hero{position:relative}
 .hero{background:linear-gradient(135deg,#154F7A,#1B6CA8,#4DB8C8);padding:28px 20px 36px;text-align:center}
 .hero-name{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
 .hero-sub{font-size:13px;color:rgba(255,255,255,.75)}
@@ -58,18 +70,110 @@ input:focus,select:focus{border-color:#1B6CA8}
 </head>
 <body>
 <div class="hero">
+  <div class="lang-switch" id="lang-switch">
+    <button class="lang-toggle" onclick="event.stopPropagation();toggleLangMenu()">
+      <span>🌐</span><span id="lang-current">עברית</span><span class="chev">▼</span>
+    </button>
+    <div class="lang-menu" id="lang-menu"></div>
+  </div>
   <div class="hero-name">ד"ר קליניק</div>
-  <div class="hero-sub">קליניקה לרפואה אסתטית</div>
+  <div class="hero-sub" id="hero-sub">קליניקה לרפואה אסתטית</div>
   <div class="hero-divider"></div>
-  <div class="hero-tag">📅 ניהול התור שלי</div>
+  <div class="hero-tag" id="hero-tag">📅 ניהול התור שלי</div>
 </div>
 <div class="wrap">
-  <div id="content"><div class="loading"><div class="spinner"></div><br><br>טוען את פרטי התור…</div></div>
+  <div id="content"><div class="loading"><div class="spinner"></div><br><br>${t('loadingAppt')}</div></div>
 </div>
 
 <script>
 const SUPABASE_URL='https://vizqigecvjpcfrorwowm.supabase.co';
 const SUPABASE_KEY='sb_publishable_EhhQfiQA2cUDA7BA68ZPWg_0bVeHtlA';
+
+// ============ מערכת שפות ============
+const I18N={
+  he:{dir:'rtl',sub:'קליניקה לרפואה אסתטית',tag:'📅 ניהול התור שלי',
+    myAppt:'פרטי התור שלך',name:'שם',treatment:'טיפול',date:'תאריך',time:'שעה',status:'סטטוס',
+    pending:'⏳ ממתין לאישור',confirmed:'✓ מאושר',done:'הסתיים',
+    changeAppt:'שינוי התור',changeDesc:'רוצה לשנות את מועד התור? בחר תאריך ושעה חדשים והשינוי יעודכן מיד.',
+    reschedule:'📅 העבר לתאריך אחר',cancel:'❌ ביטול התור',
+    pickNew:'בחירת מועד חדש',newDate:'תאריך חדש',pickFreeTime:'בחר שעה פנויה',
+    confirmChange:'אשר העברת תור',backBtn:'← חזרה',loading:'טוען שעות פנויות…',
+    closedDay:'הקליניקה סגורה בימי שישי ושבת. בחר יום אחר.',
+    errPick:'נא לבחור תאריך ושעה.',errUpdate:'שגיאה בעדכון. נסה שוב.',updating:'מעדכן…',
+    movedTitle:'התור הועבר!',movedDesc:'המועד החדש ממתין לאישור הקליניקה.<br>נעדכן אותך בקרוב! 😊',
+    cancelTitle:'לבטל את התור?',cancelYes:'כן, בטל את התור',cancelNo:'← לא, חזרה',
+    cancelledTitle:'התור בוטל',cancelledSub:'מקווים לראותך בפעם אחרת',
+    cancelledDesc:'התור בוטל בהצלחה.<br>לקביעת תור חדש — פנה לקליניקה או השתמש בקישור ההזמנה. 😊',
+    errLink:'קישור לא תקין',errNotFound:'התור לא נמצא. ייתכן שכבר בוטל.',contactClinic:'פנה לקליניקה לפרטים.',
+    loadingAppt:'טוען את פרטי התור…'},
+  ru:{dir:'ltr',sub:'Клиника эстетической медицины',tag:'📅 Управление записью',
+    myAppt:'Детали вашей записи',name:'Имя',treatment:'Процедура',date:'Дата',time:'Время',status:'Статус',
+    pending:'⏳ Ожидает подтверждения',confirmed:'✓ Подтверждено',done:'Завершено',
+    changeAppt:'Изменение записи',changeDesc:'Хотите изменить время? Выберите новую дату и время — изменения вступят в силу сразу.',
+    reschedule:'📅 Перенести на другую дату',cancel:'❌ Отменить запись',
+    pickNew:'Выбор нового времени',newDate:'Новая дата',pickFreeTime:'Выберите свободное время',
+    confirmChange:'Подтвердить перенос',backBtn:'← Назад',loading:'Загрузка свободного времени…',
+    closedDay:'Клиника закрыта в пятницу и субботу. Выберите другой день.',
+    errPick:'Пожалуйста, выберите дату и время.',errUpdate:'Ошибка обновления. Попробуйте снова.',updating:'Обновление…',
+    movedTitle:'Запись перенесена!',movedDesc:'Новое время ожидает подтверждения клиники.<br>Мы скоро свяжемся с вами! 😊',
+    cancelTitle:'Отменить запись?',cancelYes:'Да, отменить',cancelNo:'← Нет, назад',
+    cancelledTitle:'Запись отменена',cancelledSub:'Надеемся увидеть вас в другой раз',
+    cancelledDesc:'Запись успешно отменена.<br>Для новой записи свяжитесь с клиникой или используйте ссылку. 😊',
+    errLink:'Неверная ссылка',errNotFound:'Запись не найдена. Возможно, она уже отменена.',contactClinic:'Свяжитесь с клиникой.',
+    loadingAppt:'Загрузка деталей записи…'},
+  ka:{dir:'ltr',sub:'ესთეტიკური მედიცინის კლინიკა',tag:'📅 ჩემი ჯავშნის მართვა',
+    myAppt:'თქვენი ჯავშნის დეტალები',name:'სახელი',treatment:'პროცედურა',date:'თარიღი',time:'დრო',status:'სტატუსი',
+    pending:'⏳ ელოდება დადასტურებას',confirmed:'✓ დადასტურებული',done:'დასრულებული',
+    changeAppt:'ჯავშნის შეცვლა',changeDesc:'გსურთ დროის შეცვლა? აირჩიეთ ახალი თარიღი და დრო.',
+    reschedule:'📅 სხვა თარიღზე გადატანა',cancel:'❌ ჯავშნის გაუქმება',
+    pickNew:'ახალი დროის არჩევა',newDate:'ახალი თარიღი',pickFreeTime:'აირჩიეთ თავისუფალი დრო',
+    confirmChange:'გადატანის დადასტურება',backBtn:'← უკან',loading:'იტვირთება…',
+    closedDay:'კლინიკა დაკეტილია პარასკევს და შაბათს. აირჩიეთ სხვა დღე.',
+    errPick:'გთხოვთ აირჩიოთ თარიღი და დრო.',errUpdate:'განახლების შეცდომა. სცადეთ თავიდან.',updating:'ახლდება…',
+    movedTitle:'ჯავშანი გადატანილია!',movedDesc:'ახალი დრო ელოდება კლინიკის დადასტურებას.<br>მალე დაგიკავშირდებით! 😊',
+    cancelTitle:'გავაუქმოთ ჯავშანი?',cancelYes:'დიახ, გაუქმება',cancelNo:'← არა, უკან',
+    cancelledTitle:'ჯავშანი გაუქმდა',cancelledSub:'ვიმედოვნებთ სხვა დროს გნახავთ',
+    cancelledDesc:'ჯავშანი წარმატებით გაუქმდა.<br>ახალი ჩაწერისთვის დაუკავშირდით კლინიკას. 😊',
+    errLink:'არასწორი ბმული',errNotFound:'ჯავშანი ვერ მოიძებნა. შესაძლოა უკვე გაუქმებულია.',contactClinic:'დაუკავშირდით კლინიკას.',
+    loadingAppt:'იტვირთება ჯავშნის დეტალები…'},
+  en:{dir:'ltr',sub:'Aesthetic Medicine Clinic',tag:'📅 Manage My Appointment',
+    myAppt:'Your Appointment Details',name:'Name',treatment:'Treatment',date:'Date',time:'Time',status:'Status',
+    pending:'⏳ Awaiting approval',confirmed:'✓ Confirmed',done:'Completed',
+    changeAppt:'Change Appointment',changeDesc:'Want to change your appointment time? Pick a new date and time — it updates instantly.',
+    reschedule:'📅 Reschedule',cancel:'❌ Cancel Appointment',
+    pickNew:'Pick a New Time',newDate:'New date',pickFreeTime:'Choose an available time',
+    confirmChange:'Confirm Reschedule',backBtn:'← Back',loading:'Loading available times…',
+    closedDay:'The clinic is closed on Fridays and Saturdays. Please pick another day.',
+    errPick:'Please select a date and time.',errUpdate:'Update failed. Please try again.',updating:'Updating…',
+    movedTitle:'Appointment Moved!',movedDesc:'The new time awaits clinic approval.<br>We\'ll update you soon! 😊',
+    cancelTitle:'Cancel this appointment?',cancelYes:'Yes, cancel it',cancelNo:'← No, go back',
+    cancelledTitle:'Appointment Cancelled',cancelledSub:'Hope to see you another time',
+    cancelledDesc:'Your appointment was cancelled.<br>To book again, contact the clinic or use the booking link. 😊',
+    errLink:'Invalid link',errNotFound:'Appointment not found. It may have been cancelled.',contactClinic:'Please contact the clinic.',
+    loadingAppt:'Loading appointment details…'}
+};
+const LANGS=[{code:'he',name:'עברית',flag:'🇮🇱'},{code:'ru',name:'Русский',flag:'🇷🇺'},{code:'ka',name:'ქართული',flag:'🇬🇪'},{code:'en',name:'English',flag:'🇬🇧'}];
+let LANG=localStorage.getItem('clinic_lang')||'he';
+if(!I18N[LANG])LANG='he';
+function t(key){return (I18N[LANG]&&I18N[LANG][key])||I18N.he[key]||key;}
+function toggleLangMenu(){const el=document.getElementById('lang-switch');if(el)el.classList.toggle('open');}
+function setLang(l){
+  LANG=l;try{localStorage.setItem('clinic_lang',l);}catch(e){}
+  const el=document.getElementById('lang-switch');if(el)el.classList.remove('open');
+  applyLang();
+  if(appt)renderView();
+}
+function applyLang(){
+  document.documentElement.lang=LANG;document.body.dir=I18N[LANG].dir;
+  const hs=document.getElementById('hero-sub');if(hs)hs.textContent=t('sub');
+  const ht=document.getElementById('hero-tag');if(ht)ht.textContent=t('tag');
+  const cur=LANGS.find(x=>x.code===LANG);
+  const lc=document.getElementById('lang-current');if(lc&&cur)lc.textContent=cur.name;
+  const menu=document.getElementById('lang-menu');
+  if(menu)menu.innerHTML=LANGS.map(l=>`<div class="lang-item ${l.code===LANG?'active':''}" onclick="event.stopPropagation();setLang('${l.code}')"><span>${l.flag}</span><span>${l.name}</span>${l.code===LANG?'<span class="check">✓</span>':''}</div>`).join('');
+}
+document.addEventListener('click',()=>{const el=document.getElementById('lang-switch');if(el)el.classList.remove('open');});
+
 const WORK_HOURS=['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
 const CLOSED_DAYS=[5,6];
 
@@ -88,13 +192,13 @@ function fmtNice(d){if(!d)return'';const[y,m,day]=d.split('-');const months=['י
 
 async function init(){
   apptId=getParam('id');
-  if(!apptId){showError('קישור לא תקין');return}
+  if(!apptId){showError(t('errLink'));return}
   const res=await fetch(`${SUPABASE_URL}/functions/v1/clinic-api`,{
     method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
     body:JSON.stringify({action:'select',table:'appointments',filters:[{column:'id',value:apptId}]})
   });
   const rj=await res.json();const rows=rj.data||[];
-  if(!rows||!rows.length){showError('התור לא נמצא. ייתכן שכבר בוטל.');return}
+  if(!rows||!rows.length){showError(t('errNotFound'));return}
   appt=rows[0];
   renderView();
 }
@@ -103,53 +207,53 @@ function showError(msg){
   document.getElementById('content').innerHTML=`<div class="card" style="text-align:center;padding:32px">
     <div style="font-size:40px;margin-bottom:12px">❌</div>
     <div style="font-size:16px;font-weight:500;margin-bottom:8px">${msg}</div>
-    <div style="font-size:13px;color:#888">פנה לקליניקה לפרטים.</div>
+    <div style="font-size:13px;color:#888">${t('contactClinic')}</div>
   </div>`;
 }
 
 function renderView(){
-  const stMap={pending:['status-pending','⏳ ממתין לאישור'],confirmed:['status-confirmed','✓ מאושר'],done:['','הסתיים']};
+  const stMap={pending:['status-pending',t('pending')],confirmed:['status-confirmed',t('confirmed')],done:['',t('done')]};
   const[stCls,stLabel]=stMap[appt.status]||['status-confirmed','מאושר'];
   document.getElementById('content').innerHTML=`
     <div class="card">
-      <div class="card-title"><div class="icon icon-blue">📋</div>פרטי התור שלך</div>
-      <div class="appt-detail"><div class="ad-icon">👤</div><div style="flex:1"><div class="ad-label">שם</div><div class="ad-value">${escHtml(appt.client_name)}</div></div></div>
-      <div class="appt-detail"><div class="ad-icon">💆</div><div style="flex:1"><div class="ad-label">טיפול</div><div class="ad-value">${escHtml(appt.treatment)}</div></div></div>
-      <div class="appt-detail"><div class="ad-icon">📅</div><div style="flex:1"><div class="ad-label">תאריך</div><div class="ad-value">${fmtNice(appt.date)}</div></div></div>
-      <div class="appt-detail"><div class="ad-icon">🕐</div><div style="flex:1"><div class="ad-label">שעה</div><div class="ad-value">${appt.time}</div></div></div>
-      <div class="appt-detail"><div class="ad-icon">📌</div><div style="flex:1"><div class="ad-label">סטטוס</div><div class="ad-value"><span class="status-badge ${stCls}">${stLabel}</span></div></div></div>
+      <div class="card-title"><div class="icon icon-blue">📋</div>${t('myAppt')}</div>
+      <div class="appt-detail"><div class="ad-icon">👤</div><div style="flex:1"><div class="ad-label">${t('name')}</div><div class="ad-value">${escHtml(appt.client_name)}</div></div></div>
+      <div class="appt-detail"><div class="ad-icon">💆</div><div style="flex:1"><div class="ad-label">${t('treatment')}</div><div class="ad-value">${escHtml(appt.treatment)}</div></div></div>
+      <div class="appt-detail"><div class="ad-icon">📅</div><div style="flex:1"><div class="ad-label">${t('date')}</div><div class="ad-value">${fmtNice(appt.date)}</div></div></div>
+      <div class="appt-detail"><div class="ad-icon">🕐</div><div style="flex:1"><div class="ad-label">${t('time')}</div><div class="ad-value">${appt.time}</div></div></div>
+      <div class="appt-detail"><div class="ad-icon">📌</div><div style="flex:1"><div class="ad-label">${t('status')}</div><div class="ad-value"><span class="status-badge ${stCls}">${stLabel}</span></div></div></div>
     </div>
     <div class="card">
-      <div class="card-title"><div class="icon icon-green">🔄</div>שינוי התור</div>
-      <p style="font-size:13px;color:#5A6A7E;margin-bottom:16px;line-height:1.6">רוצה לשנות את מועד התור? בחר תאריך ושעה חדשים והשינוי יעודכן מיד.</p>
-      <button class="btn btn-secondary" onclick="showReschedule()">📅 העבר לתאריך אחר</button>
-      <button class="btn btn-danger" onclick="showCancel()">❌ ביטול התור</button>
+      <div class="card-title"><div class="icon icon-green">🔄</div>${t('changeAppt')}</div>
+      <p style="font-size:13px;color:#5A6A7E;margin-bottom:16px;line-height:1.6">${t('changeDesc')}</p>
+      <button class="btn btn-secondary" onclick="showReschedule()">${t('reschedule')}</button>
+      <button class="btn btn-danger" onclick="showCancel()">${t('cancel')}</button>
     </div>`;
 }
 
 function showReschedule(){
   document.getElementById('content').innerHTML=`
     <div class="card">
-      <div class="card-title"><div class="icon icon-blue">📅</div>בחירת מועד חדש</div>
+      <div class="card-title"><div class="icon icon-blue">📅</div>${t('pickNew')}</div>
       <div id="err"></div>
       <div class="field">
-        <label class="label">תאריך חדש</label>
+        <label class="label">${t('newDate')}</label>
         <input type="date" id="new-date" min="${getMinDate()}" onchange="onDateChange(this.value)">
       </div>
       <div id="slots-area"></div>
     </div>
-    <button class="btn btn-primary" id="confirm-btn" onclick="confirmReschedule()" disabled>אשר העברת תור</button>
-    <button class="btn btn-secondary" onclick="renderView()">← חזרה</button>`;
+    <button class="btn btn-primary" id="confirm-btn" onclick="confirmReschedule()" disabled>${t('confirmChange')}</button>
+    <button class="btn btn-secondary" onclick="renderView()">${t('backBtn')}</button>`;
 }
 
 async function onDateChange(date){
   newDate=date;newTime='';
   const dt=new Date(date);
   if(CLOSED_DAYS.includes(dt.getDay())){
-    document.getElementById('slots-area').innerHTML='<div class="error-msg">הקליניקה סגורה בימי שישי ושבת. בחר יום אחר.</div>';
+    document.getElementById('slots-area').innerHTML='<div class="error-msg">'+t('closedDay')+'</div>';
     return;
   }
-  document.getElementById('slots-area').innerHTML='<div class="loading"><div class="spinner"></div> טוען שעות פנויות…</div>';
+  document.getElementById('slots-area').innerHTML='<div class="loading"><div class="spinner"></div> '+t('loading')+'</div>';
   // בדוק שעות תפוסות
   const res=await fetch(`${SUPABASE_URL}/functions/v1/clinic-api`,{
     method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
@@ -161,7 +265,7 @@ async function onDateChange(date){
 }
 
 function renderSlots(){
-  let h='<label class="label">בחר שעה פנויה</label><div class="slots-grid">';
+  let h='<label class="label">'+t('pickFreeTime')+'</label><div class="slots-grid">';
   WORK_HOURS.forEach(t=>{
     const taken=takenSlots.includes(t);
     h+=`<div class="slot ${taken?'taken':''} ${newTime===t?'selected':''}" ${taken?'':`onclick="selectSlot('${t}')"`}>${t}</div>`;
@@ -177,9 +281,9 @@ function selectSlot(t){
 }
 
 async function confirmReschedule(){
-  if(!newDate||!newTime){document.getElementById('err').innerHTML='<div class="error-msg">נא לבחור תאריך ושעה.</div>';return}
+  if(!newDate||!newTime){document.getElementById('err').innerHTML='<div class="error-msg">'+t('errPick')+'</div>';return}
   const btn=document.getElementById('confirm-btn');
-  btn.disabled=true;btn.innerHTML='<div class="spinner" style="border-color:rgba(255,255,255,.3);border-top-color:#fff;width:18px;height:18px"></div> מעדכן…';
+  btn.disabled=true;btn.innerHTML='<div class="spinner" style="border-color:rgba(255,255,255,.3);border-top-color:#fff;width:18px;height:18px"></div> '+t('updating');
   const res=await fetch(`${SUPABASE_URL}/functions/v1/clinic-api`,{
     method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
     body:JSON.stringify({action:'update',table:'appointments',filters:[{column:'id',value:apptId}],data:{date:newDate,time:newTime,status:'pending'}})
@@ -188,15 +292,15 @@ async function confirmReschedule(){
     document.getElementById('content').innerHTML=`
       <div class="success-hero">
         <div class="success-icon">✅</div>
-        <div class="success-title">התור הועבר!</div>
+        <div class="success-title">${t('movedTitle')}</div>
         <div class="success-sub">${fmtNice(newDate)} בשעה ${newTime}</div>
       </div>
       <div class="card" style="text-align:center">
-        <p style="font-size:14px;color:#5A6A7E;line-height:1.7">המועד החדש ממתין לאישור הקליניקה.<br>נעדכן אותך בקרוב! 😊</p>
+        <p style="font-size:14px;color:#5A6A7E;line-height:1.7">${t('movedDesc')}</p>
       </div>`;
   }else{
-    document.getElementById('err').innerHTML='<div class="error-msg">שגיאה בעדכון. נסה שוב.</div>';
-    btn.disabled=false;btn.innerHTML='אשר העברת תור';
+    document.getElementById('err').innerHTML='<div class="error-msg">'+t('errUpdate')+'</div>';
+    btn.disabled=false;btn.innerHTML=t('confirmChange');
   }
 }
 
@@ -204,10 +308,10 @@ function showCancel(){
   document.getElementById('content').innerHTML=`
     <div class="card" style="text-align:center">
       <div style="font-size:44px;margin-bottom:12px">🤔</div>
-      <div style="font-size:17px;font-weight:600;margin-bottom:8px">לבטל את התור?</div>
+      <div style="font-size:17px;font-weight:600;margin-bottom:8px">${t('cancelTitle')}</div>
       <p style="font-size:13px;color:#5A6A7E;margin-bottom:20px;line-height:1.6">${escHtml(appt.treatment)}<br>${fmtNice(appt.date)} בשעה ${appt.time}</p>
-      <button class="btn btn-danger" onclick="confirmCancel()">כן, בטל את התור</button>
-      <button class="btn btn-secondary" onclick="renderView()">← לא, חזרה</button>
+      <button class="btn btn-danger" onclick="confirmCancel()">${t('cancelYes')}</button>
+      <button class="btn btn-secondary" onclick="renderView()">${t('cancelNo')}</button>
     </div>`;
 }
 
@@ -220,15 +324,16 @@ async function confirmCancel(){
     document.getElementById('content').innerHTML=`
       <div class="success-hero" style="background:linear-gradient(135deg,#8A9AAE,#B0C0D0)">
         <div class="success-icon">✓</div>
-        <div class="success-title">התור בוטל</div>
-        <div class="success-sub">מקווים לראותך בפעם אחרת</div>
+        <div class="success-title">${t('cancelledTitle')}</div>
+        <div class="success-sub">${t('cancelledSub')}</div>
       </div>
       <div class="card" style="text-align:center">
-        <p style="font-size:14px;color:#5A6A7E;line-height:1.7">התור בוטל בהצלחה.<br>לקביעת תור חדש — פנה לקליניקה או השתמש בקישור ההזמנה. 😊</p>
+        <p style="font-size:14px;color:#5A6A7E;line-height:1.7">${t('cancelledDesc')}</p>
       </div>`;
   }
 }
 
+applyLang();
 init();
 </script>
 </body>
