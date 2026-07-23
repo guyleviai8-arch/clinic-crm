@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -61,35 +62,37 @@ h1 em::after{content:'';position:absolute;inset-inline:0;bottom:.09em;height:.28
 .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
 .hero-note{font-size:13.5px;color:var(--muted)}
 
-.ba{position:relative;border-radius:18px;overflow:hidden;box-shadow:0 22px 60px rgba(14,42,63,.17);border:1px solid var(--line);aspect-ratio:4/3.35;background:#fff;user-select:none;touch-action:pan-y}
-.ba-pane{position:absolute;inset:0;display:flex;flex-direction:column}
+.ba{direction:ltr;position:relative;border-radius:18px;overflow:hidden;box-shadow:0 22px 60px rgba(14,42,63,.17);border:1px solid var(--line);aspect-ratio:4/3.35;background:#fff;user-select:none;touch-action:pan-y}
+.ba-pane{position:absolute;inset:0;display:flex;flex-direction:column;background:#fff}
 .ba-after{clip-path:inset(0 0 0 var(--split,50%))}
-html[dir=ltr] .ba-after{clip-path:inset(0 var(--splitr,50%) 0 0)}
 .ba-head{padding:11px 15px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px;flex-shrink:0}
+.ba-before{background:#FBF7F4}
 .ba-before .ba-head{background:#EFE4DF;color:#8A4B34}
+.ba-after{background:#fff}
 .ba-after .ba-head{background:linear-gradient(135deg,var(--clinical),var(--aqua));color:#fff}
-.ba-body{flex:1;padding:13px 15px;overflow:hidden}
-.chat{display:flex;flex-direction:column;gap:7px}
-.msg{max-width:82%;padding:8px 11px;border-radius:12px;font-size:11.5px;line-height:1.45;background:#fff;border:1px solid #E4E0DC;color:#4A3D36}
-.msg.me{align-self:flex-start;background:#DCF3D6;border-color:#C8E6C0}
-.msg .time{display:block;font-size:9px;opacity:.5;margin-top:2px}
-.chaos-note{margin-top:9px;font-size:10.5px;color:#8A4B34;opacity:.85}
-.mini-cal{display:grid;grid-template-columns:26px repeat(4,1fr);gap:2px;font-size:9px}
-.mc-h{text-align:center;font-weight:700;color:var(--muted);padding-bottom:5px;font-size:9.5px}
-.mc-t{color:#B6C6D3;text-align:end;padding-inline-end:4px;font-size:8.5px;line-height:22px}
-.mc-c{background:#F3F8FC;border-radius:3px;height:22px}
-.mc-appt{border-radius:4px;padding:2px 4px;font-size:8.5px;font-weight:600;line-height:1.25;overflow:hidden;height:22px;display:flex;flex-direction:column;justify-content:center}
+.ba-body{flex:1;padding:16px 17px;overflow:hidden}
+html[dir=rtl] .ba-body{direction:rtl}
+.notes{position:relative;height:64%}
+.note{position:absolute;padding:11px 13px;font-size:12px;line-height:1.45;color:#5A4438;background:#FFFDF5;border:1px solid #E8DFCF;border-radius:3px;box-shadow:0 2px 6px rgba(90,68,56,.12);max-width:74%}
+.note::before{content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:26px;height:9px;background:rgba(190,175,150,.5);border-radius:1px}
+.n1{top:2%;left:2%;transform:rotate(-2.5deg)}
+.n2{top:33%;left:22%;transform:rotate(1.8deg);background:#FFF8F2;border-color:#EDDCCC}
+.n3{top:64%;left:6%;transform:rotate(-1.2deg)}
+.chaos-note{position:absolute;bottom:14px;left:17px;right:17px;font-size:11.5px;color:#8A4B34;font-weight:600;background:rgba(138,75,52,.08);padding:7px 11px;border-radius:8px}
+.mini-cal{display:grid;grid-template-columns:30px repeat(4,1fr);gap:4px;font-size:9px}
+.mc-h{text-align:center;font-weight:700;color:var(--muted);padding-bottom:7px;font-size:10px}
+.mc-t{color:#AEC0CE;text-align:end;padding-inline-end:5px;font-size:9px;line-height:34px}
+.mc-c{background:#F4F9FC;border-radius:5px;height:34px}
+.mc-appt{border-radius:6px;padding:4px 6px;font-size:9.5px;font-weight:600;line-height:1.3;overflow:hidden;height:34px;display:flex;flex-direction:column;justify-content:center}
 .a1{background:#E7EEFD;color:#2C3B8E}.a2{background:#E3F5EE;color:#0B5140}
 .a3{background:#FBEAF0;color:#78243F}.a4{background:#FCF0DE;color:#7A5310}
-.ba-stats{display:flex;gap:6px;margin-top:10px}
-.stat{flex:1;background:#F3F8FC;border-radius:7px;padding:6px 7px;text-align:center}
-.stat b{display:block;font-size:13px;color:var(--clinical);font-family:var(--display);line-height:1.1}
-.stat span{font-size:8.5px;color:var(--muted)}
-.ba-handle{position:absolute;top:0;bottom:0;inset-inline-start:var(--split,50%);width:3px;background:#fff;box-shadow:0 0 0 1px rgba(14,42,63,.14),0 0 18px rgba(0,0,0,.14);cursor:ew-resize;z-index:5}
-.ba-knob{position:absolute;top:50%;inset-inline-start:50%;transform:translate(50%,-50%);width:42px;height:42px;border-radius:50%;background:#fff;box-shadow:0 4px 16px rgba(14,42,63,.26);display:grid;place-items:center;font-size:15px;color:var(--clinical)}
-html[dir=ltr] .ba-knob{transform:translate(-50%,-50%)}
-.ba-hint{position:absolute;bottom:11px;inset-inline-start:50%;transform:translateX(50%);background:rgba(14,42,63,.82);color:#fff;font-size:10.5px;padding:5px 12px;border-radius:99px;z-index:6;pointer-events:none;transition:opacity .3s;white-space:nowrap}
-html[dir=ltr] .ba-hint{transform:translateX(-50%)}
+.ba-stats{display:flex;gap:7px;margin-top:14px}
+.stat{flex:1;background:#F4F9FC;border-radius:9px;padding:8px 7px;text-align:center}
+.stat b{display:block;font-size:15px;color:var(--clinical);font-family:var(--display);line-height:1.1}
+.stat span{font-size:9px;color:var(--muted)}
+.ba-handle{position:absolute;top:0;bottom:0;left:var(--split,50%);width:3px;background:#fff;box-shadow:0 0 0 1px rgba(14,42,63,.14),0 0 18px rgba(0,0,0,.14);cursor:ew-resize;z-index:5}
+.ba-knob{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:#fff;box-shadow:0 4px 16px rgba(14,42,63,.26);display:grid;place-items:center;font-size:15px;color:var(--clinical)}
+.ba-hint{position:absolute;bottom:11px;left:50%;transform:translateX(-50%);background:rgba(14,42,63,.82);color:#fff;font-size:10.5px;padding:5px 12px;border-radius:99px;z-index:6;pointer-events:none;transition:opacity .3s;white-space:nowrap}
 
 section{padding:76px 0}
 .sec-head{max-width:58ch;margin-bottom:44px}
@@ -133,7 +136,8 @@ html[dir=ltr] .price-tag{transform:translateX(-50%)}
 .price-sub{font-size:14px;color:var(--muted);margin-bottom:24px;text-align:center}
 .price-big{font-family:var(--display);font-size:56px;font-weight:900;line-height:1;text-align:center;margin-bottom:4px}
 .price-big small{font-size:17px;font-weight:400;color:var(--muted);font-family:var(--body)}
-.price-note{font-size:13px;color:var(--muted);text-align:center;margin-bottom:26px}
+.price-note{font-size:13px;color:var(--muted);text-align:center;margin-bottom:6px}
+.price-fx{font-size:11.5px;color:var(--muted);opacity:.75;text-align:center;margin-bottom:24px;min-height:17px}
 .price-one ul{list-style:none;margin-bottom:26px;display:grid;gap:11px}
 .price-one li{font-size:14.5px;display:flex;gap:10px;align-items:flex-start}
 .price-one li::before{content:'✓';color:var(--mint);font-weight:700;flex-shrink:0}
@@ -208,7 +212,7 @@ footer{border-top:1px solid var(--line);padding:36px 0;margin-top:18px}
       <p class="lede" data-t="lede"></p>
       <div class="hero-cta">
         <a href="#demo" class="btn btn-primary" data-t="ctaMain"></a>
-        <a href="booking.html" class="btn btn-ghost" data-t="ctaDemo"></a>
+        <a href="#" onclick="waDirect();return false;" class="btn btn-ghost" data-t="ctaDemo"></a>
       </div>
       <p class="hero-note" data-t="heroNote"></p>
     </div>
@@ -217,12 +221,10 @@ footer{border-top:1px solid var(--line);padding:36px 0;margin-top:18px}
       <div class="ba-pane ba-before">
         <div class="ba-head">📱 <span data-t="baBefore"></span></div>
         <div class="ba-body">
-          <div class="chat">
-            <div class="msg"><span data-t="m1"></span><span class="time">09:14</span></div>
-            <div class="msg me"><span data-t="m2"></span><span class="time">11:02</span></div>
-            <div class="msg">?<span class="time">14:37</span></div>
-            <div class="msg"><span data-t="m3"></span><span class="time">18:20</span></div>
-            <div class="msg"><span data-t="m4"></span><span class="time">22:41</span></div>
+          <div class="notes">
+            <div class="note n1"><span data-t="m1"></span></div>
+            <div class="note n2"><span data-t="m2"></span></div>
+            <div class="note n3"><span data-t="m3"></span></div>
           </div>
           <div class="chaos-note" data-t="chaosNote"></div>
         </div>
@@ -319,8 +321,9 @@ footer{border-top:1px solid var(--line);padding:36px 0;margin-top:18px}
       <span class="price-tag" data-t="prBadge"></span>
       <h3 data-t="prPlan"></h3>
       <p class="price-sub" data-t="prPlanSub"></p>
-      <div class="price-big">₪299 <small data-t="prPer"></small></div>
+      <div class="price-big"><span id="priceVal">₪299</span> <small data-t="prPer"></small></div>
       <p class="price-note" data-t="prNote"></p>
+      <p class="price-fx" id="priceFx"></p>
       <ul>
         <li data-t="pl1"></li><li data-t="pl2"></li><li data-t="pl3"></li>
         <li data-t="pl4"></li><li data-t="pl5"></li><li data-t="pl6"></li>
@@ -357,7 +360,7 @@ footer{border-top:1px solid var(--line);padding:36px 0;margin-top:18px}
     <p data-t="ftCopy"></p>
     <div class="foot-links">
       <a href="index.html" data-t="fl1"></a>
-      <a href="booking.html" data-t="fl2"></a>
+      <a href="#" onclick="waDirect();return false;" data-t="fl2"></a>
       <a href="#demo" data-t="fl3"></a>
     </div>
   </div>
@@ -367,20 +370,21 @@ footer{border-top:1px solid var(--line);padding:36px 0;margin-top:18px}
 const T={
 he:{dir:'rtl',
  brand:'ד"ר קליניק',navWhy:'למה זה',navFeatures:'הפיצ׳רים',navHow:'איך מתחילים',navPricing:'מחיר',navLogin:'כניסה',navStart:'שבוע ניסיון',
- heroEyebrow:'מערכת ניהול תורים ולקוחות · 4 שפות',
- h1a:'הקליניקה שלך מנוהלת ב',h1em:'וואטסאפ',h1b:'. זה עובד — עד שזה לא.',
- lede:'תורים, כרטיסי לקוחות וטפסי הסכמה חתומים דיגיטלית — במערכת אחת. הלקוחות מזמינים לבד, אתם מאשרים בלחיצה.',
- ctaMain:'התחילו שבוע ניסיון',ctaDemo:'צפו בדף ההזמנה',
+ heroEyebrow:'ניהול לקוחות ותורים · ממשק דיגיטלי מלא',
+ h1a:'ממשק',h1em:'ניהול לקוחות',h1b:' מתקדם לקליניקה שלך.',
+ lede:'כרטיסי לקוחות, יומן תורים וטפסי הסכמה חתומים דיגיטלית — בממשק אחד, נגיש מכל מכשיר.',
+ ctaMain:'התחילו שבוע ניסיון',ctaDemo:'💬 דברו איתנו בוואטסאפ',
+ waHello:'היי! ראיתי את ד"ר קליניק ואשמח לשמוע עוד על שבוע הניסיון.',
  heroNote:'✓ בלי כרטיס אשראי · ✓ הקמה והדרכה כלולות · ✓ מוכן תוך יום',
- baBefore:'לפני — וואטסאפ ומחברת',baAfter:'אחרי — ד"ר קליניק',baHint:'גררו להשוואה',
- m1:'היי, אפשר תור לבוטוקס השבוע?',m2:'רגע בודקת ביומן…',m3:'סליחה, צריכה להזיז את יום שלישי',m4:'שכחתי מתי התור שלי 🙈',
- chaosNote:'⚠ 3 הודעות ללא מענה · טופס הסכמה חסר',
+ baBefore:'ניהול ידני',baAfter:'ד"ר קליניק',baHint:'גררו להשוואה',
+ m1:'מוניקה — בוטוקס, יום ג׳? לבדוק',m2:'ולריה ביקשה להזיז',m3:'טופס הסכמה — לא חתום',m4:'',
+ chaosNote:'פתקים, מחברת, זיכרון',
  st1:'תורים השבוע',st2:'טפסים חתומים',st3:'הודעות פתוחות',
  days:['ב׳','ג׳','ד׳','ה׳'],names:['מוניקה','ולריה','דנה','שירה','נועה','רותם','יעל'],
  tr:['בוטוקס','פילר','פילינג','ייעוץ','לייזר','פרופהילו'],
- lgKicker:'רב־לשוני',lgTitle:'הלקוחות שלכם לא כולם מדברים אותה שפה',
- lgSub:'המערכת כולה — הזמנת תורים, טפסי הסכמה, מיילים ותאריכים — מוצגת לכל לקוח בשפה שלו. אוטומטית, לפי הדפדפן שלו.',
- pnKicker:'מה באמת קורה',pnTitle:'שלוש שאלות שכל מנהלת קליניקה מכירה',
+ lgKicker:'רב־לשוני',lgTitle:'השירות זמין בארבע שפות',
+ lgSub:'הממשק, טפסי ההסכמה, המיילים והתאריכים — הכל זמין בעברית, רוסית, גרוזינית ואנגלית. כל משתמש מקבל את השפה שלו אוטומטית.',
+ pnKicker:'מה באמת קורה',pnTitle:'שלושה דברים שהממשק פותר',
  pq1:'"מתי התור שלי?"',pa1:'כל לקוח מקבל קישור אישי לתור שלו — רואה מתי, ויכול לבטל או להעביר בעצמו. בלי לשאול אתכם.',
  pq2:'"חתמת על הטופס?"',pa2:'טופס הסכמה נשלח בוואטסאפ, נחתם מהטלפון, ונשמר בכרטיס הלקוח עם תאריך ושעה. תמיד תדעו מי חתם.',
  pq3:'"מה עשינו בפעם הקודמת?"',pa3:'כל טיפול מתועד — מינון, מוצר, הערות. ההיסטוריה נבנית לבד ולא הולכת לאיבוד בין מחברות.',
@@ -398,7 +402,7 @@ he:{dir:'rtl',
  s3t:'שולחים את הקישור',s3d:'מפרסמים את קישור ההזמנה בביו של האינסטגרם. מכאן הלקוחות מזמינים לבד.',
  prKicker:'מחיר',prTitle:'מחיר אחד. הכל כלול.',prSub:'שבוע ניסיון מלא בחינם, בלי כרטיס אשראי. אפשר לבטל בכל רגע.',
  prBadge:'שבוע ראשון בחינם',prPlan:'ד"ר קליניק',prPlanSub:'לקליניקה פעילה, בכל גודל',prPer:'/ חודש',
- prNote:'כולל הקמה, הדרכה ותמיכה שוטפת',
+ prNote:'כולל הקמה, הדרכה ותמיכה שוטפת',fxNote:'',
  pl1:'לקוחות ותורים ללא הגבלה',pl2:'טפסי הסכמה וחתימה דיגיטלית',pl3:'ארבע שפות לממשק ולמיילים',
  pl4:'מערכת נפרדת ומאובטחת לעסק שלכם',pl5:'הקמה והדרכה אישית',pl6:'תמיכה בוואטסאפ · גיבוי יומי',
  prCta:'התחילו שבוע ניסיון',
@@ -408,24 +412,25 @@ he:{dir:'rtl',
  lbSend:'שלחו לי גישה לניסיון',lbNote:'הפרטים נשלחים בוואטסאפ ישירות אלינו · אין דיוור',
  types:['קליניקה אסתטית','קוסמטיקה','מספרה','מניקור ופדיקור','אחר'],
  ftCopy:'© 2026 ד"ר קליניק · מערכת ניהול תורים ולקוחות',
- fl1:'כניסה למערכת',fl2:'דף הזמנה לדוגמה',fl3:'צרו קשר'},
+ fl1:'כניסה למערכת',fl2:'וואטסאפ',fl3:'צרו קשר'},
 
 ru:{dir:'ltr',
  brand:'Доктор Клиник',navWhy:'Зачем',navFeatures:'Возможности',navHow:'Как начать',navPricing:'Цена',navLogin:'Вход',navStart:'Неделя бесплатно',
- heroEyebrow:'Управление записями и клиентами · 4 языка',
- h1a:'Ваша клиника живёт в',h1em:'WhatsApp',h1b:'. Работает — пока не перестаёт.',
- lede:'Записи, карточки клиентов и подписанные формы согласия — в одной системе. Клиенты записываются сами, вы подтверждаете одним нажатием.',
- ctaMain:'Начать неделю бесплатно',ctaDemo:'Посмотреть страницу записи',
+ heroEyebrow:'Управление клиентами и записями · полный цифровой интерфейс',
+ h1a:'Продвинутый интерфейс',h1em:'управления клиентами',h1b:' для вашей клиники.',
+ lede:'Карточки клиентов, календарь записей и формы согласия с цифровой подписью — в одном интерфейсе, доступном с любого устройства.',
+ ctaMain:'Начать неделю бесплатно',ctaDemo:'💬 Написать в WhatsApp',
+ waHello:'Здравствуйте! Увидел(а) Доктор Клиник — хочу узнать больше о бесплатной неделе.',
  heroNote:'✓ Без карты · ✓ Настройка и обучение включены · ✓ Готово за день',
- baBefore:'До — WhatsApp и блокнот',baAfter:'После — Доктор Клиник',baHint:'Потяните для сравнения',
- m1:'Здравствуйте, можно записаться на ботокс?',m2:'Секунду, смотрю в журнале…',m3:'Извините, нужно перенести вторник',m4:'Забыла, когда у меня запись 🙈',
- chaosNote:'⚠ 3 сообщения без ответа · форма согласия не подписана',
+ baBefore:'Ручное ведение',baAfter:'Доктор Клиник',baHint:'Потяните для сравнения',
+ m1:'Моника — ботокс, вторник? уточнить',m2:'Валерия просила перенести',m3:'Форма согласия — не подписана',m4:'',
+ chaosNote:'Записки, блокнот, память',
  st1:'записей за неделю',st2:'форм подписано',st3:'открытых сообщений',
  days:['Пн','Вт','Ср','Чт'],names:['Моника','Валерия','Дана','Шира','Ноа','Ротем','Яэль'],
  tr:['Ботокс','Филлер','Пилинг','Консультация','Лазер','Профайло'],
- lgKicker:'Мультиязычность',lgTitle:'Ваши клиенты говорят на разных языках',
- lgSub:'Вся система — запись, формы согласия, письма и даты — показывается каждому клиенту на его языке. Автоматически, по настройкам браузера.',
- pnKicker:'Как есть на самом деле',pnTitle:'Три вопроса, знакомые каждой клинике',
+ lgKicker:'Мультиязычность',lgTitle:'Сервис доступен на четырёх языках',
+ lgSub:'Интерфейс, формы согласия, письма и даты — всё доступно на иврите, русском, грузинском и английском. Каждый пользователь получает свой язык автоматически.',
+ pnKicker:'Как есть на самом деле',pnTitle:'Три задачи, которые решает интерфейс',
  pq1:'«Когда у меня запись?»',pa1:'Каждый клиент получает персональную ссылку на свою запись — видит время и может сам отменить или перенести. Без звонков вам.',
  pq2:'«Вы подписали форму?»',pa2:'Форма согласия отправляется в WhatsApp, подписывается с телефона и сохраняется в карточке с датой и временем.',
  pq3:'«Что мы делали в прошлый раз?»',pa3:'Каждая процедура документируется — дозировка, продукт, заметки. История ведётся сама и не теряется между блокнотами.',
@@ -443,7 +448,7 @@ ru:{dir:'ltr',
  s3t:'Отправляете ссылку',s3d:'Публикуете ссылку для записи в шапке профиля Instagram. Дальше клиенты записываются сами.',
  prKicker:'Цена',prTitle:'Одна цена. Всё включено.',prSub:'Полная неделя бесплатно, без карты. Отменить можно в любой момент.',
  prBadge:'Первая неделя бесплатно',prPlan:'Доктор Клиник',prPlanSub:'Для работающей клиники любого размера',prPer:'/ месяц',
- prNote:'Включая настройку, обучение и поддержку',
+ prNote:'Включая настройку, обучение и поддержку',fxNote:'≈ {ils} по курсу на сегодня',
  pl1:'Клиенты и записи без ограничений',pl2:'Формы согласия и цифровая подпись',pl3:'Четыре языка интерфейса и писем',
  pl4:'Отдельная защищённая система для вашего бизнеса',pl5:'Настройка и персональное обучение',pl6:'Поддержка в WhatsApp · ежедневный бэкап',
  prCta:'Начать неделю бесплатно',
@@ -453,24 +458,25 @@ ru:{dir:'ltr',
  lbSend:'Получить доступ',lbNote:'Данные отправляются нам в WhatsApp · без рассылок',
  types:['Эстетическая клиника','Косметология','Парикмахерская','Маникюр и педикюр','Другое'],
  ftCopy:'© 2026 Доктор Клиник · Управление записями и клиентами',
- fl1:'Вход в систему',fl2:'Пример страницы записи',fl3:'Связаться'},
+ fl1:'Вход в систему',fl2:'WhatsApp',fl3:'Связаться'},
 
 ka:{dir:'ltr',
  brand:'დოქტორ კლინიკი',navWhy:'რატომ',navFeatures:'შესაძლებლობები',navHow:'როგორ დავიწყოთ',navPricing:'ფასი',navLogin:'შესვლა',navStart:'უფასო კვირა',
- heroEyebrow:'ჯავშნებისა და კლიენტების მართვა · 4 ენა',
- h1a:'თქვენი კლინიკა',h1em:'WhatsApp-ში',h1b:' ცხოვრობს. მუშაობს — სანამ აღარ მუშაობს.',
- lede:'ჯავშნები, კლიენტების ბარათები და ხელმოწერილი თანხმობის ფორმები — ერთ სისტემაში. კლიენტები თავად იწერებიან, თქვენ ერთი დაჭერით ადასტურებთ.',
- ctaMain:'დაიწყეთ უფასო კვირა',ctaDemo:'ნახეთ ჩაწერის გვერდი',
+ heroEyebrow:'კლიენტებისა და ჯავშნების მართვა · სრული ციფრული ინტერფეისი',
+ h1a:'კლიენტების',h1em:'მართვის',h1b:' მოწინავე ინტერფეისი თქვენი კლინიკისთვის.',
+ lede:'კლიენტების ბარათები, ჯავშნების კალენდარი და ციფრულად ხელმოწერილი თანხმობის ფორმები — ერთ ინტერფეისში, ხელმისაწვდომი ნებისმიერი მოწყობილობიდან.',
+ ctaMain:'დაიწყეთ უფასო კვირა',ctaDemo:'💬 მოგვწერეთ WhatsApp-ით',
+ waHello:'გამარჯობა! ვნახე დოქტორ კლინიკი და მაინტერესებს უფასო კვირა.',
  heroNote:'✓ ბარათის გარეშე · ✓ დაყენება და ტრენინგი შედის · ✓ მზადაა ერთ დღეში',
- baBefore:'მანამდე — WhatsApp და რვეული',baAfter:'შემდეგ — დოქტორ კლინიკი',baHint:'გადაათრიეთ შესადარებლად',
- m1:'გამარჯობა, შესაძლებელია ბოტოქსზე ჩაწერა?',m2:'ერთი წუთი, ვნახულობ ჟურნალში…',m3:'ბოდიში, სამშაბათი უნდა გადავიტანო',m4:'დამავიწყდა როდის მაქვს ჩაწერა 🙈',
- chaosNote:'⚠ 3 პასუხგაუცემელი შეტყობინება · თანხმობის ფორმა არ არის',
+ baBefore:'ხელით წარმოება',baAfter:'დოქტორ კლინიკი',baHint:'გადაათრიეთ შესადარებლად',
+ m1:'მონიკა — ბოტოქსი, სამშაბათს? გადავამოწმო',m2:'ვალერიამ გადატანა ითხოვა',m3:'თანხმობის ფორმა — ხელმოუწერელი',m4:'',
+ chaosNote:'ჩანაწერები, რვეული, მეხსიერება',
  st1:'ჯავშანი კვირაში',st2:'ფორმა ხელმოწერილი',st3:'ღია შეტყობინება',
  days:['ორ','სა','ოთ','ხუ'],names:['მონიკა','ვალერია','დანა','შირა','ნოა','როტემი','იაელი'],
  tr:['ბოტოქსი','ფილერი','პილინგი','კონსულტაცია','ლაზერი','პროფაილო'],
- lgKicker:'მრავალენოვანი',lgTitle:'თქვენი კლიენტები სხვადასხვა ენაზე საუბრობენ',
- lgSub:'მთელი სისტემა — ჩაწერა, თანხმობის ფორმები, წერილები და თარიღები — თითოეულ კლიენტს მის ენაზე ეჩვენება. ავტომატურად, ბრაუზერის მიხედვით.',
- pnKicker:'როგორ არის სინამდვილეში',pnTitle:'სამი კითხვა, რომელსაც ყველა კლინიკა იცნობს',
+ lgKicker:'მრავალენოვანი',lgTitle:'სერვისი ხელმისაწვდომია ოთხ ენაზე',
+ lgSub:'ინტერფეისი, თანხმობის ფორმები, წერილები და თარიღები — ყველაფერი ხელმისაწვდომია ებრაულ, რუსულ, ქართულ და ინგლისურ ენაზე. თითოეული მომხმარებელი ავტომატურად იღებს თავის ენას.',
+ pnKicker:'როგორ არის სინამდვილეში',pnTitle:'სამი ამოცანა, რომელსაც ინტერფეისი ჭრის',
  pq1:'„როდის მაქვს ჩაწერა?"',pa1:'ყველა კლიენტი იღებს პერსონალურ ბმულს — ხედავს დროს და თავად შეუძლია გააუქმოს ან გადაიტანოს. თქვენთან დარეკვის გარეშე.',
  pq2:'„ხელი მოაწერეთ ფორმას?"',pa2:'თანხმობის ფორმა იგზავნება WhatsApp-ით, ხელს აწერენ ტელეფონიდან და ინახება ბარათში თარიღითა და დროით.',
  pq3:'„რა გავაკეთეთ გასულ ჯერზე?"',pa3:'ყველა პროცედურა დოკუმენტირდება — დოზა, პროდუქტი, შენიშვნები. ისტორია თავად იქმნება და არ იკარგება.',
@@ -488,7 +494,7 @@ ka:{dir:'ltr',
  s3t:'აგზავნით ბმულს',s3d:'აქვეყნებთ ჩაწერის ბმულს Instagram-ის პროფილში. შემდეგ კლიენტები თავად იწერებიან.',
  prKicker:'ფასი',prTitle:'ერთი ფასი. ყველაფერი შედის.',prSub:'სრული უფასო კვირა, ბარათის გარეშე. გაუქმება ნებისმიერ დროს.',
  prBadge:'პირველი კვირა უფასოდ',prPlan:'დოქტორ კლინიკი',prPlanSub:'მოქმედი კლინიკისთვის, ნებისმიერი ზომის',prPer:'/ თვე',
- prNote:'დაყენება, ტრენინგი და მხარდაჭერა შედის',
+ prNote:'დაყენება, ტრენინგი და მხარდაჭერა შედის',fxNote:'≈ {ils} დღევანდელი კურსით',
  pl1:'კლიენტები და ჯავშნები შეზღუდვის გარეშე',pl2:'თანხმობის ფორმები და ციფრული ხელმოწერა',pl3:'ოთხი ენა ინტერფეისისა და წერილებისთვის',
  pl4:'ცალკე დაცული სისტემა თქვენი ბიზნესისთვის',pl5:'დაყენება და პერსონალური ტრენინგი',pl6:'მხარდაჭერა WhatsApp-ით · ყოველდღიური სარეზერვო ასლი',
  prCta:'დაიწყეთ უფასო კვირა',
@@ -498,24 +504,25 @@ ka:{dir:'ltr',
  lbSend:'მინდა საცდელი წვდომა',lbNote:'მონაცემები იგზავნება WhatsApp-ით · დაგზავნის გარეშე',
  types:['ესთეტიკური კლინიკა','კოსმეტოლოგია','სილამაზის სალონი','მანიკური და პედიკური','სხვა'],
  ftCopy:'© 2026 დოქტორ კლინიკი · ჯავშნებისა და კლიენტების მართვა',
- fl1:'სისტემაში შესვლა',fl2:'ჩაწერის გვერდის ნიმუში',fl3:'დაგვიკავშირდით'},
+ fl1:'სისტემაში შესვლა',fl2:'WhatsApp',fl3:'დაგვიკავშირდით'},
 
 en:{dir:'ltr',
  brand:'Dr. Clinic',navWhy:'Why',navFeatures:'Features',navHow:'Get started',navPricing:'Pricing',navLogin:'Log in',navStart:'Free week',
- heroEyebrow:'Appointment & client management · 4 languages',
- h1a:'Your clinic runs on',h1em:'WhatsApp',h1b:". It works — until it doesn't.",
- lede:'Appointments, client records and digitally signed consent forms — in one system. Clients book themselves, you approve with one tap.',
- ctaMain:'Start your free week',ctaDemo:'See the booking page',
+ heroEyebrow:'Client & appointment management · a complete digital interface',
+ h1a:'An advanced',h1em:'client management',h1b:' interface for your clinic.',
+ lede:'Client records, an appointment calendar and digitally signed consent forms — in one interface, reachable from any device.',
+ ctaMain:'Start your free week',ctaDemo:'💬 Message us on WhatsApp',
+ waHello:"Hi! I saw Dr. Clinic and I'd like to hear more about the free week.",
  heroNote:'✓ No credit card · ✓ Setup & training included · ✓ Ready in a day',
- baBefore:'Before — WhatsApp and a notebook',baAfter:'After — Dr. Clinic',baHint:'Drag to compare',
- m1:'Hi, can I book Botox this week?',m2:'One sec, checking the book…',m3:'Sorry, I need to move Tuesday',m4:'I forgot when my appointment is 🙈',
- chaosNote:'⚠ 3 unanswered messages · consent form missing',
+ baBefore:'Manual admin',baAfter:'Dr. Clinic',baHint:'Drag to compare',
+ m1:'Monica — Botox, Tuesday? check',m2:'Valeria asked to move',m3:'Consent form — not signed',m4:'',
+ chaosNote:'Sticky notes, a diary, memory',
  st1:'appointments this week',st2:'forms signed',st3:'open messages',
  days:['Mon','Tue','Wed','Thu'],names:['Monica','Valeria','Dana','Shira','Noa','Rotem','Yael'],
  tr:['Botox','Filler','Peeling','Consultation','Laser','Profhilo'],
- lgKicker:'Multilingual',lgTitle:"Your clients don't all speak the same language",
- lgSub:'The whole system — booking, consent forms, emails and dates — is shown to each client in their own language. Automatically, based on their browser.',
- pnKicker:'What actually happens',pnTitle:'Three questions every clinic knows by heart',
+ lgKicker:'Multilingual',lgTitle:'The service is available in four languages',
+ lgSub:'The interface, consent forms, emails and dates are all available in Hebrew, Russian, Georgian and English. Each user gets their own language automatically.',
+ pnKicker:'What actually happens',pnTitle:'Three things the interface takes care of',
  pq1:'"When is my appointment?"',pa1:'Every client gets a personal link to their appointment — they see the time and can cancel or reschedule themselves. Without calling you.',
  pq2:'"Did you sign the form?"',pa2:'The consent form is sent by WhatsApp, signed on the phone, and stored in the client record with a timestamp. You always know who signed.',
  pq3:'"What did we do last time?"',pa3:'Every treatment is documented — dose, product, notes. The history builds itself and never gets lost between notebooks.',
@@ -533,7 +540,7 @@ en:{dir:'ltr',
  s3t:'Share your link',s3d:'Put the booking link in your Instagram bio. From there, clients book themselves.',
  prKicker:'Pricing',prTitle:'One price. Everything included.',prSub:'A full free week, no credit card. Cancel any time.',
  prBadge:'First week free',prPlan:'Dr. Clinic',prPlanSub:'For a working clinic, any size',prPer:'/ month',
- prNote:'Includes setup, training and ongoing support',
+ prNote:'Includes setup, training and ongoing support',fxNote:"≈ {ils} at today's rate",
  pl1:'Unlimited clients and appointments',pl2:'Consent forms with digital signatures',pl3:'Four languages for the interface and emails',
  pl4:'A separate, secured system for your business',pl5:'Setup and one-to-one training',pl6:'WhatsApp support · daily backups',
  prCta:'Start your free week',
@@ -543,7 +550,7 @@ en:{dir:'ltr',
  lbSend:'Send me trial access',lbNote:'Details go straight to us on WhatsApp · no mailing list',
  types:['Aesthetic clinic','Cosmetics','Hair salon','Nails','Other'],
  ftCopy:'© 2026 Dr. Clinic · Appointment and client management',
- fl1:'Log in',fl2:'Sample booking page',fl3:'Contact us'}
+ fl1:'Log in',fl2:'WhatsApp',fl3:'Contact us'}
 };
 
 const LANGS=[{c:'he',n:'עברית',f:'🇮🇱'},{c:'ru',n:'Русский',f:'🇷🇺'},{c:'ka',n:'ქართული',f:'🇬🇪'},{c:'en',n:'English',f:'🇬🇧'}];
@@ -566,6 +573,36 @@ function setLang(l){
 }
 document.addEventListener('click',()=>{const e=document.getElementById('lang');if(e)e.classList.remove('open');});
 
+const PRICE_ILS=299;
+let fxRate=null;          // ILS -> USD
+
+function renderPrice(){
+  const d=T[L];
+  const el=document.getElementById('priceVal');
+  const fx=document.getElementById('priceFx');
+  if(!el)return;
+  if(L==='he'){
+    el.textContent='₪'+PRICE_ILS;
+    fx.textContent='';
+    return;
+  }
+  if(fxRate){
+    const usd=Math.round(PRICE_ILS*fxRate);
+    el.textContent='$'+usd;
+    fx.textContent=(d.fxNote||'').replace('{ils}','₪'+PRICE_ILS);
+  }else{
+    el.textContent='₪'+PRICE_ILS;
+    fx.textContent='';
+  }
+}
+
+function loadFx(){
+  fetch('https://api.frankfurter.app/latest?from=ILS&to=USD')
+    .then(r=>r.json())
+    .then(j=>{ if(j&&j.rates&&j.rates.USD){ fxRate=j.rates.USD; renderPrice(); } })
+    .catch(()=>{});
+}
+
 function render(){
   const d=T[L];
   document.documentElement.lang=L;
@@ -587,12 +624,14 @@ function render(){
 
   const N=d.names,R=d.tr;
   const cell=(cls,i,j)=>'<div class="mc-appt '+cls+'">'+N[i]+'<br>'+R[j]+'</div>';
+  const e='<div class="mc-c"></div>';
   document.getElementById('miniCal').innerHTML=
     '<div></div>'+d.days.map(x=>'<div class="mc-h">'+x+'</div>').join('')+
-    '<div class="mc-t">09:00</div>'+cell('a1',0,0)+'<div class="mc-c"></div>'+cell('a3',1,1)+'<div class="mc-c"></div>'+
-    '<div class="mc-t">10:30</div><div class="mc-c"></div>'+cell('a2',2,2)+'<div class="mc-c"></div>'+cell('a1',3,0)+
-    '<div class="mc-t">12:00</div>'+cell('a4',4,3)+'<div class="mc-c"></div><div class="mc-c"></div><div class="mc-c"></div>'+
-    '<div class="mc-t">13:30</div><div class="mc-c"></div>'+cell('a3',5,4)+cell('a2',6,5)+'<div class="mc-c"></div>';
+    '<div class="mc-t">09:00</div>'+cell('a1',0,0)+e+e+cell('a3',1,1)+
+    '<div class="mc-t">11:00</div>'+e+cell('a2',2,2)+e+e+
+    '<div class="mc-t">13:00</div>'+e+e+cell('a4',4,3)+e;
+
+  renderPrice();
 }
 
 (function(){
@@ -601,7 +640,6 @@ function render(){
   function set(p){
     p=Math.max(6,Math.min(94,p));
     ba.style.setProperty('--split',p+'%');
-    ba.style.setProperty('--splitr',(100-p)+'%');
   }
   function at(e){
     const r=ba.getBoundingClientRect();
@@ -629,6 +667,12 @@ function render(){
 })();
 
 const MY_NUMBER='972502519092';
+
+function waDirect(){
+  const d=T[L];
+  window.open('https://wa.me/'+MY_NUMBER+'?text='+encodeURIComponent(d.waHello),'_blank');
+}
+
 function sendLead(){
   const d=T[L];
   const name=document.getElementById('f-name').value.trim();
@@ -642,6 +686,7 @@ function sendLead(){
 }
 
 render();
+loadFx();
 </script>
 </body>
 </html>
