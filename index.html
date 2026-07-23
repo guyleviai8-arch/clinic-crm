@@ -602,6 +602,45 @@ async function sbDelete(table,query){
 }
 
 // EMAIL
+
+// ============ מילון מיילים ללקוח (לפי שפת הלקוח, לא שפת ה-CRM) ============
+const EMAIL_I18N={
+ he:{dir:'rtl',locale:'he-IL',clinicSub:'קליניקה לרפואה אסתטית',hello:'שלום',
+   apptSubject:'✅ אישור תור — ד"ר קליניק',apptConfirmed:'✅ התור שלך אושר סופית!',
+   date:'תאריך',time:'שעה',treatment:'טיפול',manageBtn:'📅 ניהול / שינוי התור',
+   apptFooter:'נשמח לראותך! ניתן לשנות או לבטל את התור דרך הכפתור למעלה.',
+   consentSubject:'✍️ טופס הסכמה לטיפול — ד"ר קליניק',consentIntro:'לפני הטיפול, אנא חתום/י על טופס ההסכמה הדיגיטלי:',
+   consentBtn:'לחתימה על הטופס ←',linkValid:'הקישור תקף ל-7 ימים',
+   formSubject:'חתימה על',formIntro:'לפני הטיפול נבקשך לחתום על',orCopy:'או העתק קישור:',
+   forms:{general:'הסכמה כללית',botox:'בוטוקס',filler:'פילר',facial:'טיפול פנים'}},
+ ru:{dir:'ltr',locale:'ru-RU',clinicSub:'Клиника эстетической медицины',hello:'Здравствуйте',
+   apptSubject:'✅ Подтверждение записи — Доктор Клиник',apptConfirmed:'✅ Ваша запись подтверждена!',
+   date:'Дата',time:'Время',treatment:'Процедура',manageBtn:'📅 Управление записью',
+   apptFooter:'Будем рады вас видеть! Изменить или отменить запись можно по кнопке выше.',
+   consentSubject:'✍️ Форма согласия — Доктор Клиник',consentIntro:'Перед процедурой, пожалуйста, подпишите цифровую форму согласия:',
+   consentBtn:'Подписать форму →',linkValid:'Ссылка действительна 7 дней',
+   formSubject:'Подпись формы:',formIntro:'Перед процедурой просим подписать',orCopy:'или скопируйте ссылку:',
+   forms:{general:'Общее согласие',botox:'Ботокс',filler:'Филлер',facial:'Процедура для лица'}},
+ ka:{dir:'ltr',locale:'ka-GE',clinicSub:'ესთეტიკური მედიცინის კლინიკა',hello:'გამარჯობა',
+   apptSubject:'✅ ჯავშნის დადასტურება — დოქტორ კლინიკი',apptConfirmed:'✅ თქვენი ჯავშანი დადასტურდა!',
+   date:'თარიღი',time:'დრო',treatment:'პროცედურა',manageBtn:'📅 ჯავშნის მართვა',
+   apptFooter:'სიამოვნებით გიხილავთ! ჯავშნის შეცვლა ან გაუქმება შესაძლებელია ზემოთ მოცემული ღილაკით.',
+   consentSubject:'✍️ თანხმობის ფორმა — დოქტორ კლინიკი',consentIntro:'პროცედურამდე გთხოვთ ხელი მოაწეროთ ციფრულ თანხმობის ფორმას:',
+   consentBtn:'ფორმაზე ხელმოწერა →',linkValid:'ბმული მოქმედებს 7 დღე',
+   formSubject:'ხელმოწერა:',formIntro:'პროცედურამდე გთხოვთ ხელი მოაწეროთ',orCopy:'ან დააკოპირეთ ბმული:',
+   forms:{general:'ზოგადი თანხმობა',botox:'ბოტოქსი',filler:'ფილერი',facial:'სახის პროცედურა'}},
+ en:{dir:'ltr',locale:'en-GB',clinicSub:'Aesthetic Medicine Clinic',hello:'Hello',
+   apptSubject:'✅ Appointment Confirmed — Dr. Clinic',apptConfirmed:'✅ Your appointment is confirmed!',
+   date:'Date',time:'Time',treatment:'Treatment',manageBtn:'📅 Manage / Change Appointment',
+   apptFooter:'We look forward to seeing you! You can change or cancel via the button above.',
+   consentSubject:'✍️ Treatment Consent Form — Dr. Clinic',consentIntro:'Before your treatment, please sign the digital consent form:',
+   consentBtn:'Sign the Form →',linkValid:'Link valid for 7 days',
+   formSubject:'Signature required:',formIntro:'Before your treatment, please sign',orCopy:'or copy the link:',
+   forms:{general:'General Consent',botox:'Botox',filler:'Filler',facial:'Facial Treatment'}}
+};
+function et(lang,key){const L=EMAIL_I18N[lang]||EMAIL_I18N.he;return L[key]!==undefined?L[key]:EMAIL_I18N.he[key];}
+function clientLang(id){const c=S.clients.find(x=>x.id===id);return (c&&c.lang)||'he';}
+
 async function sendEmail(to,subject,html){
   if(!to)return;
   try{
@@ -616,48 +655,51 @@ async function sendEmail(to,subject,html){
 async function sendApptEmail(appt){
   const email=appt.client_email||'';
   if(!email)return;
-  const html=`<div dir="rtl" style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
+  const L=appt.lang||clientLang(appt.client_id)||'he';
+  const html=`<div dir="${et(L,'dir')}" style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
     <div style="background:linear-gradient(135deg,#154F7A,#1B6CA8,#4DB8C8);padding:24px;border-radius:12px;text-align:center;margin-bottom:24px">
       <h2 style="color:#fff;margin:0">ד"ר קליניק</h2>
-      <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px">קליניקה לרפואה אסתטית</p>
+      <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px">${et(L,'clinicSub')}</p>
     </div>
-    <p>שלום <strong>${appt.client_name}</strong>,</p>
-    <p style="color:#085041;margin-bottom:16px;font-weight:600">✅ התור שלך אושר סופית!</p>
+    <p>${et(L,'hello')} <strong>${appt.client_name}</strong>,</p>
+    <p style="color:#085041;margin-bottom:16px;font-weight:600">${et(L,'apptConfirmed')}</p>
     <div style="background:#E8F7F2;border:1px solid #B6E4CC;border-radius:12px;padding:20px;margin-bottom:20px">
-      <p style="margin-bottom:8px">📅 <strong>תאריך:</strong> ${appt.date}</p>
-      <p style="margin-bottom:8px">🕐 <strong>שעה:</strong> ${appt.time}</p>
-      <p style="margin-bottom:0">💆 <strong>טיפול:</strong> ${appt.treatment}</p>
+      <p style="margin-bottom:8px">📅 <strong>${et(L,'date')}:</strong> ${appt.date}</p>
+      <p style="margin-bottom:8px">🕐 <strong>${et(L,'time')}:</strong> ${appt.time}</p>
+      <p style="margin-bottom:0">💆 <strong>${et(L,'treatment')}:</strong> ${appt.treatment}</p>
     </div>
     <div style="text-align:center;margin:20px 0">
-      <a href="${getManageUrl(appt.id)}" style="background:#1B6CA8;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:600;display:inline-block;font-size:14px">📅 ניהול / שינוי התור</a>
+      <a href="${getManageUrl(appt.id)}" style="background:#1B6CA8;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:600;display:inline-block;font-size:14px">${et(L,'manageBtn')}</a>
     </div>
-    <p style="color:#888;font-size:13px">נשמח לראותך! ניתן לשנות או לבטל את התור דרך הכפתור למעלה.</p>
+    <p style="color:#888;font-size:13px">${et(L,'apptFooter')}</p>
     <hr style="border:1px solid #DDE8F0;margin:20px 0">
-    <p style="font-size:11px;color:#aaa;text-align:center">ד"ר קליניק | קליניקה לרפואה אסתטית</p>
+    <p style="font-size:11px;color:#aaa;text-align:center">ד"ר קליניק | ${et(L,'clinicSub')}</p>
   </div>`;
-  await sendEmail(email,'✅ אישור תור — ד"ר קליניק',html);
+  await sendEmail(email,et(L,'apptSubject'),html);
 }
 
 async function sendConsentEmail(clientId,clientName,clientEmail){
   if(!clientEmail){toast(t('tNoEmail'));return;}
+  const L=clientLang(clientId);
   const url=window.location.origin+window.location.pathname.replace('index.html','')+'consent.html?client='+clientId;
-  const html=`<div dir="rtl" style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
+  const html=`<div dir="${et(L,'dir')}" style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
     <div style="background:linear-gradient(135deg,#154F7A,#1B6CA8,#4DB8C8);padding:24px;border-radius:12px;text-align:center;margin-bottom:24px">
       <h2 style="color:#fff;margin:0">ד"ר קליניק</h2>
-      <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px">קליניקה לרפואה אסתטית</p>
+      <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px">${et(L,'clinicSub')}</p>
     </div>
-    <p>שלום <strong>${clientName}</strong>,</p>
-    <p style="color:#555;margin-bottom:20px">לפני הטיפול, אנא חתום/י על טופס ההסכמה הדיגיטלי:</p>
+    <p>${et(L,'hello')} <strong>${clientName}</strong>,</p>
+    <p style="color:#555;margin-bottom:20px">${et(L,'consentIntro')}</p>
     <div style="text-align:center;margin:24px 0">
-      <a href="${url}" style="background:linear-gradient(135deg,#1B6CA8,#4DB8C8);color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-size:16px;font-weight:600;display:inline-block">✍️ לחץ לחתימה על הטופס</a>
+      <a href="${url}" style="background:linear-gradient(135deg,#1B6CA8,#4DB8C8);color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-size:16px;font-weight:600;display:inline-block">${et(L,'consentBtn')}</a>
     </div>
-    <p style="color:#888;font-size:12px;text-align:center">הקישור תקף ל-7 ימים</p>
+    <p style="color:#888;font-size:12px;text-align:center">${et(L,'linkValid')}</p>
     <hr style="border:1px solid #DDE8F0;margin:20px 0">
-    <p style="font-size:11px;color:#aaa;text-align:center">ד"ר קליניק | קליניקה לרפואה אסתטית</p>
+    <p style="font-size:11px;color:#aaa;text-align:center">ד"ר קליניק | ${et(L,'clinicSub')}</p>
   </div>`;
-  await sendEmail(clientEmail,'✍️ טופס הסכמה לטיפול — ד"ר קליניק',html);
+  await sendEmail(clientEmail,et(L,'consentSubject'),html);
   toast(t('tSignLinkSent'));
 }
+
 
 // AUTH
 function isLoggedIn(){return sessionStorage.getItem(AUTH_KEY)==='1'}
@@ -1583,27 +1625,28 @@ function sendFormWhatsApp(){
 }
 async function sendFormEmail(){
   if(!S.sendForm)return;
-  const c=S.clients.find(x=>x.id===S.sendForm.cid);if(!c||!c.email)return;
+  const cl=S.clients.find(x=>x.id===S.sendForm.cid);if(!cl||!cl.email)return;
+  const L=cl.lang||'he';
   const url=getFormUrl(S.sendForm.cid,S.sendForm.type);
-  const label=S.sendForm.label;
-  const html=`<div dir="rtl" style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
+  const label=(EMAIL_I18N[L]&&EMAIL_I18N[L].forms&&EMAIL_I18N[L].forms[S.sendForm.type])||S.sendForm.label;
+  const html=`<div dir="${et(L,'dir')}" style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
     <div style="background:linear-gradient(135deg,#154F7A,#1B6CA8,#4DB8C8);padding:24px;border-radius:12px;text-align:center;margin-bottom:24px">
       <h2 style="color:#fff;margin:0">ד"ר קליניק</h2>
-      <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px">קליניקה לרפואה אסתטית</p>
+      <p style="color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px">${et(L,'clinicSub')}</p>
     </div>
-    <p>שלום <strong>${c.name}</strong>,</p>
-    <p>לפני הטיפול נבקשך לחתום על <strong>${label}</strong>. נא ללחוץ על הכפתור:</p>
+    <p>${et(L,'hello')} <strong>${cl.name}</strong>,</p>
+    <p>${et(L,'formIntro')} <strong>${label}</strong>:</p>
     <div style="text-align:center;margin:24px 0">
-      <a href="${url}" style="background:#1B6CA8;color:#fff;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:600;display:inline-block">לחתימה על הטופס ←</a>
+      <a href="${url}" style="background:#1B6CA8;color:#fff;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:600;display:inline-block">${et(L,'consentBtn')}</a>
     </div>
-    <p style="font-size:12px;color:#888">או העתק קישור: ${url}</p>
+    <p style="font-size:12px;color:#888">${et(L,'orCopy')} ${url}</p>
     <hr style="border:none;border-top:1px solid #DDE8F0;margin:24px 0">
-    <p style="font-size:11px;color:#aaa;text-align:center">ד"ר קליניק | קליניקה לרפואה אסתטית</p>
+    <p style="font-size:11px;color:#aaa;text-align:center">ד"ר קליניק | ${et(L,'clinicSub')}</p>
   </div>`;
-  await sendEmail(c.email,'חתימה על '+label+' — ד"ר קליניק',html);
+  await sendEmail(cl.email,et(L,'formSubject')+' '+label+' — ד"ר קליניק',html);
   S.modal=null;S.sendForm=null;renderRoot();toast(t('tFormSent'));
 }
-function copyText(t){navigator.clipboard.writeText(t).then(()=>toast(t('tLinkCopied'))).catch(()=>toast(t('tCopyManually')))}
+function copyText(txt){navigator.clipboard.writeText(txt).then(()=>toast(t('tLinkCopied'))).catch(()=>toast(t('tCopyManually')))}
 
 async function uploadClientPhoto(input){
   const file = input.files[0];
