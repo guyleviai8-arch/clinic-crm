@@ -165,6 +165,9 @@ const SUPABASE_KEY='sb_publishable_EhhQfiQA2cUDA7BA68ZPWg_0bVeHtlA';
 const I18N={
   he:{
     dir:'rtl', sub:'קליניקה לרפואה אסתטית', tag:'קביעת תור אונליין',
+    dLong:['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'],
+    mLong:['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'],
+    dayPrefix:'יום ',
     personalDetails:'פרטים אישיים', fullName:'שם מלא *', namePlaceholder:'שם ושם משפחה',
     phone:'מספר טלפון *', email:'אימייל (לקבלת אישור)',
     chooseTreatment:'בחר טיפול', chooseSubType:'בחר סוג',
@@ -198,6 +201,9 @@ const I18N={
   },
   ka:{
     dir:'ltr', sub:'ესთეტიკური მედიცინის კლინიკა', tag:'ონლაინ ჩაწერა',
+    dLong:['კვირა','ორშაბათი','სამშაბათი','ოთხშაბათი','ხუთშაბათი','პარასკევი','შაბათი'],
+    mLong:['იანვარი','თებერვალი','მარტი','აპრილი','მაისი','ივნისი','ივლისი','აგვისტო','სექტემბერი','ოქტომბერი','ნოემბერი','დეკემბერი'],
+    dayPrefix:'',
     personalDetails:'პირადი ინფორმაცია', fullName:'სრული სახელი *', namePlaceholder:'სახელი და გვარი',
     phone:'ტელეფონის ნომერი *', email:'ელ. ფოსტა (დადასტურებისთვის)',
     chooseTreatment:'აირჩიეთ პროცედურა', chooseSubType:'აირჩიეთ ტიპი',
@@ -231,6 +237,9 @@ const I18N={
   },
   ru:{
     dir:'ltr', sub:'Клиника эстетической медицины', tag:'Онлайн-запись',
+    dLong:['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+    mLong:['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'],
+    dayPrefix:'',
     personalDetails:'Личные данные', fullName:'Полное имя *', namePlaceholder:'Имя и фамилия',
     phone:'Номер телефона *', email:'Email (для подтверждения)',
     chooseTreatment:'Выберите процедуру', chooseSubType:'Выберите тип',
@@ -264,6 +273,9 @@ const I18N={
   },
   en:{
     dir:'ltr', sub:'Aesthetic Medicine Clinic', tag:'Online Booking',
+    dLong:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+    mLong:['January','February','March','April','May','June','July','August','September','October','November','December'],
+    dayPrefix:'',
     personalDetails:'Personal Details', fullName:'Full Name *', namePlaceholder:'First and last name',
     phone:'Phone Number *', email:'Email (for confirmation)',
     chooseTreatment:'Choose Treatment', chooseSubType:'Choose type',
@@ -381,10 +393,10 @@ function isClosedDay(dateStr){
 function fmtDate(d){
   if(!d)return'';
   const[y,m,day]=d.split('-');
-  const M=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
-  const days=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+  const M=I18N[LANG].mLong||I18N.he.mLong;
+  const days=I18N[LANG].dLong||I18N.he.dLong;
   const dt=new Date(d);
-  return`יום ${days[dt.getDay()]}, ${+day} ${M[+m-1]} ${y}`;
+  return`${I18N[LANG].dayPrefix||''}${days[dt.getDay()]}, ${+day} ${M[+m-1]} ${y}`;
 }
 
 function isSlotTaken(time){
