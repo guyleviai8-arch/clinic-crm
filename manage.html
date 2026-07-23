@@ -92,6 +92,9 @@ const SUPABASE_KEY='sb_publishable_EhhQfiQA2cUDA7BA68ZPWg_0bVeHtlA';
 // ============ מערכת שפות ============
 const I18N={
   he:{dir:'rtl',sub:'קליניקה לרפואה אסתטית',tag:'📅 ניהול התור שלי',
+    dLong:['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'],
+    mLong:['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'],
+    dayPrefix:'יום ',
     myAppt:'פרטי התור שלך',name:'שם',treatment:'טיפול',date:'תאריך',time:'שעה',status:'סטטוס',
     pending:'⏳ ממתין לאישור',confirmed:'✓ מאושר',done:'הסתיים',
     changeAppt:'שינוי התור',changeDesc:'רוצה לשנות את מועד התור? בחר תאריך ושעה חדשים והשינוי יעודכן מיד.',
@@ -107,6 +110,9 @@ const I18N={
     errLink:'קישור לא תקין',errNotFound:'התור לא נמצא. ייתכן שכבר בוטל.',contactClinic:'פנה לקליניקה לפרטים.',
     loadingAppt:'טוען את פרטי התור…'},
   ru:{dir:'ltr',sub:'Клиника эстетической медицины',tag:'📅 Управление записью',
+    dLong:['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+    mLong:['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'],
+    dayPrefix:'',
     myAppt:'Детали вашей записи',name:'Имя',treatment:'Процедура',date:'Дата',time:'Время',status:'Статус',
     pending:'⏳ Ожидает подтверждения',confirmed:'✓ Подтверждено',done:'Завершено',
     changeAppt:'Изменение записи',changeDesc:'Хотите изменить время? Выберите новую дату и время — изменения вступят в силу сразу.',
@@ -122,6 +128,9 @@ const I18N={
     errLink:'Неверная ссылка',errNotFound:'Запись не найдена. Возможно, она уже отменена.',contactClinic:'Свяжитесь с клиникой.',
     loadingAppt:'Загрузка деталей записи…'},
   ka:{dir:'ltr',sub:'ესთეტიკური მედიცინის კლინიკა',tag:'📅 ჩემი ჯავშნის მართვა',
+    dLong:['კვირა','ორშაბათი','სამშაბათი','ოთხშაბათი','ხუთშაბათი','პარასკევი','შაბათი'],
+    mLong:['იანვარი','თებერვალი','მარტი','აპრილი','მაისი','ივნისი','ივლისი','აგვისტო','სექტემბერი','ოქტომბერი','ნოემბერი','დეკემბერი'],
+    dayPrefix:'',
     myAppt:'თქვენი ჯავშნის დეტალები',name:'სახელი',treatment:'პროცედურა',date:'თარიღი',time:'დრო',status:'სტატუსი',
     pending:'⏳ ელოდება დადასტურებას',confirmed:'✓ დადასტურებული',done:'დასრულებული',
     changeAppt:'ჯავშნის შეცვლა',changeDesc:'გსურთ დროის შეცვლა? აირჩიეთ ახალი თარიღი და დრო.',
@@ -137,6 +146,9 @@ const I18N={
     errLink:'არასწორი ბმული',errNotFound:'ჯავშანი ვერ მოიძებნა. შესაძლოა უკვე გაუქმებულია.',contactClinic:'დაუკავშირდით კლინიკას.',
     loadingAppt:'იტვირთება ჯავშნის დეტალები…'},
   en:{dir:'ltr',sub:'Aesthetic Medicine Clinic',tag:'📅 Manage My Appointment',
+    dLong:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+    mLong:['January','February','March','April','May','June','July','August','September','October','November','December'],
+    dayPrefix:'',
     myAppt:'Your Appointment Details',name:'Name',treatment:'Treatment',date:'Date',time:'Time',status:'Status',
     pending:'⏳ Awaiting approval',confirmed:'✓ Confirmed',done:'Completed',
     changeAppt:'Change Appointment',changeDesc:'Want to change your appointment time? Pick a new date and time — it updates instantly.',
@@ -196,7 +208,7 @@ function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replac
 function localISO(d){const dt=new Date(d);const off=dt.getTimezoneOffset();return new Date(dt.getTime()-off*60000).toISOString().slice(0,10)}
 function today(){return localISO(new Date())}
 function getMinDate(){const d=new Date();d.setDate(d.getDate()+1);while(CLOSED_DAYS.includes(d.getDay()))d.setDate(d.getDate()+1);return localISO(d);}
-function fmtNice(d){if(!d)return'';const[y,m,day]=d.split('-');const months=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];const dt=new Date(d);const days=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];return`יום ${days[dt.getDay()]}, ${+day} ${months[+m-1]} ${y}`}
+function fmtNice(d){if(!d)return'';const[y,m,day]=d.split('-');const months=I18N[LANG].mLong||I18N.he.mLong;const dt=new Date(d);const days=I18N[LANG].dLong||I18N.he.dLong;return`${I18N[LANG].dayPrefix||''}${days[dt.getDay()]}, ${+day} ${months[+m-1]} ${y}`}
 
 async function init(){
   apptId=getParam('id');
