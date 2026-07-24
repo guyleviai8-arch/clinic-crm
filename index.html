@@ -8,16 +8,37 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>ד"ר קליניק | CRM</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B6CA8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ד&quot;ר קליניק">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--primary:#1B6CA8;--primary-dark:#154F7A;--primary-light:#E8F4FD;--accent:#2AA876;--accent-light:#E8F7F2;--teal:#4DB8C8;--teal-light:#EAF8FA;--text:#1A2332;--text-sub:#5A6A7E;--border:#DDE8F0;--bg:#F4F8FB;--white:#fff;--gold:#C9A84C;--red:#E24B4A;--red-light:#FCEBEB;--amber:#EF9F27;--amber-light:#FAEEDA}
+:root{
+  --primary:#1668A5;--primary-dark:#0F4D7C;--primary-light:#EAF3FA;
+  --accent:#1F9E72;--accent-light:#E6F6F0;
+  --teal:#3FB4C6;--teal-light:#E9F7FA;
+  --text:#0F1B26;--text-sub:#657787;
+  --border:#E9EEF3;--border-strong:#DAE3EB;
+  --bg:#F6F8FA;--white:#fff;--gold:#C9A84C;
+  --red:#DC4A48;--red-light:#FDEDED;--amber:#E8961F;--amber-light:#FDF3E2;
+  --r-sm:9px;--r-md:13px;--r-lg:17px;
+  --sh-1:0 1px 2px rgba(15,27,38,.05);
+  --sh-2:0 2px 6px rgba(15,27,38,.06),0 1px 2px rgba(15,27,38,.04);
+  --sh-3:0 8px 24px rgba(15,27,38,.09),0 2px 6px rgba(15,27,38,.05);
+  --sh-4:0 18px 44px rgba(15,27,38,.14);
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Heebo',sans-serif;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:'Heebo',sans-serif;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;letter-spacing:-.003em}
 
 /* LOGIN */
 .login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--primary-dark),var(--primary),var(--teal));padding:20px}
-.login-box{background:var(--white);border-radius:20px;padding:36px 28px;width:100%;max-width:360px;box-shadow:0 16px 48px rgba(0,0,0,.15)}
+.login-box{background:var(--white);border-radius:22px;padding:38px 30px;width:100%;max-width:372px;box-shadow:0 24px 64px rgba(15,27,38,.2)}
 .login-logo{text-align:center;margin-bottom:24px}
 .login-logo-icon{width:56px;height:56px;background:linear-gradient(135deg,var(--primary),var(--teal));border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:26px;color:#fff}
 .login-logo-text{font-size:18px;font-weight:700;color:var(--text)}
@@ -26,9 +47,9 @@ body{font-family:'Heebo',sans-serif;font-size:14px;background:var(--bg);color:va
 .login-sub{font-size:13px;color:var(--text-sub);margin-bottom:22px}
 .login-field{margin-bottom:14px}
 .login-label{font-size:12px;color:var(--text-sub);margin-bottom:5px;display:block;font-weight:500}
-.login-input{width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:11px;font-size:15px;font-family:'Heebo',sans-serif;background:#FAFAFA;color:var(--text);outline:none;transition:all .15s}
+.login-input{width:100%;padding:14px 15px;border:1.5px solid var(--border-strong);border-radius:var(--r-sm);font-size:15px;font-family:'Heebo',sans-serif;background:#FAFAFA;color:var(--text);outline:none;transition:all .15s}
 .login-input:focus{border-color:var(--primary);background:var(--white)}
-.login-btn{width:100%;padding:14px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--primary),var(--teal));color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;margin-top:6px}
+.login-btn{width:100%;padding:15px;border-radius:var(--r-sm);border:none;background:var(--primary);box-shadow:0 4px 14px rgba(22,104,165,.3);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;margin-top:6px}
 .login-btn:active{opacity:.88}
 .login-err{color:var(--red);font-size:12px;margin-top:10px;display:none;text-align:center;background:var(--red-light);padding:8px 12px;border-radius:8px}
 
@@ -48,7 +69,7 @@ body{font-family:'Heebo',sans-serif;font-size:14px;background:var(--bg);color:va
 .login-lang .lang-switch.open .lang-menu{transform:translateY(0)}
 .login-lang .lang-switch{min-width:150px}
 .app{display:flex;height:100vh;overflow:hidden;background:var(--bg)}
-.sidebar{width:240px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;z-index:50}
+.sidebar{width:246px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;z-index:50}
 .sb-top{padding:16px 14px 12px;border-bottom:1px solid var(--border)}
 .sb-brand{display:flex;align-items:center;gap:9px;margin-bottom:14px}
 .sb-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--teal));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0}
@@ -62,10 +83,11 @@ body{font-family:'Heebo',sans-serif;font-size:14px;background:var(--bg);color:va
 .search-wrap i{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--text-sub)}
 .nav-section{padding:10px 10px 0}
 .nav-label{font-size:10px;font-weight:700;color:#ccc;letter-spacing:.08em;padding:4px 6px 6px;text-transform:uppercase}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-sub);border:1px solid transparent;margin-bottom:2px;transition:all .12s}
-.nav-item:hover{background:var(--bg);color:var(--text)}
-.nav-item.active{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;font-weight:500}
-.nav-item.active i{color:#fff}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:var(--r-sm);cursor:pointer;font-size:13.5px;color:var(--text-sub);border:1px solid transparent;margin-bottom:3px;transition:background .15s,color .15s;position:relative;font-weight:500}
+.nav-item:hover:not(.active){background:var(--bg);color:var(--text)}
+.nav-item.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+.nav-item.active::before{content:'';position:absolute;inset-inline-start:0;top:24%;bottom:24%;width:3px;border-radius:2px;background:var(--primary)}
+.nav-item.active i{color:var(--primary)}
 .nav-item i{font-size:17px;width:20px;text-align:center;color:var(--text-sub)}
 .nav-badge{margin-right:auto;background:var(--red);color:#fff;font-size:10px;font-weight:600;padding:2px 6px;border-radius:99px}
 .nav-item.active .nav-badge{background:#fff;color:var(--primary)}
@@ -80,7 +102,7 @@ body{font-family:'Heebo',sans-serif;font-size:14px;background:var(--bg);color:va
 .add-client-btn:hover{background:var(--bg);border-color:var(--primary);color:var(--primary)}
 .sb-footer{padding:10px 14px;border-top:1px solid var(--border)}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:40}
-.topbar{display:none;align-items:center;gap:10px;padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0}
+.topbar{display:none;align-items:center;gap:10px;padding:12px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);flex-shrink:0}
 .topbar-title{font-size:15px;font-weight:600;flex:1;text-align:center}
 .tb-btn{width:38px;height:38px;border-radius:9px;border:1px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:19px;color:var(--text-sub)}
 .main-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
@@ -116,12 +138,13 @@ body{font-family:'Heebo',sans-serif;font-size:14px;background:var(--bg);color:va
 .dash-title{font-size:22px;font-weight:600}
 .dash-sub{font-size:13px;color:var(--text-sub);margin-top:4px}
 .kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
-.kpi{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;position:relative;overflow:hidden}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;position:relative;overflow:hidden;box-shadow:var(--sh-2);transition:transform .16s,box-shadow .16s}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--sh-3)}
 .kpi-accent{position:absolute;top:0;right:0;width:4px;height:100%;border-radius:0 14px 14px 0}
 .kpi-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:10px}
 .kpi-val{font-size:26px;font-weight:600;line-height:1}
 .kpi-label{font-size:11px;color:var(--text-sub);margin-top:5px;font-weight:500}
-.dash-card{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px}
+.dash-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px;box-shadow:var(--sh-2)}
 .dc-header{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .dc-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px}
 .dc-title i{font-size:16px;color:var(--text-sub)}
@@ -148,7 +171,7 @@ body{font-family:'Heebo',sans-serif;font-size:14px;background:var(--bg);color:va
 
 /* CARDS */
 .sec-label{font-size:11px;font-weight:700;color:var(--text-sub);letter-spacing:.07em;margin-bottom:10px;text-transform:uppercase}
-.card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-md);padding:15px 17px;margin-bottom:9px;box-shadow:var(--sh-1)}
 .card.overdue{border-color:#F09595;background:#FFFAFA}
 .card.today-card{border-color:var(--amber);background:#FFFDF5}
 .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
@@ -178,8 +201,9 @@ body{font-family:'Heebo',sans-serif;font-size:14px;background:var(--bg);color:va
 .info-value{font-size:13px;color:var(--text)}
 
 /* FORMS */
-textarea.fi,input.fi,select.fi{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'Heebo',sans-serif;background:var(--white);color:var(--text);outline:none;-webkit-appearance:none;transition:border .12s}
-textarea.fi:focus,input.fi:focus,select.fi:focus{border-color:var(--primary)}
+textarea.fi,input.fi,select.fi{width:100%;padding:12px 14px;border:1.5px solid var(--border-strong);border-radius:var(--r-sm);font-size:15px;font-family:'Heebo',sans-serif;background:var(--white);color:var(--text);outline:none;-webkit-appearance:none;transition:border-color .14s,box-shadow .14s}
+textarea.fi:focus,input.fi:focus,select.fi:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(22,104,165,.11)}
+textarea.fi:focus,input.fi:focus,select.fi:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(22,104,165,.11)}
 .add-row{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
 .add-area{margin-top:14px}
 .source-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
@@ -187,10 +211,12 @@ textarea.fi:focus,input.fi:focus,select.fi:focus{border-color:var(--primary)}
 .source-opt.selected{border-color:var(--primary);background:var(--primary);color:#fff}
 
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Heebo',sans-serif;transition:all .12s;border:1.5px solid transparent;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 17px;border-radius:var(--r-sm);font-size:13px;font-weight:500;cursor:pointer;font-family:'Heebo',sans-serif;transition:all .12s;border:1.5px solid transparent;white-space:nowrap}
 .btn:active{opacity:.82}
-.btn-primary{background:linear-gradient(135deg,var(--primary),var(--teal));color:#fff;border-color:transparent;box-shadow:0 3px 10px rgba(27,108,168,.2)}
-.btn-secondary{background:var(--white);color:var(--text);border-color:var(--border)}
+.btn-primary{background:var(--primary);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(22,104,165,.26);transition:background .15s,box-shadow .15s}
+.btn-primary:hover{background:var(--primary-dark);box-shadow:0 5px 16px rgba(22,104,165,.32)}
+.btn-secondary{background:var(--white);color:var(--text);border-color:var(--border-strong);box-shadow:var(--sh-1)}
+.btn-secondary:hover{border-color:var(--primary);color:var(--primary)}
 .btn-secondary:hover{border-color:var(--primary);color:var(--primary)}
 .btn-danger{background:var(--white);color:var(--red);border-color:#F09595}
 .btn-success{background:var(--accent-light);color:#085041;border-color:#B6E4CC}
@@ -200,7 +226,7 @@ textarea.fi:focus,input.fi:focus,select.fi:focus{border-color:var(--primary)}
 
 /* CALENDAR */
 .cal-wrap{display:flex;flex-direction:column;height:100%;overflow:hidden}
-.cal-scroll{flex:1;overflow:hidden;border:1px solid var(--border);border-radius:12px;background:var(--white);display:flex;flex-direction:column}
+.cal-scroll{flex:1;overflow:hidden;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--white);display:flex;flex-direction:column;box-shadow:var(--sh-2)}
 .cal-head{display:grid;grid-template-columns:48px repeat(7,1fr);border-bottom:1px solid var(--border);flex-shrink:0}
 .cal-day-hdr{padding:8px 2px;text-align:center;border-left:1px solid var(--border);background:var(--bg)}
 .cal-day-hdr:first-child{border-left:none}
@@ -212,7 +238,7 @@ textarea.fi:focus,input.fi:focus,select.fi:focus{border-color:var(--primary)}
 .cal-time span{font-size:9px;color:#ccc;padding-top:4px;white-space:nowrap}
 .cal-cell{height:52px;border-left:1px solid var(--border);border-bottom:1px solid #F0EEE8;position:relative;cursor:pointer}
 .cal-cell:hover{background:var(--primary-light)}
-.appt-block{position:absolute;left:1px;right:1px;border-radius:5px;padding:2px 5px;font-size:10px;font-weight:500;cursor:pointer;overflow:hidden;z-index:2;border:1px solid transparent}
+.appt-block{position:absolute;left:1px;right:1px;border-radius:7px;padding:2px 5px;font-size:10px;font-weight:500;cursor:pointer;overflow:hidden;z-index:2;border:1px solid transparent}
 .appt-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .appt-time-label{font-size:9px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
@@ -223,8 +249,8 @@ textarea.fi:focus,input.fi:focus,select.fi:focus{border-color:var(--primary)}
 .loading-text{font-size:13px;color:var(--text-sub)}
 
 /* MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;z-index:200;padding:0}
-.modal{background:var(--white);border-radius:20px 20px 0 0;padding:12px 20px 32px;width:100%;max-height:92vh;overflow-y:auto}
+.modal-bg{position:fixed;inset:0;background:rgba(15,27,38,.45);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;z-index:200;padding:0}
+.modal{background:var(--white);border-radius:24px 24px 0 0;padding:13px 22px 34px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:var(--sh-4)}
 .modal-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 16px}
 .modal-title{font-size:17px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:9px}
 .modal-title i{font-size:20px;color:var(--text-sub)}
@@ -233,7 +259,7 @@ textarea.fi:focus,input.fi:focus,select.fi:focus{border-color:var(--primary)}
 .ma{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:11px 20px;border-radius:99px;font-size:13px;z-index:300;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:13px 24px;border-radius:99px;font-size:13.5px;font-weight:500;z-index:300;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;box-shadow:var(--sh-3)}
 .toast.show{opacity:1}
 
 /* LINK BOX */
@@ -343,7 +369,8 @@ const I18N={
   dLong:['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'],
   mShort:['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'],
   mLong:['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'],
-  dayPrefix:'יום ',
+  dayPrefix:'יום ',weekStartsOn:0,
+  installApp:'התקן אפליקציה',
   phName:'שם מלא',phClientName:'שם הלקוח',phNone:'אין ידועות',phTreatEx:'בוטוקס, פילר…',
   phDoseEx:'למשל: 20 יחידות',phTreatName:'למשל: בוטוקס',phSkinEx:'למשל: יבש, בוגר'},
 
@@ -407,7 +434,8 @@ const I18N={
   dLong:['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
   mShort:['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'],
   mLong:['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'],
-  dayPrefix:'',
+  dayPrefix:'',weekStartsOn:1,
+  installApp:'Установить приложение',
   phName:'Полное имя',phClientName:'Имя клиента',phNone:'Не выявлено',phTreatEx:'Ботокс, филлер…',
   phDoseEx:'напр.: 20 единиц',phTreatName:'напр.: Ботокс',phSkinEx:'напр.: сухая, зрелая'},
 
@@ -471,7 +499,8 @@ const I18N={
   dLong:['კვირა','ორშაბათი','სამშაბათი','ოთხშაბათი','ხუთშაბათი','პარასკევი','შაბათი'],
   mShort:['იან','თებ','მარ','აპრ','მაი','ივნ','ივლ','აგვ','სექ','ოქტ','ნოე','დეკ'],
   mLong:['იანვარი','თებერვალი','მარტი','აპრილი','მაისი','ივნისი','ივლისი','აგვისტო','სექტემბერი','ოქტომბერი','ნოემბერი','დეკემბერი'],
-  dayPrefix:'',
+  dayPrefix:'',weekStartsOn:1,
+  installApp:'აპლიკაციის დაყენება',
   phName:'სრული სახელი',phClientName:'კლიენტის სახელი',phNone:'არ არის ცნობილი',phTreatEx:'ბოტოქსი, ფილერი…',
   phDoseEx:'მაგ.: 20 ერთეული',phTreatName:'მაგ.: ბოტოქსი',phSkinEx:'მაგ.: მშრალი, მომწიფებული'},
 
@@ -535,7 +564,8 @@ const I18N={
   dLong:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
   mShort:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
   mLong:['January','February','March','April','May','June','July','August','September','October','November','December'],
-  dayPrefix:'',
+  dayPrefix:'',weekStartsOn:1,
+  installApp:'Install App',
   phName:'Full name',phClientName:'Client name',phNone:'None known',phTreatEx:'Botox, Filler…',
   phDoseEx:'e.g. 20 units',phTreatName:'e.g. Botox',phSkinEx:'e.g. dry, mature'}
 };
@@ -546,7 +576,9 @@ function t(key,vars){let s=(I18N[LANG]&&I18N[LANG][key])||I18N.he[key]||key;if(v
 function toggleLangMenu(){const el=document.getElementById('lang-switch');if(el)el.classList.toggle('open');}
 function setLang(l){LANG=l;try{localStorage.setItem('clinic_lang',l);}catch(e){}
   const el=document.getElementById('lang-switch');if(el)el.classList.remove('open');
-  document.documentElement.lang=LANG;document.body.dir=I18N[LANG].dir;renderRoot();}
+  document.documentElement.lang=LANG;document.body.dir=I18N[LANG].dir;
+  if(typeof S!=='undefined'&&S.calWeek)S.calWeek=weekStart(addDays(S.calWeek,3));
+  renderRoot();}
 function langMenuHTML(){
   const cur=LANGS.find(x=>x.code===LANG);
   return`<div class="lang-switch" id="lang-switch">
@@ -643,7 +675,12 @@ const EMAIL_I18N={
    consentSubject:'✍️ טופס הסכמה לטיפול — ד"ר קליניק',consentIntro:'לפני הטיפול, אנא חתום/י על טופס ההסכמה הדיגיטלי:',
    consentBtn:'לחתימה על הטופס ←',linkValid:'הקישור תקף ל-7 ימים',
    formSubject:'חתימה על',formIntro:'לפני הטיפול נבקשך לחתום על',orCopy:'או העתק קישור:',
-   forms:{general:'הסכמה כללית',botox:'בוטוקס',filler:'פילר',facial:'טיפול פנים'}},
+   forms:{general:'הסכמה כללית',botox:'בוטוקס',filler:'פילר',facial:'טיפול פנים'},
+   waBook:'שלום! לקביעת תור אצל {clinic}: {url}',
+   waBookName:'שלום {name}! לקביעת תור אצל {clinic}: {url}',
+   waManage:'שלום {name}! לניהול או שינוי התור שלך ({treat}, {date} {time}) אצל {clinic}: {url}',
+   waForm:'שלום {name}! לחתימה על {label} אצל {clinic}: {url}',
+   waBday:'שלום {name}! 🎂 כל צוות {clinic} מאחל לך יום הולדת שמח! לרגל החגיגה מחכה לך הטבה מיוחדת בטיפול הבא. נשמח לראותך! 🎁'},
  ru:{dir:'ltr',locale:'ru-RU',clinicSub:'Клиника эстетической медицины',hello:'Здравствуйте',
    apptSubject:'✅ Подтверждение записи — Доктор Клиник',apptConfirmed:'✅ Ваша запись подтверждена!',
    date:'Дата',time:'Время',treatment:'Процедура',manageBtn:'📅 Управление записью',
@@ -651,7 +688,12 @@ const EMAIL_I18N={
    consentSubject:'✍️ Форма согласия — Доктор Клиник',consentIntro:'Перед процедурой, пожалуйста, подпишите цифровую форму согласия:',
    consentBtn:'Подписать форму →',linkValid:'Ссылка действительна 7 дней',
    formSubject:'Подпись формы:',formIntro:'Перед процедурой просим подписать',orCopy:'или скопируйте ссылку:',
-   forms:{general:'Общее согласие',botox:'Ботокс',filler:'Филлер',facial:'Процедура для лица'}},
+   forms:{general:'Общее согласие',botox:'Ботокс',filler:'Филлер',facial:'Процедура для лица'},
+   waBook:'Здравствуйте! Записаться в {clinic}: {url}',
+   waBookName:'Здравствуйте, {name}! Записаться в {clinic}: {url}',
+   waManage:'Здравствуйте, {name}! Управление вашей записью ({treat}, {date} {time}) в {clinic}: {url}',
+   waForm:'Здравствуйте, {name}! Подписать {label} в {clinic}: {url}',
+   waBday:'Здравствуйте, {name}! 🎂 Команда {clinic} поздравляет вас с днём рождения! В честь праздника вас ждёт специальное предложение на следующую процедуру. Будем рады видеть! 🎁'},
  ka:{dir:'ltr',locale:'ka-GE',clinicSub:'ესთეტიკური მედიცინის კლინიკა',hello:'გამარჯობა',
    apptSubject:'✅ ჯავშნის დადასტურება — დოქტორ კლინიკი',apptConfirmed:'✅ თქვენი ჯავშანი დადასტურდა!',
    date:'თარიღი',time:'დრო',treatment:'პროცედურა',manageBtn:'📅 ჯავშნის მართვა',
@@ -659,7 +701,12 @@ const EMAIL_I18N={
    consentSubject:'✍️ თანხმობის ფორმა — დოქტორ კლინიკი',consentIntro:'პროცედურამდე გთხოვთ ხელი მოაწეროთ ციფრულ თანხმობის ფორმას:',
    consentBtn:'ფორმაზე ხელმოწერა →',linkValid:'ბმული მოქმედებს 7 დღე',
    formSubject:'ხელმოწერა:',formIntro:'პროცედურამდე გთხოვთ ხელი მოაწეროთ',orCopy:'ან დააკოპირეთ ბმული:',
-   forms:{general:'ზოგადი თანხმობა',botox:'ბოტოქსი',filler:'ფილერი',facial:'სახის პროცედურა'}},
+   forms:{general:'ზოგადი თანხმობა',botox:'ბოტოქსი',filler:'ფილერი',facial:'სახის პროცედურა'},
+   waBook:'გამარჯობა! ჩასაწერად {clinic}-ში: {url}',
+   waBookName:'გამარჯობა, {name}! ჩასაწერად {clinic}-ში: {url}',
+   waManage:'გამარჯობა, {name}! თქვენი ჯავშნის მართვა ({treat}, {date} {time}) {clinic}-ში: {url}',
+   waForm:'გამარჯობა, {name}! {label}-ზე ხელმოსაწერად {clinic}-ში: {url}',
+   waBday:'გამარჯობა, {name}! 🎂 {clinic}-ის გუნდი გილოცავთ დაბადების დღეს! სადღესასწაულოდ გელოდებათ სპეციალური შეთავაზება შემდეგ პროცედურაზე. სიამოვნებით გიხილავთ! 🎁'},
  en:{dir:'ltr',locale:'en-GB',clinicSub:'Aesthetic Medicine Clinic',hello:'Hello',
    apptSubject:'✅ Appointment Confirmed — Dr. Clinic',apptConfirmed:'✅ Your appointment is confirmed!',
    date:'Date',time:'Time',treatment:'Treatment',manageBtn:'📅 Manage / Change Appointment',
@@ -667,8 +714,25 @@ const EMAIL_I18N={
    consentSubject:'✍️ Treatment Consent Form — Dr. Clinic',consentIntro:'Before your treatment, please sign the digital consent form:',
    consentBtn:'Sign the Form →',linkValid:'Link valid for 7 days',
    formSubject:'Signature required:',formIntro:'Before your treatment, please sign',orCopy:'or copy the link:',
-   forms:{general:'General Consent',botox:'Botox',filler:'Filler',facial:'Facial Treatment'}}
+   forms:{general:'General Consent',botox:'Botox',filler:'Filler',facial:'Facial Treatment'},
+   waBook:'Hello! Book an appointment at {clinic}: {url}',
+   waBookName:'Hello {name}! Book an appointment at {clinic}: {url}',
+   waManage:'Hello {name}! Manage or change your appointment ({treat}, {date} {time}) at {clinic}: {url}',
+   waForm:'Hello {name}! Sign your {label} for {clinic}: {url}',
+   waBday:'Hello {name}! 🎂 Everyone at {clinic} wishes you a happy birthday! To celebrate, a special offer is waiting for you on your next treatment. Hope to see you soon! 🎁'}
 };
+const CLINIC_NAME='ד"ר קליניק';
+function wa(lang,key,vars){
+  let s=et(lang,key)||'';
+  vars=vars||{}; vars.clinic=vars.clinic||CLINIC_NAME;
+  for(const k in vars)s=s.split('{'+k+'}').join(vars[k]);
+  return s;
+}
+function waOpen(phone,text){
+  const p=(phone||'').replace(/[^0-9]/g,'');
+  const num=p.startsWith('0')?'972'+p.slice(1):p;
+  window.open('https://wa.me/'+num+'?text='+encodeURIComponent(text),'_blank');
+}
 function et(lang,key){const L=EMAIL_I18N[lang]||EMAIL_I18N.he;return L[key]!==undefined?L[key]:EMAIL_I18N.he[key];}
 function clientLang(id){const c=S.clients.find(x=>x.id===id);return (c&&c.lang)||'he';}
 
@@ -757,7 +821,13 @@ function doLogout(){sessionStorage.removeItem(AUTH_KEY);renderRoot()}
 
 // UTILS
 function localISO(d){const dt=new Date(d);const off=dt.getTimezoneOffset();const local=new Date(dt.getTime()-off*60000);return local.toISOString().slice(0,10)}
-function weekStart(d){const dt=new Date(d);const day=dt.getDay();dt.setDate(dt.getDate()-(day===0?6:day-1));return dt}
+function weekStart(d){
+  const dt=new Date(d);
+  const startsOn=(I18N[LANG]&&I18N[LANG].weekStartsOn!==undefined)?I18N[LANG].weekStartsOn:0;
+  const diff=(dt.getDay()-startsOn+7)%7;
+  dt.setDate(dt.getDate()-diff);
+  return dt;
+}
 function addDays(d,n){const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt}
 function fmtDate(d){return localISO(d)}
 function today(){return localISO(new Date())}
@@ -781,11 +851,8 @@ function getBookingUrl(){return window.location.origin+window.location.pathname.
 function getManageUrl(apptId){return window.location.origin+window.location.pathname.replace('index.html','')+'manage.html?id='+apptId}
 function sendManageLink(apptId){
   const a=S.appointments.find(x=>x.id===apptId);if(!a)return;
-  const url=getManageUrl(apptId);
-  const msg=encodeURIComponent(`שלום ${a.client_name}! לניהול או שינוי התור שלך (${a.treatment}, ${a.date} ${a.time}) אצל ד"ר קליניק: ${url}`);
-  const cleanPhone=(a.client_phone||'').replace(/[^0-9]/g,'');
-  const waPhone=cleanPhone.startsWith('0')?'972'+cleanPhone.slice(1):cleanPhone;
-  window.open('https://wa.me/'+waPhone+'?text='+msg,'_blank');
+  const L=a.lang||clientLang(a.client_id)||'he';
+  waOpen(a.client_phone, wa(L,'waManage',{name:a.client_name,treat:a.treatment,date:a.date,time:a.time,url:getManageUrl(apptId)}));
 }
 
 let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:'',showNotif:false,viewForm:null};
@@ -858,6 +925,7 @@ function buildApp(){
     </div>
     <div style="flex:1"></div>
     <button class="add-client-btn" onclick="showModal('newClient')"><i class="ti ti-user-plus"></i> ${t('newClient')}</button>
+    <button id="installBtn" onclick="installApp()" style="display:none;align-items:center;justify-content:center;gap:7px;margin:0 14px 8px;padding:9px;border-radius:10px;border:1.5px solid var(--primary);background:var(--primary-light);color:var(--primary);font-size:13px;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;width:calc(100% - 28px)"><i class="ti ti-download"></i> ${t('installApp')}</button>
     <div style="padding:0 14px 8px">${langMenuHTML()}</div>
     <div class="sb-footer"><button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout"></i> ${t('logout')}</button></div>
   </div>`;
@@ -967,10 +1035,9 @@ function upcomingBirthdays(){
   return result.sort((a,b)=>a.diff-b.diff);
 }
 function sendBirthdayWhatsApp(phone,name){
-  const msg=encodeURIComponent(`שלום ${name}! 🎂 כל צוות ד"ר קליניק מאחל לך יום הולדת שמח! לרגל החגיגה — מחכה לך הטבה מיוחדת בטיפול הבא. נשמח לראותך! 🎁`);
-  const cleanPhone=(phone||'').replace(/[^0-9]/g,'');
-  const waPhone=cleanPhone.startsWith('0')?'972'+cleanPhone.slice(1):cleanPhone;
-  window.open('https://wa.me/'+waPhone+'?text='+msg,'_blank');
+  const cl=S.clients.find(x=>x.name===name&&x.phone===phone);
+  const L=(cl&&cl.lang)||'he';
+  waOpen(phone, wa(L,'waBday',{name:name}));
 }
 function buildDashboard(){
   const todayStr=today();
@@ -1074,7 +1141,7 @@ function buildCalendar(){
   </div>
   <div style="margin-bottom:10px;flex-shrink:0"><div style="position:relative"><i class="ti ti-search" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text-sub);font-size:15px"></i><input type="text" placeholder="${t('searchAppt')}" value="${escHtml(S.apptSearch||'')}" oninput="apptSearchInput(this.value)" style="width:100%;padding:9px 34px 9px 12px;border:1px solid var(--border);border-radius:9px;font-size:13px;font-family:Heebo,sans-serif;outline:none"></div>${S.apptSearch?`<div style="margin-top:8px">${buildApptSearchResults()}</div>`:''}</div>
   <div class="cal-scroll"><div class="cal-head"><div class="cal-day-hdr"></div>`;
-  weekDates.forEach((d,i)=>{const isToday=d===todayStr;const[,,day]=d.split('-');html+=`<div class="cal-day-hdr"><div class="cal-day-name">${days[i]}</div><div class="cal-day-num">${isToday?`<span style="width:24px;height:24px;background:var(--primary);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px">${+day}</span>`:`${+day}`}</div></div>`;});
+  weekDates.forEach((d,i)=>{const isToday=d===todayStr;const[,,day]=d.split('-');const dow=new Date(d+'T00:00:00').getDay();html+=`<div class="cal-day-hdr"><div class="cal-day-name">${days[dow]}</div><div class="cal-day-num">${isToday?`<span style="width:24px;height:24px;background:var(--primary);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px">${+day}</span>`:`${+day}`}</div></div>`;});
   html+=`</div><div class="cal-body">`;
   HOURS.forEach(h=>{
     html+=`<div class="cal-row"><div class="cal-time"><span>${String(h).padStart(2,'0')}:00</span></div>`;
@@ -1635,26 +1702,19 @@ function exportWeekToGoogle(){const dates=Array.from({length:7},(_,i)=>fmtDate(a
 
 
 function shareWhatsApp(){
-  const url=getBookingUrl();
-  const msg=encodeURIComponent('שלום! קבע/י תור אצל ד"ר קליניק דרך הקישור: '+url);
-  window.open('https://wa.me/?text='+msg,'_blank');
+  waOpen('', wa(LANG,'waBook',{url:getBookingUrl()}));
 }
-
 function shareWhatsAppClient(phone,name){
-  const url=getBookingUrl();
-  const msg=encodeURIComponent('שלום '+name+'! קבע/י תור אצל ד"ר קליניק דרך הקישור: '+url);
-  const cleanPhone=(phone||'').replace(/[^0-9]/g,'');
-  const waPhone=cleanPhone.startsWith('0')?'972'+cleanPhone.slice(1):cleanPhone;
-  window.open('https://wa.me/'+waPhone+'?text='+msg,'_blank');
+  const cl=S.clients.find(x=>x.name===name&&x.phone===phone);
+  const L=(cl&&cl.lang)||'he';
+  waOpen(phone, wa(L,'waBookName',{name:name,url:getBookingUrl()}));
 }
 function sendFormWhatsApp(){
   if(!S.sendForm)return;
-  const c=S.clients.find(x=>x.id===S.sendForm.cid);if(!c)return;
-  const url=getFormUrl(S.sendForm.cid,S.sendForm.type);
-  const msg=encodeURIComponent('שלום '+c.name+'! לחתימה על '+S.sendForm.label+' אצל ד"ר קליניק: '+url);
-  const cleanPhone=(c.phone||'').replace(/[^0-9]/g,'');
-  const waPhone=cleanPhone.startsWith('0')?'972'+cleanPhone.slice(1):cleanPhone;
-  window.open('https://wa.me/'+waPhone+'?text='+msg,'_blank');
+  const cl=S.clients.find(x=>x.id===S.sendForm.cid);if(!cl)return;
+  const L=cl.lang||'he';
+  const label=(EMAIL_I18N[L]&&EMAIL_I18N[L].forms&&EMAIL_I18N[L].forms[S.sendForm.type])||S.sendForm.label;
+  waOpen(cl.phone, wa(L,'waForm',{name:cl.name,label:label,url:getFormUrl(S.sendForm.cid,S.sendForm.type)}));
 }
 async function sendFormEmail(){
   if(!S.sendForm)return;
@@ -1737,6 +1797,26 @@ async function uploadClientPhoto(input){
 if(isLoggedIn()){ADMIN_PW=sessionStorage.getItem('clinic_pw')||'';}
 renderRoot();
 if(isLoggedIn())loadAll();
+// ===== PWA =====
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});
+}
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();deferredPrompt=e;
+  const b=document.getElementById('installBtn');if(b)b.style.display='flex';
+});
+function installApp(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(()=>{deferredPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';});
+  }else{
+    // iOS — אין prompt, מציגים הוראה
+    alert('להתקנה באייפון:\n\n1. לחץ על כפתור השיתוף (⬆️) למטה\n2. בחר "הוסף למסך הבית"');
+  }
+}
+window.addEventListener('appinstalled',()=>{const b=document.getElementById('installBtn');if(b)b.style.display='none';});
+
 </script>
 </body>
 </html>
