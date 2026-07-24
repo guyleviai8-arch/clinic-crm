@@ -135,7 +135,7 @@ h2{font-family:var(--display);font-size:clamp(27px,3.5vw,39px);font-weight:700;l
 .price-one h3{font-family:var(--display);font-size:23px;font-weight:700;margin-bottom:5px;text-align:center}
 .price-sub{font-size:14px;color:var(--muted);margin-bottom:24px;text-align:center}
 .price-big{font-family:var(--display);font-size:56px;font-weight:900;line-height:1;text-align:center;margin-bottom:4px}
-.price-big small{font-size:17px;font-weight:400;color:var(--muted);font-family:var(--body)}
+.price-big small{font-size:17px;font-weight:400;color:var(--muted);font-family:var(--body);margin-inline-start:6px}
 .price-note{font-size:13px;color:var(--muted);text-align:center;margin-bottom:6px}
 .price-fx{font-size:11.5px;color:var(--muted);opacity:.75;text-align:center;margin-bottom:24px;min-height:17px}
 .price-one ul{list-style:none;margin-bottom:26px;display:grid;gap:11px}
@@ -405,7 +405,7 @@ footer{border-top:1px solid var(--line);padding:36px 0;margin-top:18px}
       <span class="price-tag" data-t="prBadge"></span>
       <h3 data-t="prPlan"></h3>
       <p class="price-sub" data-t="prPlanSub"></p>
-      <div class="price-big"><span id="priceVal">₪299</span> <small data-t="prPer"></small></div>
+      <div class="price-big"><span id="priceVal">$99</span><small data-t="prPer"></small></div>
       <p class="price-note" data-t="prNote"></p>
       <p class="price-fx" id="priceFx"></p>
       <ul>
@@ -486,7 +486,7 @@ he:{dir:'rtl',
  s3t:'שולחים את הקישור',s3d:'מפרסמים את קישור ההזמנה בביו של האינסטגרם. מכאן הלקוחות מזמינים לבד.',
  prKicker:'מחיר',prTitle:'מחיר אחד. הכל כלול.',prSub:'שבוע ניסיון מלא בחינם, בלי כרטיס אשראי. אפשר לבטל בכל רגע.',
  prBadge:'שבוע ראשון בחינם',prPlan:'ד"ר קליניק',prPlanSub:'לקליניקה פעילה, בכל גודל',prPer:'/ חודש',
- prNote:'כולל הקמה, הדרכה ותמיכה שוטפת',fxNote:'',
+ prNote:'כולל הקמה, הדרכה ותמיכה שוטפת',
  pl1:'לקוחות ותורים ללא הגבלה',pl2:'טפסי הסכמה וחתימה דיגיטלית',pl3:'ארבע שפות לממשק ולמיילים',
  pl4:'מערכת נפרדת ומאובטחת לעסק שלכם',pl5:'הקמה והדרכה אישית',pl6:'תמיכה בוואטסאפ · גיבוי יומי',
  prCta:'התחילו שבוע ניסיון',
@@ -532,7 +532,7 @@ ru:{dir:'ltr',
  s3t:'Отправляете ссылку',s3d:'Публикуете ссылку для записи в шапке профиля Instagram. Дальше клиенты записываются сами.',
  prKicker:'Цена',prTitle:'Одна цена. Всё включено.',prSub:'Полная неделя бесплатно, без карты. Отменить можно в любой момент.',
  prBadge:'Первая неделя бесплатно',prPlan:'Доктор Клиник',prPlanSub:'Для работающей клиники любого размера',prPer:'/ месяц',
- prNote:'Включая настройку, обучение и поддержку',fxNote:'≈ {ils} по курсу на сегодня',
+ prNote:'Включая настройку, обучение и поддержку',
  pl1:'Клиенты и записи без ограничений',pl2:'Формы согласия и цифровая подпись',pl3:'Четыре языка интерфейса и писем',
  pl4:'Отдельная защищённая система для вашего бизнеса',pl5:'Настройка и персональное обучение',pl6:'Поддержка в WhatsApp · ежедневный бэкап',
  prCta:'Начать неделю бесплатно',
@@ -578,7 +578,7 @@ ka:{dir:'ltr',
  s3t:'აგზავნით ბმულს',s3d:'აქვეყნებთ ჩაწერის ბმულს Instagram-ის პროფილში. შემდეგ კლიენტები თავად იწერებიან.',
  prKicker:'ფასი',prTitle:'ერთი ფასი. ყველაფერი შედის.',prSub:'სრული უფასო კვირა, ბარათის გარეშე. გაუქმება ნებისმიერ დროს.',
  prBadge:'პირველი კვირა უფასოდ',prPlan:'დოქტორ კლინიკი',prPlanSub:'მოქმედი კლინიკისთვის, ნებისმიერი ზომის',prPer:'/ თვე',
- prNote:'დაყენება, ტრენინგი და მხარდაჭერა შედის',fxNote:'≈ {ils} დღევანდელი კურსით',
+ prNote:'დაყენება, ტრენინგი და მხარდაჭერა შედის',
  pl1:'კლიენტები და ჯავშნები შეზღუდვის გარეშე',pl2:'თანხმობის ფორმები და ციფრული ხელმოწერა',pl3:'ოთხი ენა ინტერფეისისა და წერილებისთვის',
  pl4:'ცალკე დაცული სისტემა თქვენი ბიზნესისთვის',pl5:'დაყენება და პერსონალური ტრენინგი',pl6:'მხარდაჭერა WhatsApp-ით · ყოველდღიური სარეზერვო ასლი',
  prCta:'დაიწყეთ უფასო კვირა',
@@ -624,7 +624,7 @@ en:{dir:'ltr',
  s3t:'Share your link',s3d:'Put the booking link in your Instagram bio. From there, clients book themselves.',
  prKicker:'Pricing',prTitle:'One price. Everything included.',prSub:'A full free week, no credit card. Cancel any time.',
  prBadge:'First week free',prPlan:'Dr. Clinic',prPlanSub:'For a working clinic, any size',prPer:'/ month',
- prNote:'Includes setup, training and ongoing support',fxNote:"≈ {ils} at today's rate",
+ prNote:'Includes setup, training and ongoing support',
  pl1:'Unlimited clients and appointments',pl2:'Consent forms with digital signatures',pl3:'Four languages for the interface and emails',
  pl4:'A separate, secured system for your business',pl5:'Setup and one-to-one training',pl6:'WhatsApp support · daily backups',
  prCta:'Start your free week',
@@ -657,34 +657,13 @@ function setLang(l){
 }
 document.addEventListener('click',()=>{const e=document.getElementById('lang');if(e)e.classList.remove('open');});
 
-const PRICE_ILS=299;
-let fxRate=null;          // ILS -> USD
+const PRICE_USD=99;
 
 function renderPrice(){
-  const d=T[L];
   const el=document.getElementById('priceVal');
   const fx=document.getElementById('priceFx');
-  if(!el)return;
-  if(L==='he'){
-    el.textContent='₪'+PRICE_ILS;
-    fx.textContent='';
-    return;
-  }
-  if(fxRate){
-    const usd=Math.round(PRICE_ILS*fxRate);
-    el.textContent='$'+usd;
-    fx.textContent=(d.fxNote||'').replace('{ils}','₪'+PRICE_ILS);
-  }else{
-    el.textContent='₪'+PRICE_ILS;
-    fx.textContent='';
-  }
-}
-
-function loadFx(){
-  fetch('https://api.frankfurter.app/latest?from=ILS&to=USD')
-    .then(r=>r.json())
-    .then(j=>{ if(j&&j.rates&&j.rates.USD){ fxRate=j.rates.USD; renderPrice(); } })
-    .catch(()=>{});
+  if(el)el.textContent='$'+PRICE_USD;
+  if(fx)fx.textContent='';
 }
 
 function render(){
@@ -770,7 +749,6 @@ function sendLead(){
 }
 
 render();
-loadFx();
 </script>
 </body>
 </html>
