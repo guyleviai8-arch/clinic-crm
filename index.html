@@ -1107,7 +1107,9 @@ function canManage(u){
 
 async function loadUsers(){
   const r=await apiCall({action:'select',table:'users',select:'id,username,name,role,active,created_at'});
-  S.users=(r&&r.data)?r.data:[];
+  const all=(r&&r.data)?r.data:[];
+  // never surface anyone above your own level
+  S.users=all.filter(u=>(ROLE_META[u.role]?ROLE_META[u.role].rank:0)<=myRank());
 }
 
 function buildUsers(){
