@@ -645,7 +645,7 @@ function can(what){
   const r=myRank();
   if(what==='money')return r>=3;
   if(what==='delete')return r>=3;
-  if(what==='users')return r>=1;
+  if(what==='users')return r>=2;
   if(what==='treatments')return r>=2;
   return true;
 }
@@ -1094,10 +1094,12 @@ const ROLE_META={
   reception:{rank:1,icon:'ti-clipboard-text',color:'#0C447C',bg:'#E8F4FD'}
 };
 function roleLabel(r){return t(r==='admin'?'roleAdmin':r==='staff'?'roleStaff':'roleReception')}
-function assignableRoles(){
+function assignableRoles(forSelf){
   const r=myRank();
-  return ['reception','staff','admin'].filter(x=>ROLE_META[x].rank<=r);
+  // editing yourself keeps your own role available; otherwise strictly below you
+  return ['reception','staff','admin'].filter(x=>forSelf?ROLE_META[x].rank<=r:ROLE_META[x].rank<r);
 }
+function canCreateUsers(){return assignableRoles(false).length>0}
 function canManage(u){
   if(!ME)return false;
   const tr=ROLE_META[u.role]?ROLE_META[u.role].rank:0;
@@ -1108,15 +1110,18 @@ function canManage(u){
 async function loadUsers(){
   const r=await apiCall({action:'select',table:'users',select:'id,username,name,role,active,created_at'});
   const all=(r&&r.data)?r.data:[];
-  // never surface anyone above your own level
-  S.users=all.filter(u=>(ROLE_META[u.role]?ROLE_META[u.role].rank:0)<=myRank());
+  // show only people strictly below you — plus yourself
+  S.users=all.filter(u=>{
+    if(ME&&u.id===ME.id)return true;
+    return (ROLE_META[u.role]?ROLE_META[u.role].rank:0)<myRank();
+  });
 }
 
 function buildUsers(){
   const list=[...S.users].sort((a,b)=>(ROLE_META[b.role]?.rank||0)-(ROLE_META[a.role]?.rank||0));
   let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:12px;flex-wrap:wrap">
     <div><div class="dash-title">${t('usersTitle')}</div><div class="dash-sub">${list.length} ${t('users')}</div></div>
-    <button class="btn btn-primary" onclick="openUser(null)"><i class="ti ti-user-plus"></i> ${t('newUser')}</button>
+    ${canCreateUsers()?`<button class="btn btn-primary" onclick="openUser(null)"><i class="ti ti-user-plus"></i> ${t('newUser')}</button>`:''}
   </div>
   <p style="font-size:13px;color:var(--text-sub);margin-bottom:20px;line-height:1.6">${t('usersHint')}</p>`;
 
@@ -1143,7 +1148,8 @@ function buildUsers(){
 }
 
 function openUser(id){
-  S.editUser = id ? (S.users.find(x=>x.id===id)||null) : {id:null,username:'',name:'',role:'reception',active:true};
+  const av=assignableRoles(false);
+  S.editUser = id ? (S.users.find(x=>x.id===id)||null) : {id:null,username:'',name:'',role:av[av.length-1]||'reception',active:true};
   if(id&&!S.editUser)return;
   S.modal='user';
   renderRoot();
@@ -1152,7 +1158,8 @@ function openUser(id){
 function buildUserModal(){
   const u=S.editUser; if(!u)return '';
   const isNew=!u.id;
-  const roles=assignableRoles();
+  const mineFlag=ME&&u.id===ME.id;
+  const roles=assignableRoles(mineFlag);
   const mine=ME&&u.id===ME.id;
   return `<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal">
     <div class="modal-handle"></div>
