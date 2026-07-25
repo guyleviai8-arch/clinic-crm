@@ -1530,13 +1530,15 @@ function backToMyDay(){S.myDayApptId=null;renderRoot()}
 function buildMyDayDetail(id){
   const a=S.appointments.find(x=>x.id===id);
   if(!a){S.myDayApptId=null;return buildMyDay();}
+  const statusMap={pending:['⏳ ממתין','var(--amber)'],confirmed:['✅ מאושר','var(--accent)'],done:['✔️ הסתיים','var(--text-sub)']};
+  const sm=statusMap[a.status]||['','var(--text-sub)'];
+  const history=(a.client_id?clientTreatments(a.client_id):[]);
   return `<button class="btn btn-secondary btn-sm" onclick="backToMyDay()"><i class="ti ti-arrow-right"></i> חזרה לרשימה</button>
   <div class="card" style="margin-top:14px">
     <div style="font-size:17px;font-weight:700">${escHtml(a.client_name||'')}</div>
-    <div style="color:var(--text-sub);font-size:13px;margin-top:4px">${a.time} · ${a.duration||60} דק'</div>
-    ${a.client_phone?`<div style="font-size:13px;margin-top:6px">📞 ${escHtml(a.client_phone)}</div>`:''}
-    ${a.client_email?`<div style="font-size:13px;margin-top:2px">📧 ${escHtml(a.client_email)}</div>`:''}
+    <div style="color:var(--text-sub);font-size:13px;margin-top:4px">${a.time} · ${a.duration||60} דק' · <span style="color:${sm[1]}">${sm[0]}</span></div>
     ${a.notes?`<div style="font-size:13px;margin-top:6px;font-style:italic;color:var(--text-sub)">${escHtml(a.notes)}</div>`:''}
+    ${a.status!=='done'?`<button class="btn btn-secondary btn-sm" style="margin-top:10px" onclick="markMyDayDone('${a.id}')"><i class="ti ti-check"></i> סמן כהושלם</button>`:''}
   </div>
 
   <div class="sec-label" style="margin-top:18px">סוג טיפול</div>
@@ -1548,9 +1550,18 @@ function buildMyDayDetail(id){
   <div class="sec-label" style="margin-top:18px">רישום טיפול שבוצע</div>
   <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="openMyDayLogTreatment('${a.client_id||''}')"><i class="ti ti-needle"></i> רשום טיפול + חומרים</button>
 
-  <div class="sec-label" style="margin-top:18px">שליחת טופס לחתימה</div>
-  ${FORM_TYPES_LIST().map(ft=>`<button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;margin-bottom:6px" onclick="sendFormLink('${a.client_id||''}','${ft.key}')"><i class="ti ${ft.icon}"></i> ${ft.label}</button>`).join('')}
+  <div class="sec-label" style="margin-top:18px">היסטוריית טיפולים ללקוח זה</div>
+  ${history.length?history.map(tr=>{
+    const mats=(S.treatmentMaterials||[]).filter(m=>m.treatment_id===tr.id);
+    const matsHtml=mats.length?`<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:5px">${mats.map(m=>{const it=S.inventory.find(i=>i.id===m.inventory_id);return `<span style="background:var(--primary-light);color:var(--primary);font-size:11px;padding:3px 9px;border-radius:99px">${it?escHtml(it.name):'?'} × ${m.quantity}</span>`;}).join('')}</div>`:'';
+    return `<div class="card treat-card"><div class="treat-date">${fmt(tr.date)}</div><div class="treat-body"><div class="treat-name">${escHtml(tr.name)}</div>${tr.dose&&tr.dose!=='—'?`<div class="treat-detail">${escHtml(tr.dose)}</div>`:''}${tr.notes?`<div class="treat-detail" style="font-style:italic;margin-top:3px">${escHtml(tr.notes)}</div>`:''}${matsHtml}</div></div>`;
+  }).join(''):`<div class="empty" style="padding:16px 0">אין היסטוריית טיפולים קודמת</div>`}
   `;
+}
+async function markMyDayDone(aid){
+  const r=await apiCall({action:'update',table:'appointments',filters:[{column:'id',value:aid}],data:{status:'done'}});
+  if(r&&!r.error){S.appointments=S.appointments.map(a=>a.id===aid?{...a,status:'done'}:a);renderRoot();toast('התור סומן כהושלם')}
+  else toast(t('noPermission'));
 }
 async function saveMyDayTreatmentType(aid){
   const val=document.getElementById('myday-treat').value.trim();
@@ -1967,6 +1978,10 @@ function buildModal(){
       <div class="fg"><div class="fl">${t('time')}</div><input class="fi" id="a-time" type="time" value="${S.prefillTime||'10:00'}"></div>
       <div class="fg"><div class="fl">${t('durationMin')}</div><input class="fi" id="a-dur" type="number" value="60" min="15" max="240"></div>
       <div class="fg"><div class="fl">${t('notes')}</div><textarea class="fi" id="a-notes" rows="2" dir="rtl"></textarea></div>
+      <div class="fg"><div class="fl">שיוך למטפל (אופציונלי)</div><select class="fi" id="a-staff">
+        <option value="">ללא שיוך כרגע</option>
+        ${S.users.filter(u=>u.role==='staff'&&u.active!==false).map(u=>`<option value="${u.id}">${escHtml(u.name||u.username)}</option>`).join('')}
+      </select></div>
       <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button><button class="btn btn-primary" onclick="saveAppt()"><i class="ti ti-calendar-check"></i> ${t('setAppt')}</button></div>
     </div></div>`;
   }
@@ -2034,6 +2049,31 @@ function buildModal(){
         <button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="copyText('${url}')"><i class="ti ti-copy"></i> ${t('copyLink')}</button>
       </div>
       <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">${t('close')}</button></div>
+    </div></div>`;
+  }
+  if(S.modal&&S.modal.startsWith('confirmassign-')){
+    const aid=S.modal.split('-').slice(1).join('-');
+    const a=S.appointments.find(x=>x.id===aid);if(!a)return'';
+    const staffList=S.users.filter(u=>u.role==='staff'&&u.active!==false);
+    const busyIds=new Set(S.appointments.filter(x=>x.id!==aid&&x.date===a.date&&x.time===a.time&&x.assigned_staff_id&&(x.status==='confirmed'||x.status==='done')).map(x=>x.assigned_staff_id));
+    const allBusy=staffList.length>0&&staffList.every(u=>busyIds.has(u.id));
+    return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
+      <div class="modal-title"><i class="ti ti-user-check"></i> אישור תור ושיוך למטפל</div>
+      <div class="card" style="margin-bottom:14px">
+        <div style="font-weight:600">${escHtml(a.client_name||'')}</div>
+        <div style="font-size:13px;color:var(--text-sub);margin-top:4px">${fmtFull(a.date)} · ${a.time}</div>
+      </div>
+      ${staffList.length===0?`<div class="empty" style="padding:10px 0">אין עדיין משתמשי מטפל במערכת - צור אחד בעמוד המשתמשים</div>`:`
+      <div class="fg"><div class="fl">שייך למטפל</div>
+        <select class="fi" id="ca-staff">
+          <option value="">בחר מטפל...</option>
+          ${staffList.map(u=>`<option value="${u.id}" ${a.assigned_staff_id===u.id?'selected':''}>${escHtml(u.name||u.username)}${busyIds.has(u.id)?' — תפוס בשעה זו':''}</option>`).join('')}
+        </select>
+      </div>
+      ${busyIds.size&&!allBusy?`<div style="font-size:12.5px;color:var(--amber);margin-top:8px">💡 חלק מהמטפלים כבר תפוסים בשעה ${a.time} - מומלץ לבחור מטפל שלא מסומן "תפוס"</div>`:''}
+      ${allBusy?`<div style="font-size:12.5px;color:var(--red);margin-top:8px">⚠️ כל המטפלים כבר תפוסים בשעה זו - אפשר עדיין לשייך, אבל כדאי לתאם</div>`:''}
+      `}
+      <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button><button class="btn btn-primary" onclick="doConfirmAppt('${aid}')"><i class="ti ti-check"></i> אשר תור</button></div>
     </div></div>`;
   }
   if(S.modal&&S.modal.startsWith('editappt-')){
@@ -2225,9 +2265,10 @@ async function saveAppt(){
   const time=document.getElementById('a-time').value;
   const dur=parseInt(document.getElementById('a-dur').value)||60;
   const notes=document.getElementById('a-notes').value.trim();
+  const staffSel=(document.getElementById('a-staff')||{}).value||null;
   if(!name.trim()){alert(t('aEnterClientName'));return}
   if(!date||!time){alert(t('aFillDateTime'));return}
-  const body={client_name:name.trim(),client_phone:phone.trim(),client_email:email.trim(),treatment:treat||'טיפול',date,time,duration:dur,notes,status:'confirmed'};
+  const body={client_name:name.trim(),client_phone:phone.trim(),client_email:email.trim(),treatment:treat||'טיפול',date,time,duration:dur,notes,status:'confirmed',assigned_staff_id:staffSel};
   // אם נכנסים ללקוח וקובעים תור — שייך אותו ללקוח
   const activeC=(S.activePage==='clients'&&!S.clientListView)?getC():null;
   if(activeC)body.client_id=activeC.id;
@@ -2239,12 +2280,15 @@ async function saveAppt(){
   }else toast(t('tErrSave'))
 }
 
-async function confirmAppt(id){
-  await sbPatch('appointments',`?id=eq.${id}`,{status:'confirmed'});
+function confirmAppt(id){S.modal='confirmassign-'+id;renderRoot()}
+async function doConfirmAppt(id){
+  const sel=document.getElementById('ca-staff');
+  const staffId=sel?sel.value:'';
+  if(!staffId){alert('יש לבחור מטפל לשיוך התור');return}
+  await sbPatch('appointments',`?id=eq.${id}`,{status:'confirmed',assigned_staff_id:staffId});
   const appt=S.appointments.find(a=>a.id===id);
-  S.appointments=S.appointments.map(a=>a.id===id?{...a,status:'confirmed'}:a);
-  S.modal=null;renderRoot();toast(t('tApptApproved'));
-  // שלח מייל אישור ללקוח
+  S.appointments=S.appointments.map(a=>a.id===id?{...a,status:'confirmed',assigned_staff_id:staffId}:a);
+  S.modal=null;renderRoot();toast('התור אושר ושויך למטפל');
   if(appt&&appt.client_email){
     sendApptEmail({...appt,status:'confirmed'}).then(()=>toast(t('tEmailToClient')));
   }
