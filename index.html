@@ -864,7 +864,13 @@ async function doLogin(u,p){
   }catch(e){console.log('Login error:',e)}
   return false;
 }
-function doLogout(){sessionStorage.clear();ME=null;ADMIN_PW='';renderRoot()}
+function doLogout(){
+  sessionStorage.clear();ME=null;ADMIN_PW='';
+  S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,users:[],editUser:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:'',showNotif:false,viewForm:null,
+    inventory:[],suppliers:[],itemSuppliers:[],stockRequests:[],editInvItem:null,editSupplier:null,editLink:null,editRequest:null,
+    treatMaterials:[],treatmentMaterials:[],myDayApptId:null};
+  renderRoot();
+}
 
 // UTILS
 function localISO(d){const dt=new Date(d);const off=dt.getTimezoneOffset();const local=new Date(dt.getTime()-off*60000);return local.toISOString().slice(0,10)}
@@ -965,6 +971,7 @@ async function tryLogin(){
 // APP
 function buildApp(){
   if(isPractitioner()&&S.activePage!=='myday')S.activePage='myday';
+  if(!isPractitioner()&&S.activePage==='myday'){S.activePage='dashboard';S.myDayApptId=null;}
   const q=S.search.toLowerCase();
   const filtered=S.clients.filter(c=>c.name.toLowerCase().includes(q));
   const urgentRems=allPendingRem().filter(r=>duePri(r.due)!=='normal').length;
