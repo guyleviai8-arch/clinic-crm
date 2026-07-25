@@ -901,7 +901,8 @@ function sendManageLink(apptId){
 }
 
 let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,users:[],editUser:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:'',showNotif:false,viewForm:null,
-  inventory:[],suppliers:[],itemSuppliers:[],stockRequests:[],editInvItem:null,editSupplier:null,editLink:null,editRequest:null};
+  inventory:[],suppliers:[],itemSuppliers:[],stockRequests:[],editInvItem:null,editSupplier:null,editLink:null,editRequest:null,
+  treatMaterials:[],treatmentMaterials:[]};
 
 function showLoading(){const el=document.getElementById('root');if(!document.getElementById('loading'))el.insertAdjacentHTML('beforeend','<div class="loading-overlay" id="loading"><div class="loading-spinner"></div><div class="loading-text">'+t('loading')+'</div></div>')}
 function hideLoading(){const el=document.getElementById('loading');if(el)el.remove()}
@@ -928,10 +929,10 @@ async function loadAll(){
 
 // ===== מלאי / ספקים =====
 async function loadInventory(){
-  const [inv,sups,links,reqs]=await Promise.all([
-    sbFetch('inventory'), sbFetch('suppliers'), sbFetch('item_suppliers'), sbFetch('stock_requests')
+  const [inv,sups,links,reqs,tmats]=await Promise.all([
+    sbFetch('inventory'), sbFetch('suppliers'), sbFetch('item_suppliers'), sbFetch('stock_requests'), sbFetch('treatment_materials')
   ]);
-  S.inventory=inv||[]; S.suppliers=sups||[]; S.itemSuppliers=links||[]; S.stockRequests=reqs||[];
+  S.inventory=inv||[]; S.suppliers=sups||[]; S.itemSuppliers=links||[]; S.stockRequests=reqs||[]; S.treatmentMaterials=tmats||[];
 }
 
 // LOGIN
@@ -979,7 +980,7 @@ function buildApp(){
       <div class="nav-item ${S.activePage==='clients'?'active':''}" onclick="gotoPage('clients')"><i class="ti ti-users"></i>${t('clients')}</div>
       <div class="nav-item" onclick="showModal('bookingLink')"><i class="ti ti-link"></i>${t('bookingLink')}</div>
       ${can('users')?`<div class="nav-item ${S.activePage==='users'?'active':''}" onclick="gotoPage('users')"><i class="ti ti-user-shield"></i>${t('users')}</div>`:''}
-      ${can('inventory')?`<div class="nav-item ${S.activePage==='inventory'?'active':''}" onclick="gotoPage('inventory')"><i class="ti ti-boxes"></i>מלאי וספקים${(S.inventory||[]).filter(it=>Number(it.current_stock)<Number(it.min_threshold)).length>0?`<span class="nav-badge">${(S.inventory||[]).filter(it=>Number(it.current_stock)<Number(it.min_threshold)).length}</span>`:''}</div>`:''}
+      ${can('inventory')?`<div class="nav-item ${S.activePage==='inventory'?'active':''}" onclick="gotoPage('inventory')"><i class="ti ti-package"></i>מלאי וספקים${(S.inventory||[]).filter(it=>Number(it.current_stock)<Number(it.min_threshold)).length>0?`<span class="nav-badge">${(S.inventory||[]).filter(it=>Number(it.current_stock)<Number(it.min_threshold)).length}</span>`:''}</div>`:''}
     </div>
     <div style="flex:1"></div>
     <button class="add-client-btn" onclick="showModal('newClient')"><i class="ti ti-user-plus"></i> ${t('newClient')}</button>
@@ -1701,7 +1702,11 @@ function buildTreatments(c){
   const treats=clientTreatments(c.id);
   let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div class="sec-label" style="margin-bottom:0">${t('treatHistory')}</div>${can('treatments')?`<button class="btn btn-primary btn-sm" onclick="showModal('newTreatment')"><i class="ti ti-plus"></i> ${t('add')}</button>`:''}</div>`;
   if(!treats.length)return h+`<div class="empty"><i class="ti ti-needle" style="font-size:28px;display:block;margin-bottom:8px"></i>${t('noTreatments')}</div>`;
-  treats.forEach(t=>{h+=`<div class="card treat-card"><div class="treat-date">${fmt(t.date)}</div><div class="treat-body"><div class="treat-name">${escHtml(t.name)}</div><div class="treat-detail">${escHtml(t.provider||'')}${t.dose&&t.dose!=='—'?' · '+escHtml(t.dose):''}</div>${t.notes?`<div class="treat-detail" style="font-style:italic;margin-top:3px">${escHtml(t.notes)}</div>`:''}${t.price?`<div class="treat-price">₪${t.price.toLocaleString()}</div>`:''}</div></div>`;});
+  treats.forEach(t=>{
+    const mats=(S.treatmentMaterials||[]).filter(m=>m.treatment_id===t.id);
+    const matsHtml=mats.length?`<div class="treat-detail" style="margin-top:5px;display:flex;flex-wrap:wrap;gap:5px">${mats.map(m=>{const it=S.inventory.find(i=>i.id===m.inventory_id);return `<span style="background:var(--primary-light);color:var(--primary);font-size:11px;padding:3px 9px;border-radius:99px">${it?escHtml(it.name):'?'} × ${m.quantity}</span>`;}).join('')}</div>`:'';
+    h+=`<div class="card treat-card"><div class="treat-date">${fmt(t.date)}</div><div class="treat-body"><div class="treat-name">${escHtml(t.name)}</div><div class="treat-detail">${escHtml(t.provider||'')}${t.dose&&t.dose!=='—'?' · '+escHtml(t.dose):''}</div>${t.notes?`<div class="treat-detail" style="font-style:italic;margin-top:3px">${escHtml(t.notes)}</div>`:''}${matsHtml}${t.price?`<div class="treat-price">₪${t.price.toLocaleString()}</div>`:''}</div></div>`;
+  });
   return h;
 }
 
@@ -1852,6 +1857,16 @@ function buildModal(){
   }
 
   if(S.modal==='newTreatment'){
+    if(!S.treatMaterials)S.treatMaterials=[];
+    const matRows=S.treatMaterials.map((m,idx)=>`
+      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+        <select class="fi" style="flex:1.4" onchange="setTreatMatItem(${idx},this.value)">
+          <option value="">בחר חומר...</option>
+          ${S.inventory.map(it=>`<option value="${it.id}" ${m.inventory_id===it.id?'selected':''}>${escHtml(it.name)}</option>`).join('')}
+        </select>
+        <input class="fi" type="number" min="0" step="any" placeholder="כמות" style="flex:.7" value="${m.quantity||''}" onchange="setTreatMatQty(${idx},this.value)">
+        <button class="btn btn-secondary btn-sm" onclick="removeTreatMat(${idx})"><i class="ti ti-x"></i></button>
+      </div>`).join('');
     return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
       <div class="modal-title"><i class="ti ti-needle"></i> ${t('registerTreat')}</div>
       <div class="fg"><div class="fl">${t('treatNameReq')}</div><input class="fi" id="t-name" placeholder="${t('phTreatName')}" dir="rtl" autofocus></div>
@@ -1860,6 +1875,10 @@ function buildModal(){
       <div class="fg"><div class="fl">${t('dose')}</div><input class="fi" id="t-dose" placeholder="${t('phDoseEx')}" dir="rtl"></div>
       <div class="fg"><div class="fl">${t('notes')}</div><textarea class="fi" id="t-notes" rows="2" dir="rtl"></textarea></div>
       ${can('money')?`<div class="fg"><div class="fl">${t('price')}</div><input class="fi" id="t-price" type="number" placeholder="0" min="0"></div>`:''}
+      ${can('inventory')?`<div class="fg"><div class="fl">חומרים שהושתמשו (אופציונלי - אפשר גם כמה)</div>
+        ${matRows}
+        <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center" onclick="addTreatMatRow()"><i class="ti ti-plus"></i> הוסף חומר</button>
+      </div>`:''}
       <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button><button class="btn btn-primary" onclick="saveTreatment()"><i class="ti ti-device-floppy"></i> ${t('save')}</button></div>
     </div></div>`;
   }
@@ -2004,7 +2023,7 @@ function searchToClients(){if(S.activePage!=='clients'||!S.clientListView){S.act
 function selectClient(id){S.activeId=id;S.activePage='clients';S.activeTab='overview';S.clientListView=false;S.sidebarOpen=false;renderRoot()}
 function gotoPage(p){S.activePage=p;if(p==='clients')S.clientListView=true;S.sidebarOpen=false;renderRoot()}
 function setTab(t){S.activeTab=t;renderRoot()}
-function showModal(type){S.modal=type;S.newSrc='';renderRoot()}
+function showModal(type){S.modal=type;S.newSrc='';if(type==='newTreatment')S.treatMaterials=[];renderRoot()}
 function closeModal(){S.modal=null;S.prefillDate='';S.prefillTime='';S.sendForm=null;S.viewForm=null;S.editUser=null;renderRoot()}
 function closeModalBg(e){if(e.target===e.currentTarget)closeModal()}
 function selectSrc(k){S.newSrc=k;document.querySelectorAll('.source-opt').forEach(el=>{el.classList.toggle('selected',el.getAttribute('onclick').includes("'"+k+"'"))})}
@@ -2092,12 +2111,32 @@ async function saveEditClient(){
   S.modal=null;renderRoot();toast(t('tDetailsUpdated'));
 }
 
+function addTreatMatRow(){if(!S.treatMaterials)S.treatMaterials=[];S.treatMaterials.push({inventory_id:'',quantity:''});renderRoot()}
+function removeTreatMat(idx){S.treatMaterials.splice(idx,1);renderRoot()}
+function setTreatMatItem(idx,val){S.treatMaterials[idx].inventory_id=val}
+function setTreatMatQty(idx,val){S.treatMaterials[idx].quantity=val}
+
 async function saveTreatment(){
   const name=document.getElementById('t-name').value.trim();if(!name){alert(t('aEnterTreatName'));return}
   const c=getC();
   const body={client_id:c.id,name,date:document.getElementById('t-date').value||today(),provider:document.getElementById('t-prov').value.trim()||null,dose:document.getElementById('t-dose').value.trim()||'—',notes:document.getElementById('t-notes').value.trim(),price:parseInt((document.getElementById('t-price')||{}).value)||0};
   const res=await sbPost('treatments',body);
-  if(res&&res[0]){S.treatments.unshift(res[0]);S.modal=null;S.activeTab='treatments';renderRoot();toast(t('tTreatSaved'))}else toast(t('tErr'))
+  if(res&&res[0]){
+    S.treatments.unshift(res[0]);
+    // חומרים שהושתמשו - נרשמים ומורידים מלאי אוטומטית (אחד אחרי השני)
+    const validMats=(S.treatMaterials||[]).filter(m=>m.inventory_id&&Number(m.quantity)>0);
+    for(const m of validMats){
+      const r=await apiCall({action:'insert',table:'treatment_materials',data:{treatment_id:res[0].id,inventory_id:m.inventory_id,quantity:Number(m.quantity)}});
+      if(r&&r.data&&r.data[0]){
+        if(!S.treatmentMaterials)S.treatmentMaterials=[];
+        S.treatmentMaterials.push(r.data[0]);
+        const invItem=S.inventory.find(i=>i.id===m.inventory_id);
+        if(invItem)invItem.current_stock=Number(invItem.current_stock)-Number(m.quantity);
+      }
+    }
+    S.treatMaterials=[];
+    S.modal=null;S.activeTab='treatments';renderRoot();toast(t('tTreatSaved'));
+  }else toast(t('tErr'))
 }
 
 async function saveAppt(){
