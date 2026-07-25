@@ -645,11 +645,13 @@ function can(what){
   const r=myRank();
   if(what==='money')return r>=3;
   if(what==='delete')return r>=3;
-  if(what==='users')return r>=2;
+  if(what==='users')return r>=3;
   if(what==='treatments')return r>=2;
-  if(what==='inventory')return r>=2;
+  if(what==='inventory')return r>=3;
+  if(what==='materials')return r>=2;
   return true;
 }
+function isPractitioner(){return ME&&ME.role==='staff'}
 const AUTH_KEY='clinic_crm_auth';
 
 const API_URL=`${SUPABASE_URL}/functions/v1/clinic-api`;
@@ -902,7 +904,7 @@ function sendManageLink(apptId){
 
 let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,users:[],editUser:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:'',showNotif:false,viewForm:null,
   inventory:[],suppliers:[],itemSuppliers:[],stockRequests:[],editInvItem:null,editSupplier:null,editLink:null,editRequest:null,
-  treatMaterials:[],treatmentMaterials:[]};
+  treatMaterials:[],treatmentMaterials:[],myDayApptId:null};
 
 function showLoading(){const el=document.getElementById('root');if(!document.getElementById('loading'))el.insertAdjacentHTML('beforeend','<div class="loading-overlay" id="loading"><div class="loading-spinner"></div><div class="loading-text">'+t('loading')+'</div></div>')}
 function hideLoading(){const el=document.getElementById('loading');if(el)el.remove()}
@@ -920,7 +922,7 @@ async function loadAll(){
       sbFetch('consent_forms','?order=signed_at.desc')
     ]);
     await loadUsers();
-    if(can('inventory'))await loadInventory();
+    if(can('materials'))await loadInventory();
     S.clients=clients||[];S.appointments=appointments||[];S.treatments=treatments||[];S.reminders=reminders||[];S.forms=forms||[];
     if(S.clients.length&&!S.activeId)S.activeId=S.clients[0].id;
   }catch(e){toast(t('tErrLoad'))}
@@ -962,11 +964,12 @@ async function tryLogin(){
 
 // APP
 function buildApp(){
+  if(isPractitioner()&&S.activePage!=='myday')S.activePage='myday';
   const q=S.search.toLowerCase();
   const filtered=S.clients.filter(c=>c.name.toLowerCase().includes(q));
   const urgentRems=allPendingRem().filter(r=>duePri(r.due)!=='normal').length;
   const pendingAppts=S.appointments.filter(a=>a.status==='pending').length;
-  const pageLabels={dashboard:t('dashboard'),calendar:t('calendar'),clients:t('clients'),users:t('usersTitle'),inventory:'מלאי וספקים'};
+  const pageLabels={dashboard:t('dashboard'),calendar:t('calendar'),clients:t('clients'),users:t('usersTitle'),inventory:'מלאי וספקים',myday:'התורים שלי היום'};
 
 
   const sidebar=`<div class="sidebar ${S.sidebarOpen?'open':''}" id="sidebar">
@@ -975,15 +978,19 @@ function buildApp(){
     </div>
     <div class="nav-section">
       <div class="nav-label">${t('nav')}</div>
+      ${isPractitioner()?`
+      <div class="nav-item active"><i class="ti ti-calendar-check"></i>התורים שלי היום${(S.appointments||[]).length>0?`<span class="nav-badge">${(S.appointments||[]).length}</span>`:''}</div>
+      `:`
       <div class="nav-item ${S.activePage==='dashboard'?'active':''}" onclick="gotoPage('dashboard')"><i class="ti ti-layout-dashboard"></i>${t('dashboard')}${urgentRems>0?`<span class="nav-badge">${urgentRems}</span>`:''}</div>
       <div class="nav-item ${S.activePage==='calendar'?'active':''}" onclick="gotoPage('calendar')"><i class="ti ti-calendar-event"></i>${t('calendar')}${pendingAppts>0?`<span class="nav-badge">${pendingAppts}</span>`:''}</div>
       <div class="nav-item ${S.activePage==='clients'?'active':''}" onclick="gotoPage('clients')"><i class="ti ti-users"></i>${t('clients')}</div>
       <div class="nav-item" onclick="showModal('bookingLink')"><i class="ti ti-link"></i>${t('bookingLink')}</div>
       ${can('users')?`<div class="nav-item ${S.activePage==='users'?'active':''}" onclick="gotoPage('users')"><i class="ti ti-user-shield"></i>${t('users')}</div>`:''}
       ${can('inventory')?`<div class="nav-item ${S.activePage==='inventory'?'active':''}" onclick="gotoPage('inventory')"><i class="ti ti-package"></i>מלאי וספקים${(S.inventory||[]).filter(it=>Number(it.current_stock)<Number(it.min_threshold)).length>0?`<span class="nav-badge">${(S.inventory||[]).filter(it=>Number(it.current_stock)<Number(it.min_threshold)).length}</span>`:''}</div>`:''}
+      `}
     </div>
     <div style="flex:1"></div>
-    <button class="add-client-btn" onclick="showModal('newClient')"><i class="ti ti-user-plus"></i> ${t('newClient')}</button>
+    ${isPractitioner()?'':`<button class="add-client-btn" onclick="showModal('newClient')"><i class="ti ti-user-plus"></i> ${t('newClient')}</button>`}
     <button id="installBtn" onclick="installApp()" style="display:none;align-items:center;justify-content:center;gap:7px;margin:0 14px 8px;padding:9px;border-radius:10px;border:1.5px solid var(--primary);background:var(--primary-light);color:var(--primary);font-size:13px;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;width:calc(100% - 28px)"><i class="ti ti-download"></i> ${t('installApp')}</button>
     <div style="padding:0 14px 8px">${langMenuHTML()}</div>
     <div class="sb-footer"><button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout"></i> ${t('logout')}</button></div>
@@ -995,7 +1002,9 @@ function buildApp(){
     <div class="topbar-title">${pageLabels[S.activePage]||'לקוחות'}</div>
     <button class="tb-btn" onclick="toggleNotif()" style="position:relative"><i class="ti ti-notebook"></i>${getNotifications().length>0?`<span style="position:absolute;top:2px;left:2px;background:#E24B4A;color:#fff;font-size:9px;font-weight:700;min-width:15px;height:15px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 3px">${getNotifications().length}</span>`:''}</button>
   </div>`;
-  const bottomNav=`<div class="bottom-nav"><div class="bn-row">
+  const bottomNav=isPractitioner()?`<div class="bottom-nav"><div class="bn-row">
+    <button class="bn-item active"><i class="ti ti-calendar-check"></i>היום</button>
+  </div></div>`:`<div class="bottom-nav"><div class="bn-row">
     <button class="bn-item ${S.activePage==='dashboard'?'active':''}" onclick="gotoPage('dashboard')"><span class="bn-dot"><i class="ti ti-layout-dashboard"></i>${urgentRems>0?'<span class="bn-dot-badge"></span>':''}</span>דשבורד</button>
     <button class="bn-item ${S.activePage==='calendar'?'active':''}" onclick="gotoPage('calendar')"><span class="bn-dot"><i class="ti ti-calendar-event"></i>${pendingAppts>0?'<span class="bn-dot-badge"></span>':''}</span>${t('calendarShort')}</button>
     <button class="bn-item ${S.activePage==='clients'?'active':''}" onclick="gotoPage('clients')"><i class="ti ti-users"></i>${t('clients')}</button>
@@ -1005,6 +1014,7 @@ function buildApp(){
 
   let pageContent='';
   if(S.activePage==='dashboard'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildDashboard()}</div></div>`;}
+  else if(S.activePage==='myday'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildMyDay()}</div></div>`;}
   else if(S.activePage==='users'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildUsers()}</div></div>`;}
   else if(S.activePage==='inventory'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildInventory()}</div></div>`;}
   else if(S.activePage==='calendar'){pageContent=`<div style="flex:1;overflow:hidden;display:flex;flex-direction:column"><div class="cal-wrap page-pad" style="flex:1">${buildCalendar()}</div></div>`;}
@@ -1494,6 +1504,67 @@ async function cancelStockRequest(id){
 }
 // ===================== סוף מלאי וספקים =====================
 
+// ===================== מסך מטפל - "התורים שלי היום" =====================
+function buildMyDay(){
+  if(S.myDayApptId)return buildMyDayDetail(S.myDayApptId);
+  const list=[...S.appointments].sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  let h=`<div class="dash-title">התורים שלי היום</div><div class="dash-sub">${fmtFull(today())} · ${list.length} תורים</div>`;
+  if(!list.length)return h+`<div class="empty" style="padding:30px 0"><i class="ti ti-calendar-off" style="font-size:28px;display:block;margin-bottom:8px"></i>אין לך תורים משויכים היום</div>`;
+  const statusMap={pending:['⏳ ממתין','var(--amber)'],confirmed:['✅ מאושר','var(--accent)'],done:['הסתיים','var(--text-sub)']};
+  h+=list.map(a=>{
+    const sm=statusMap[a.status]||['','var(--text-sub)'];
+    return `<div class="card" style="display:flex;align-items:center;gap:13px;cursor:pointer" onclick="openMyDayAppt('${a.id}')">
+      <div style="background:var(--primary-light);color:var(--primary);padding:8px 12px;border-radius:9px;text-align:center;flex-shrink:0;min-width:52px;font-weight:700">${a.time}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14.5px;font-weight:600">${escHtml(a.client_name||'')}</div>
+        <div style="font-size:12.5px;color:var(--text-sub);margin-top:3px">${escHtml(a.treatment||'')} · <span style="color:${sm[1]}">${sm[0]}</span></div>
+      </div>
+      <i class="ti ti-chevron-left" style="color:var(--text-sub)"></i>
+    </div>`;
+  }).join('');
+  return h;
+}
+function openMyDayAppt(id){S.myDayApptId=id;renderRoot()}
+function backToMyDay(){S.myDayApptId=null;renderRoot()}
+
+function buildMyDayDetail(id){
+  const a=S.appointments.find(x=>x.id===id);
+  if(!a){S.myDayApptId=null;return buildMyDay();}
+  return `<button class="btn btn-secondary btn-sm" onclick="backToMyDay()"><i class="ti ti-arrow-right"></i> חזרה לרשימה</button>
+  <div class="card" style="margin-top:14px">
+    <div style="font-size:17px;font-weight:700">${escHtml(a.client_name||'')}</div>
+    <div style="color:var(--text-sub);font-size:13px;margin-top:4px">${a.time} · ${a.duration||60} דק'</div>
+    ${a.client_phone?`<div style="font-size:13px;margin-top:6px">📞 ${escHtml(a.client_phone)}</div>`:''}
+    ${a.client_email?`<div style="font-size:13px;margin-top:2px">📧 ${escHtml(a.client_email)}</div>`:''}
+    ${a.notes?`<div style="font-size:13px;margin-top:6px;font-style:italic;color:var(--text-sub)">${escHtml(a.notes)}</div>`:''}
+  </div>
+
+  <div class="sec-label" style="margin-top:18px">סוג טיפול</div>
+  <div class="card">
+    <input class="fi" id="myday-treat" value="${escHtml(a.treatment||'')}" dir="rtl">
+    <button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="saveMyDayTreatmentType('${a.id}')"><i class="ti ti-device-floppy"></i> שמור</button>
+  </div>
+
+  <div class="sec-label" style="margin-top:18px">רישום טיפול שבוצע</div>
+  <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="openMyDayLogTreatment('${a.client_id||''}')"><i class="ti ti-needle"></i> רשום טיפול + חומרים</button>
+
+  <div class="sec-label" style="margin-top:18px">שליחת טופס לחתימה</div>
+  ${FORM_TYPES_LIST().map(ft=>`<button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;margin-bottom:6px" onclick="sendFormLink('${a.client_id||''}','${ft.key}')"><i class="ti ${ft.icon}"></i> ${ft.label}</button>`).join('')}
+  `;
+}
+async function saveMyDayTreatmentType(aid){
+  const val=document.getElementById('myday-treat').value.trim();
+  const r=await apiCall({action:'update',table:'appointments',filters:[{column:'id',value:aid}],data:{treatment:val}});
+  if(r&&!r.error){S.appointments=S.appointments.map(a=>a.id===aid?{...a,treatment:val}:a);renderRoot();toast('סוג הטיפול עודכן')}
+  else toast(t('noPermission'));
+}
+function openMyDayLogTreatment(clientId){
+  if(!clientId){toast('הלקוח לא מקושר לרשומת לקוח - לא ניתן לרשום טיפול');return}
+  S.activeId=clientId;
+  showModal('newTreatment');
+}
+// ===================== סוף מסך מטפל =====================
+
 function buildDashboard(){
   const todayStr=today();
   const todayAppts=S.appointments.filter(a=>a.date===todayStr).sort((a,b)=>a.time.localeCompare(b.time));
@@ -1875,7 +1946,7 @@ function buildModal(){
       <div class="fg"><div class="fl">${t('dose')}</div><input class="fi" id="t-dose" placeholder="${t('phDoseEx')}" dir="rtl"></div>
       <div class="fg"><div class="fl">${t('notes')}</div><textarea class="fi" id="t-notes" rows="2" dir="rtl"></textarea></div>
       ${can('money')?`<div class="fg"><div class="fl">${t('price')}</div><input class="fi" id="t-price" type="number" placeholder="0" min="0"></div>`:''}
-      ${can('inventory')?`<div class="fg"><div class="fl">חומרים שהושתמשו (אופציונלי - אפשר גם כמה)</div>
+      ${can('materials')?`<div class="fg"><div class="fl">חומרים שהושתמשו (אופציונלי - אפשר גם כמה)</div>
         ${matRows}
         <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center" onclick="addTreatMatRow()"><i class="ti ti-plus"></i> הוסף חומר</button>
       </div>`:''}
@@ -1979,6 +2050,10 @@ function buildModal(){
       <div class="fg"><div class="fl">${t('durationMin')}</div><input class="fi" id="ea-dur" type="number" value="${a.duration||60}" min="15" max="240"></div>
       <div class="fg"><div class="fl">${t('notes')}</div><textarea class="fi" id="ea-notes" rows="2" dir="rtl">${escHtml(a.notes||'')}</textarea></div>
       <div class="fg"><div class="fl">${t('status')}</div><select class="fi" id="ea-status"><option value="confirmed" ${a.status==='confirmed'?'selected':''}>מאושר</option><option value="pending" ${a.status==='pending'?'selected':''}>ממתין</option><option value="done" ${a.status==='done'?'selected':''}>הסתיים</option></select></div>
+      <div class="fg"><div class="fl">שיוך למטפל</div><select class="fi" id="ea-staff">
+        <option value="">ללא שיוך</option>
+        ${S.users.filter(u=>u.role==='staff'&&u.active!==false).map(u=>`<option value="${u.id}" ${a.assigned_staff_id===u.id?'selected':''}>${escHtml(u.name||u.username)}</option>`).join('')}
+      </select></div>
       <div class="ma"><button class="btn btn-secondary" onclick="showApptDetail('${aid}')">${t('cancel')}</button><button class="btn btn-primary" onclick="saveEditAppt('${aid}')"><i class="ti ti-device-floppy"></i> ${t('saveChanges')}</button></div>
     </div></div>`;
   }
@@ -2000,6 +2075,7 @@ function buildModal(){
         <div class="info-field"><span class="info-label">${t('time')}</span><span class="info-value">${a.time}</span></div>
         <div class="info-field"><span class="info-label">${t('duration')}</span><span class="info-value">${a.duration} דקות</span></div>
         <div class="info-field"><span class="info-label">${t('status')}</span><span class="info-value">${{pending:'⏳ ממתין',confirmed:'✅ מאושר',done:'הסתיים'}[a.status]||'מאושר'}</span></div>
+        <div class="info-field"><span class="info-label">מטפל משויך</span><span class="info-value">${a.assigned_staff_id?escHtml((S.users.find(u=>u.id===a.assigned_staff_id)||{}).name||'—'):'לא משויך'}</span></div>
       </div>
       ${a.notes?`<div class="sec-label">הערות</div><div class="card" style="margin-bottom:12px">${escHtml(a.notes)}</div>`:''}
       <div class="ma">
@@ -2039,7 +2115,8 @@ async function saveEditAppt(aid){
     time:document.getElementById('ea-time').value,
     duration:parseInt(document.getElementById('ea-dur').value)||60,
     notes:document.getElementById('ea-notes').value.trim(),
-    status:document.getElementById('ea-status').value
+    status:document.getElementById('ea-status').value,
+    assigned_staff_id:(document.getElementById('ea-staff')||{}).value||null
   };
   if(!body.client_name||!body.date||!body.time){alert(t('aFillNameDateTime'));return}
   await sbPatch('appointments',`?id=eq.${aid}`,body);
