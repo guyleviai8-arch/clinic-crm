@@ -647,6 +647,7 @@ function can(what){
   if(what==='delete')return r>=3;
   if(what==='users')return r>=2;
   if(what==='treatments')return r>=2;
+  if(what==='inventory')return r>=2;
   return true;
 }
 const AUTH_KEY='clinic_crm_auth';
@@ -899,7 +900,8 @@ function sendManageLink(apptId){
   waOpen(a.client_phone, wa(L,'waManage',{name:a.client_name,treat:a.treatment,date:a.date,time:a.time,url:getManageUrl(apptId)}));
 }
 
-let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,users:[],editUser:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:'',showNotif:false,viewForm:null};
+let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,users:[],editUser:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:'',showNotif:false,viewForm:null,
+  inventory:[],suppliers:[],itemSuppliers:[],stockRequests:[],editInvItem:null,editSupplier:null,editLink:null,editRequest:null};
 
 function showLoading(){const el=document.getElementById('root');if(!document.getElementById('loading'))el.insertAdjacentHTML('beforeend','<div class="loading-overlay" id="loading"><div class="loading-spinner"></div><div class="loading-text">'+t('loading')+'</div></div>')}
 function hideLoading(){const el=document.getElementById('loading');if(el)el.remove()}
@@ -917,10 +919,19 @@ async function loadAll(){
       sbFetch('consent_forms','?order=signed_at.desc')
     ]);
     await loadUsers();
+    if(can('inventory'))await loadInventory();
     S.clients=clients||[];S.appointments=appointments||[];S.treatments=treatments||[];S.reminders=reminders||[];S.forms=forms||[];
     if(S.clients.length&&!S.activeId)S.activeId=S.clients[0].id;
   }catch(e){toast(t('tErrLoad'))}
   hideLoading();renderRoot();
+}
+
+// ===== מלאי / ספקים =====
+async function loadInventory(){
+  const [inv,sups,links,reqs]=await Promise.all([
+    sbFetch('inventory'), sbFetch('suppliers'), sbFetch('item_suppliers'), sbFetch('stock_requests')
+  ]);
+  S.inventory=inv||[]; S.suppliers=sups||[]; S.itemSuppliers=links||[]; S.stockRequests=reqs||[];
 }
 
 // LOGIN
@@ -954,7 +965,7 @@ function buildApp(){
   const filtered=S.clients.filter(c=>c.name.toLowerCase().includes(q));
   const urgentRems=allPendingRem().filter(r=>duePri(r.due)!=='normal').length;
   const pendingAppts=S.appointments.filter(a=>a.status==='pending').length;
-  const pageLabels={dashboard:t('dashboard'),calendar:t('calendar'),clients:t('clients'),users:t('usersTitle')};
+  const pageLabels={dashboard:t('dashboard'),calendar:t('calendar'),clients:t('clients'),users:t('usersTitle'),inventory:'מלאי וספקים'};
 
 
   const sidebar=`<div class="sidebar ${S.sidebarOpen?'open':''}" id="sidebar">
@@ -968,6 +979,7 @@ function buildApp(){
       <div class="nav-item ${S.activePage==='clients'?'active':''}" onclick="gotoPage('clients')"><i class="ti ti-users"></i>${t('clients')}</div>
       <div class="nav-item" onclick="showModal('bookingLink')"><i class="ti ti-link"></i>${t('bookingLink')}</div>
       ${can('users')?`<div class="nav-item ${S.activePage==='users'?'active':''}" onclick="gotoPage('users')"><i class="ti ti-user-shield"></i>${t('users')}</div>`:''}
+      ${can('inventory')?`<div class="nav-item ${S.activePage==='inventory'?'active':''}" onclick="gotoPage('inventory')"><i class="ti ti-boxes"></i>מלאי וספקים${(S.inventory||[]).filter(it=>Number(it.current_stock)<Number(it.min_threshold)).length>0?`<span class="nav-badge">${(S.inventory||[]).filter(it=>Number(it.current_stock)<Number(it.min_threshold)).length}</span>`:''}</div>`:''}
     </div>
     <div style="flex:1"></div>
     <button class="add-client-btn" onclick="showModal('newClient')"><i class="ti ti-user-plus"></i> ${t('newClient')}</button>
@@ -993,6 +1005,7 @@ function buildApp(){
   let pageContent='';
   if(S.activePage==='dashboard'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildDashboard()}</div></div>`;}
   else if(S.activePage==='users'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildUsers()}</div></div>`;}
+  else if(S.activePage==='inventory'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildInventory()}</div></div>`;}
   else if(S.activePage==='calendar'){pageContent=`<div style="flex:1;overflow:hidden;display:flex;flex-direction:column"><div class="cal-wrap page-pad" style="flex:1">${buildCalendar()}</div></div>`;}
   else{
     const c=getC();
@@ -1224,6 +1237,261 @@ async function deleteUser(id){
   if(r&&!r.error){await loadUsers();S.modal=null;S.editUser=null;renderRoot();toast(t('tUserDeleted'));}
   else toast(t('noPermission'));
 }
+
+// ===================== מלאי וספקים =====================
+function buildInventory(){
+  const lowItems=S.inventory.filter(it=>Number(it.current_stock)<Number(it.min_threshold));
+  let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:12px;flex-wrap:wrap">
+    <div><div class="dash-title">מלאי וספקים</div><div class="dash-sub">${S.inventory.length} פריטים · ${S.suppliers.length} ספקים${lowItems.length?` · <span style="color:var(--red)">${lowItems.length} דורשים הזמנה</span>`:''}</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-secondary btn-sm" onclick="openSupplier(null)"><i class="ti ti-truck"></i> ספק חדש</button>
+      <button class="btn btn-primary btn-sm" onclick="openInvItem(null)"><i class="ti ti-plus"></i> פריט חדש</button>
+    </div>
+  </div>`;
+
+  // רשימת פריטים
+  h+=`<div class="sec-label">פריטי מלאי</div>`;
+  if(!S.inventory.length){h+=`<div class="empty" style="padding:20px 0">אין פריטי מלאי עדיין</div>`;}
+  else{
+    h+=S.inventory.map(it=>{
+      const low=Number(it.current_stock)<Number(it.min_threshold);
+      const linkedSups=S.itemSuppliers.filter(l=>l.inventory_id===it.id).map(l=>S.suppliers.find(s=>s.id===l.supplier_id)).filter(Boolean);
+      return `<div class="card" style="display:flex;align-items:center;gap:13px">
+        <div style="width:42px;height:42px;border-radius:12px;background:${low?'var(--red-light)':'var(--primary-light)'};color:${low?'var(--red)':'var(--primary)'};display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-box" style="font-size:19px"></i></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14.5px;font-weight:600">${escHtml(it.name)}</div>
+          <div style="font-size:12.5px;color:var(--text-sub);margin-top:3px">${it.current_stock} ${escHtml(it.unit||'')} (סף: ${it.min_threshold}) ${linkedSups.length?' · ספקים: '+linkedSups.map(s=>escHtml(s.name)).join(', '):''}</div>
+        </div>
+        ${low?`<span style="font-size:10.5px;font-weight:600;color:var(--red);background:var(--red-light);padding:3px 9px;border-radius:99px;white-space:nowrap">צריך הזמנה</span>`:''}
+        <button class="btn btn-secondary btn-sm" onclick="openInvItem('${it.id}')"><i class="ti ti-edit"></i></button>
+        ${linkedSups.length?`<button class="btn btn-primary btn-sm" onclick="openRequest('${it.id}')"><i class="ti ti-send"></i></button>`:''}
+      </div>`;
+    }).join('');
+  }
+
+  // רשימת ספקים
+  h+=`<div class="sec-label" style="margin-top:20px">ספקים</div>`;
+  if(!S.suppliers.length){h+=`<div class="empty" style="padding:20px 0">אין ספקים עדיין</div>`;}
+  else{
+    h+=S.suppliers.map(s=>{
+      const linkedItems=S.itemSuppliers.filter(l=>l.supplier_id===s.id).map(l=>S.inventory.find(i=>i.id===l.inventory_id)).filter(Boolean);
+      return `<div class="card" style="display:flex;align-items:center;gap:13px">
+        <div style="width:42px;height:42px;border-radius:12px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-truck" style="font-size:19px"></i></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14.5px;font-weight:600">${escHtml(s.name)}</div>
+          <div style="font-size:12.5px;color:var(--text-sub);margin-top:3px">${escHtml(s.phone||'')}${linkedItems.length?' · מספק: '+linkedItems.map(i=>escHtml(i.name)).join(', '):' · אין פריטים מקושרים'}</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="openLink('${s.id}')"><i class="ti ti-link"></i></button>
+        <button class="btn btn-secondary btn-sm" onclick="openSupplier('${s.id}')"><i class="ti ti-edit"></i></button>
+      </div>`;
+    }).join('');
+  }
+
+  // בקשות אספקה
+  h+=`<div class="sec-label" style="margin-top:20px">בקשות אספקה</div>`;
+  if(!S.stockRequests.length){h+=`<div class="empty" style="padding:20px 0">אין בקשות עדיין</div>`;}
+  else{
+    const statusMeta={pending:['ממתין לאישור טלפוני','var(--text-sub)','var(--bg)'],confirmed:['אושר טלפונית - ממתין לספק','var(--primary)','var(--primary-light)'],delivered:['סופק','#1E8A5F','#E7F7F0'],cancelled:['בוטל','var(--red)','var(--red-light)']};
+    h+=[...S.stockRequests].sort((a,b)=>new Date(b.requested_at)-new Date(a.requested_at)).map(r=>{
+      const item=S.inventory.find(i=>i.id===r.inventory_id);
+      const sup=S.suppliers.find(s=>s.id===r.supplier_id);
+      const m=statusMeta[r.status]||statusMeta.pending;
+      return `<div class="card" style="display:flex;align-items:center;gap:13px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600">${escHtml(item?item.name:'?')} — ${r.quantity_requested} יח'</div>
+          <div style="font-size:12.5px;color:var(--text-sub);margin-top:3px">ספק: ${escHtml(sup?sup.name:'?')}${r.notes?' · '+escHtml(r.notes):''}</div>
+        </div>
+        <span style="font-size:10.5px;font-weight:600;color:${m[1]};background:${m[2]};padding:3px 9px;border-radius:99px;white-space:nowrap">${m[0]}</span>
+        ${r.status==='pending'?`<button class="btn btn-primary btn-sm" onclick="confirmStockRequest('${r.id}')">אשרתי טלפונית</button>`:''}
+        ${r.status==='pending'?`<button class="btn btn-secondary btn-sm" onclick="cancelStockRequest('${r.id}')"><i class="ti ti-x"></i></button>`:''}
+      </div>`;
+    }).join('');
+  }
+  return h;
+}
+
+function openInvItem(id){
+  S.editInvItem = id ? (S.inventory.find(x=>x.id===id)||null) : {id:null,name:'',unit:'',current_stock:0,min_threshold:0};
+  if(id&&!S.editInvItem)return;
+  S.modal='invItem'; renderRoot();
+}
+function buildInvItemModal(){
+  const it=S.editInvItem; if(!it)return '';
+  const isNew=!it.id;
+  return `<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><i class="ti ti-box"></i> ${isNew?'פריט מלאי חדש':'עריכת פריט'}</div>
+    <div class="fg"><div class="fl">שם הפריט</div><input class="fi" id="inv-name" value="${escHtml(it.name||'')}" dir="auto"></div>
+    <div class="fg"><div class="fl">יחידת מידה</div><input class="fi" id="inv-unit" value="${escHtml(it.unit||'')}" placeholder="יחידות / בקבוקים / ק&quot;ג"></div>
+    <div class="fg"><div class="fl">מלאי נוכחי</div><input class="fi" id="inv-stock" type="number" value="${it.current_stock??0}"></div>
+    <div class="fg"><div class="fl">סף מינימום להתראה</div><input class="fi" id="inv-min" type="number" value="${it.min_threshold??0}"></div>
+    <div id="inv-err"></div>
+    <div class="ma">
+      ${(!isNew&&can('delete'))?`<button class="btn btn-danger btn-sm" onclick="deleteInvItem('${it.id}')"><i class="ti ti-trash"></i></button>`:''}
+      <button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button>
+      <button class="btn btn-primary" onclick="saveInvItem()"><i class="ti ti-check"></i> ${isNew?'הוסף':'שמור'}</button>
+    </div>
+  </div></div>`;
+}
+async function saveInvItem(){
+  const it=S.editInvItem; if(!it)return;
+  const isNew=!it.id;
+  const name=document.getElementById('inv-name').value.trim();
+  const unit=document.getElementById('inv-unit').value.trim();
+  const current_stock=Number(document.getElementById('inv-stock').value||0);
+  const min_threshold=Number(document.getElementById('inv-min').value||0);
+  const err=document.getElementById('inv-err');
+  if(!name){err.innerHTML=`<div style="background:var(--red-light);color:var(--red);padding:10px 13px;border-radius:9px;font-size:13px;margin-bottom:10px">נא למלא שם פריט</div>`;return;}
+  let r;
+  if(isNew)r=await apiCall({action:'insert',table:'inventory',data:{name,unit,current_stock,min_threshold}});
+  else r=await apiCall({action:'update',table:'inventory',filters:[{column:'id',value:it.id}],data:{name,unit,current_stock,min_threshold}});
+  if(r&&!r.error){await loadInventory();S.modal=null;S.editInvItem=null;renderRoot();toast(isNew?'הפריט נוסף':'הפריט עודכן');}
+  else toast(t('noPermission'));
+}
+async function deleteInvItem(id){
+  if(!confirm('למחוק את הפריט?'))return;
+  const r=await apiCall({action:'delete',table:'inventory',filters:[{column:'id',value:id}]});
+  if(r&&!r.error){await loadInventory();S.modal=null;S.editInvItem=null;renderRoot();toast('הפריט נמחק');}
+  else toast(t('noPermission'));
+}
+
+function openSupplier(id){
+  S.editSupplier = id ? (S.suppliers.find(x=>x.id===id)||null) : {id:null,name:'',phone:'',linked_username:''};
+  if(id&&!S.editSupplier)return;
+  S.modal='supplier'; renderRoot();
+}
+function buildSupplierModal(){
+  const s=S.editSupplier; if(!s)return '';
+  const isNew=!s.id;
+  return `<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><i class="ti ti-truck"></i> ${isNew?'ספק חדש':'עריכת ספק'}</div>
+    <div class="fg"><div class="fl">שם הספק</div><input class="fi" id="sup-name" value="${escHtml(s.name||'')}" dir="auto"></div>
+    <div class="fg"><div class="fl">טלפון</div><input class="fi" id="sup-phone" value="${escHtml(s.phone||'')}" dir="ltr"></div>
+    ${isNew?`<div class="fg"><div class="fl">שם משתמש להתחברות הספק (אופציונלי - חייב להיות משתמש קיים עם role=supplier)</div><input class="fi" id="sup-user" placeholder="username" dir="ltr"></div>`:''}
+    <div id="sup-err"></div>
+    <div class="ma">
+      ${(!isNew&&can('delete'))?`<button class="btn btn-danger btn-sm" onclick="deleteSupplier('${s.id}')"><i class="ti ti-trash"></i></button>`:''}
+      <button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button>
+      <button class="btn btn-primary" onclick="saveSupplier()"><i class="ti ti-check"></i> ${isNew?'הוסף':'שמור'}</button>
+    </div>
+  </div></div>`;
+}
+async function saveSupplier(){
+  const s=S.editSupplier; if(!s)return;
+  const isNew=!s.id;
+  const name=document.getElementById('sup-name').value.trim();
+  const phone=document.getElementById('sup-phone').value.trim();
+  const err=document.getElementById('sup-err');
+  if(!name){err.innerHTML=`<div style="background:var(--red-light);color:var(--red);padding:10px 13px;border-radius:9px;font-size:13px;margin-bottom:10px">נא למלא שם ספק</div>`;return;}
+  let linked_user_id=null;
+  if(isNew){
+    const uEl=document.getElementById('sup-user');
+    const uname=uEl?uEl.value.trim():'';
+    if(uname){
+      const u=await apiCall({action:'select',table:'users',filters:[{column:'username',value:uname}]});
+      if(u&&u.data&&u.data[0])linked_user_id=u.data[0].id;
+      else{err.innerHTML=`<div style="background:var(--red-light);color:var(--red);padding:10px 13px;border-radius:9px;font-size:13px;margin-bottom:10px">לא נמצא משתמש בשם ${escHtml(uname)}</div>`;return;}
+    }
+  }
+  let r;
+  if(isNew)r=await apiCall({action:'insert',table:'suppliers',data:{name,phone,linked_user_id}});
+  else r=await apiCall({action:'update',table:'suppliers',filters:[{column:'id',value:s.id}],data:{name,phone}});
+  if(r&&!r.error){await loadInventory();S.modal=null;S.editSupplier=null;renderRoot();toast(isNew?'הספק נוסף':'הספק עודכן');}
+  else toast(t('noPermission'));
+}
+async function deleteSupplier(id){
+  if(!confirm('למחוק את הספק?'))return;
+  const r=await apiCall({action:'delete',table:'suppliers',filters:[{column:'id',value:id}]});
+  if(r&&!r.error){await loadInventory();S.modal=null;S.editSupplier=null;renderRoot();toast('הספק נמחק');}
+  else toast(t('noPermission'));
+}
+
+function openLink(supplierId){
+  S.editLink={supplier_id:supplierId,inventory_id:'',can_view:true};
+  S.modal='link'; renderRoot();
+}
+function buildLinkModal(){
+  const l=S.editLink; if(!l)return '';
+  const sup=S.suppliers.find(s=>s.id===l.supplier_id);
+  const alreadyLinked=S.itemSuppliers.filter(x=>x.supplier_id===l.supplier_id).map(x=>x.inventory_id);
+  const options=S.inventory.filter(it=>!alreadyLinked.includes(it.id));
+  return `<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><i class="ti ti-link"></i> קישור פריט ל-${escHtml(sup?sup.name:'')}</div>
+    <div class="fg"><div class="fl">פריט מלאי</div>
+      <select class="fi" id="link-item">${options.length?options.map(it=>`<option value="${it.id}">${escHtml(it.name)}</option>`).join(''):'<option value="">אין פריטים זמינים לקישור</option>'}</select>
+    </div>
+    <div class="fg"><label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px">
+      <input type="checkbox" id="link-canview" checked style="width:19px;height:19px;accent-color:var(--primary);cursor:pointer">
+      לאפשר לספק לצפות בכמות המלאי
+    </label></div>
+    <div id="link-err"></div>
+    <div class="ma">
+      <button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button>
+      <button class="btn btn-primary" onclick="saveLink()"><i class="ti ti-check"></i> קשר</button>
+    </div>
+  </div></div>`;
+}
+async function saveLink(){
+  const l=S.editLink; if(!l)return;
+  const inventory_id=document.getElementById('link-item').value;
+  const can_view=document.getElementById('link-canview').checked;
+  const err=document.getElementById('link-err');
+  if(!inventory_id){err.innerHTML=`<div style="background:var(--red-light);color:var(--red);padding:10px 13px;border-radius:9px;font-size:13px;margin-bottom:10px">אין פריט לבחירה</div>`;return;}
+  const r=await apiCall({action:'insert',table:'item_suppliers',data:{inventory_id,supplier_id:l.supplier_id,can_view}});
+  if(r&&!r.error){await loadInventory();S.modal=null;S.editLink=null;renderRoot();toast('הקישור נוצר');}
+  else toast(t('noPermission'));
+}
+
+function openRequest(inventoryId){
+  const item=S.inventory.find(i=>i.id===inventoryId);
+  const linkedSups=S.itemSuppliers.filter(l=>l.inventory_id===inventoryId).map(l=>S.suppliers.find(s=>s.id===l.supplier_id)).filter(Boolean);
+  S.editRequest={inventory_id:inventoryId,supplier_id:linkedSups[0]?linkedSups[0].id:'',quantity_requested:1,notes:''};
+  S.modal='request'; renderRoot();
+}
+function buildRequestModal(){
+  const r=S.editRequest; if(!r)return '';
+  const item=S.inventory.find(i=>i.id===r.inventory_id);
+  const linkedSups=S.itemSuppliers.filter(l=>l.inventory_id===r.inventory_id).map(l=>S.suppliers.find(s=>s.id===l.supplier_id)).filter(Boolean);
+  return `<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><i class="ti ti-send"></i> בקשת אספקה - ${escHtml(item?item.name:'')}</div>
+    <div class="fg"><div class="fl">ספק</div>
+      <select class="fi" id="req-supplier">${linkedSups.map(s=>`<option value="${s.id}" ${s.id===r.supplier_id?'selected':''}>${escHtml(s.name)}</option>`).join('')}</select>
+    </div>
+    <div class="fg"><div class="fl">כמות מבוקשת</div><input class="fi" id="req-qty" type="number" value="${r.quantity_requested}"></div>
+    <div class="fg"><div class="fl">הערות</div><input class="fi" id="req-notes" placeholder="אופציונלי"></div>
+    <div id="req-err"></div>
+    <div class="ma">
+      <button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button>
+      <button class="btn btn-primary" onclick="saveRequest()"><i class="ti ti-check"></i> שלח בקשה</button>
+    </div>
+  </div></div>`;
+}
+async function saveRequest(){
+  const r=S.editRequest; if(!r)return;
+  const supplier_id=document.getElementById('req-supplier').value;
+  const quantity_requested=Number(document.getElementById('req-qty').value||1);
+  const notes=document.getElementById('req-notes').value.trim();
+  const err=document.getElementById('req-err');
+  if(!supplier_id){err.innerHTML=`<div style="background:var(--red-light);color:var(--red);padding:10px 13px;border-radius:9px;font-size:13px;margin-bottom:10px">בחר ספק</div>`;return;}
+  const res=await apiCall({action:'insert',table:'stock_requests',data:{inventory_id:r.inventory_id,supplier_id,quantity_requested,notes}});
+  if(res&&!res.error){await loadInventory();S.modal=null;S.editRequest=null;renderRoot();toast('הבקשה נשלחה לספק');}
+  else toast(t('noPermission'));
+}
+async function confirmStockRequest(id){
+  const res=await apiCall({action:'update',table:'stock_requests',filters:[{column:'id',value:id}],data:{status:'confirmed',confirmed_at:new Date().toISOString()}});
+  if(res&&!res.error){await loadInventory();renderRoot();toast('סומן כאושר טלפונית - ממתין שהספק יספק');}
+  else toast(t('noPermission'));
+}
+async function cancelStockRequest(id){
+  if(!confirm('לבטל את הבקשה?'))return;
+  const res=await apiCall({action:'update',table:'stock_requests',filters:[{column:'id',value:id}],data:{status:'cancelled'}});
+  if(res&&!res.error){await loadInventory();renderRoot();toast('הבקשה בוטלה');}
+  else toast(t('noPermission'));
+}
+// ===================== סוף מלאי וספקים =====================
 
 function buildDashboard(){
   const todayStr=today();
@@ -1628,6 +1896,10 @@ function buildModal(){
   }
 
   if(S.modal==='user')return buildUserModal();
+  if(S.modal==='invItem')return buildInvItemModal();
+  if(S.modal==='supplier')return buildSupplierModal();
+  if(S.modal==='link')return buildLinkModal();
+  if(S.modal==='request')return buildRequestModal();
   if(S.modal==='viewform'&&S.viewForm){
     const{cid,type}=S.viewForm;
     const c=S.clients.find(x=>x.id===cid);if(!c)return'';
