@@ -662,7 +662,7 @@ async function apiCall(payload){
   const res=await fetch(API_URL,{
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
-    body:JSON.stringify({...payload,username:AUTH_USER,password:ADMIN_PW})
+    body:JSON.stringify({...payload,username:AUTH_USER,password:ADMIN_PW,clientToday:today()})
   });
   if(!res.ok)return null;
   const j=await res.json();
