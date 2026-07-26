@@ -986,7 +986,7 @@ function buildApp(){
     <div class="nav-section">
       <div class="nav-label">${t('nav')}</div>
       ${isPractitioner()?`
-      <div class="nav-item ${S.activePage==='myday'?'active':''}" onclick="gotoPage('myday')"><i class="ti ti-calendar-check"></i>התורים שלי היום${(S.appointments||[]).length>0?`<span class="nav-badge">${(S.appointments||[]).length}</span>`:''}</div>
+      <div class="nav-item ${S.activePage==='myday'?'active':''}" onclick="gotoPage('myday')"><i class="ti ti-calendar-check"></i>התורים שלי היום${(S.appointments||[]).filter(a=>a.status!=='done').length>0?`<span class="nav-badge">${(S.appointments||[]).filter(a=>a.status!=='done').length}</span>`:''}</div>
       <div class="nav-item ${S.activePage==='mypatients'?'active':''}" onclick="gotoPage('mypatients')"><i class="ti ti-users"></i>הלקוחות שלי</div>
       `:`
       <div class="nav-item ${S.activePage==='dashboard'?'active':''}" onclick="gotoPage('dashboard')"><i class="ti ti-layout-dashboard"></i>${t('dashboard')}${urgentRems>0?`<span class="nav-badge">${urgentRems}</span>`:''}</div>
@@ -1518,7 +1518,7 @@ async function cancelStockRequest(id){
 function buildMyDay(){
   if(S.myDayApptId)return buildMyDayDetail(S.myDayApptId);
   const list=[...S.appointments].sort((a,b)=>(a.time||'').localeCompare(b.time||''));
-  let h=`<div class="dash-title">התורים שלי היום</div><div class="dash-sub">${fmtFull(today())} · ${list.length} תורים</div>`;
+  let h=`<div style="display:flex;justify-content:space-between;align-items:center"><div><div class="dash-title">התורים שלי היום</div><div class="dash-sub">${fmtFull(today())} · ${list.length} תורים</div></div><button class="btn btn-secondary btn-sm" onclick="doRefreshPractitioner()"><i class="ti ti-refresh"></i></button></div>`;
   if(!list.length)return h+`<div class="empty" style="padding:30px 0"><i class="ti ti-calendar-off" style="font-size:28px;display:block;margin-bottom:8px"></i>אין לך תורים משויכים היום</div>`;
   const statusMap={pending:['⏳ ממתין','var(--amber)'],confirmed:['✅ מאושר','var(--accent)'],done:['הסתיים','var(--text-sub)']};
   h+=list.map(a=>{
@@ -1568,9 +1568,21 @@ function buildMyDayDetail(id){
   }).join(''):`<div class="empty" style="padding:16px 0">אין היסטוריית טיפולים קודמת</div>`}
   `;
 }
+async function doRefreshPractitioner(){
+  await refreshPractitionerData();
+  renderRoot();
+  toast('עודכן');
+}
+async function refreshPractitionerData(){
+  const [appts,clients,treats]=await Promise.all([
+    sbFetch('appointments'), sbFetch('clients'), sbFetch('treatments')
+  ]);
+  S.appointments=appts||[]; S.clients=clients||[]; S.treatments=treats||[];
+  if(can('materials')){const tmats=await sbFetch('treatment_materials');S.treatmentMaterials=tmats||[];}
+}
 async function markMyDayDone(aid){
   const r=await apiCall({action:'update',table:'appointments',filters:[{column:'id',value:aid}],data:{status:'done'}});
-  if(r&&!r.error){S.appointments=S.appointments.map(a=>a.id===aid?{...a,status:'done'}:a);renderRoot();toast('התור סומן כהושלם')}
+  if(r&&!r.error){S.appointments=S.appointments.map(a=>a.id===aid?{...a,status:'done'}:a);renderRoot();toast('התור סומן כהושלם');await refreshPractitionerData();renderRoot();}
   else toast(t('noPermission'));
 }
 async function saveMyDayTreatmentType(aid){
@@ -1589,7 +1601,7 @@ function openMyDayLogTreatment(clientId){
 function buildMyPatients(){
   if(S.myPatientId)return buildPatientDetail(S.myPatientId);
   const list=[...S.clients].sort((a,b)=>(a.name||'').localeCompare(b.name||'','he'));
-  let h=`<div class="dash-title">הלקוחות שלי</div><div class="dash-sub">${list.length} לקוחות מקושרים</div>`;
+  let h=`<div style="display:flex;justify-content:space-between;align-items:center"><div><div class="dash-title">הלקוחות שלי</div><div class="dash-sub">${list.length} לקוחות מקושרים</div></div><button class="btn btn-secondary btn-sm" onclick="doRefreshPractitioner()"><i class="ti ti-refresh"></i></button></div>`;
   if(!list.length)return h+`<div class="empty" style="padding:30px 0"><i class="ti ti-users" style="font-size:28px;display:block;margin-bottom:8px"></i>אין עדיין לקוחות מקושרים אליך</div>`;
   h+=list.map(c=>{
     const lastTreat=clientTreatments(c.id)[0];
@@ -2307,6 +2319,7 @@ async function saveTreatment(){
     }
     S.treatMaterials=[];
     S.modal=null;S.activeTab='treatments';renderRoot();toast(t('tTreatSaved'));
+    if(isPractitioner()){await refreshPractitionerData();renderRoot();}
   }else toast(t('tErr'))
 }
 
