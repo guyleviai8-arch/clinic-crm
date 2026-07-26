@@ -868,7 +868,7 @@ function doLogout(){
   sessionStorage.clear();ME=null;ADMIN_PW='';
   S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,users:[],editUser:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:'',showNotif:false,viewForm:null,
     inventory:[],suppliers:[],itemSuppliers:[],stockRequests:[],editInvItem:null,editSupplier:null,editLink:null,editRequest:null,
-    treatMaterials:[],treatmentMaterials:[],myDayApptId:null};
+    treatMaterials:[],treatmentMaterials:[],myDayApptId:null,myPatientId:null};
   renderRoot();
 }
 
@@ -910,7 +910,7 @@ function sendManageLink(apptId){
 
 let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,users:[],editUser:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:'',showNotif:false,viewForm:null,
   inventory:[],suppliers:[],itemSuppliers:[],stockRequests:[],editInvItem:null,editSupplier:null,editLink:null,editRequest:null,
-  treatMaterials:[],treatmentMaterials:[],myDayApptId:null};
+  treatMaterials:[],treatmentMaterials:[],myDayApptId:null,myPatientId:null};
 
 function showLoading(){const el=document.getElementById('root');if(!document.getElementById('loading'))el.insertAdjacentHTML('beforeend','<div class="loading-overlay" id="loading"><div class="loading-spinner"></div><div class="loading-text">'+t('loading')+'</div></div>')}
 function hideLoading(){const el=document.getElementById('loading');if(el)el.remove()}
@@ -970,13 +970,13 @@ async function tryLogin(){
 
 // APP
 function buildApp(){
-  if(isPractitioner()&&S.activePage!=='myday')S.activePage='myday';
-  if(!isPractitioner()&&S.activePage==='myday'){S.activePage='dashboard';S.myDayApptId=null;}
+  if(isPractitioner()&&!['myday','mypatients'].includes(S.activePage))S.activePage='myday';
+  if(!isPractitioner()&&['myday','mypatients'].includes(S.activePage)){S.activePage='dashboard';S.myDayApptId=null;S.myPatientId=null;}
   const q=S.search.toLowerCase();
   const filtered=S.clients.filter(c=>c.name.toLowerCase().includes(q));
   const urgentRems=allPendingRem().filter(r=>duePri(r.due)!=='normal').length;
   const pendingAppts=S.appointments.filter(a=>a.status==='pending').length;
-  const pageLabels={dashboard:t('dashboard'),calendar:t('calendar'),clients:t('clients'),users:t('usersTitle'),inventory:'מלאי וספקים',myday:'התורים שלי היום'};
+  const pageLabels={dashboard:t('dashboard'),calendar:t('calendar'),clients:t('clients'),users:t('usersTitle'),inventory:'מלאי וספקים',myday:'התורים שלי היום',mypatients:'הלקוחות שלי'};
 
 
   const sidebar=`<div class="sidebar ${S.sidebarOpen?'open':''}" id="sidebar">
@@ -986,7 +986,8 @@ function buildApp(){
     <div class="nav-section">
       <div class="nav-label">${t('nav')}</div>
       ${isPractitioner()?`
-      <div class="nav-item active"><i class="ti ti-calendar-check"></i>התורים שלי היום${(S.appointments||[]).length>0?`<span class="nav-badge">${(S.appointments||[]).length}</span>`:''}</div>
+      <div class="nav-item ${S.activePage==='myday'?'active':''}" onclick="gotoPage('myday')"><i class="ti ti-calendar-check"></i>התורים שלי היום${(S.appointments||[]).length>0?`<span class="nav-badge">${(S.appointments||[]).length}</span>`:''}</div>
+      <div class="nav-item ${S.activePage==='mypatients'?'active':''}" onclick="gotoPage('mypatients')"><i class="ti ti-users"></i>הלקוחות שלי</div>
       `:`
       <div class="nav-item ${S.activePage==='dashboard'?'active':''}" onclick="gotoPage('dashboard')"><i class="ti ti-layout-dashboard"></i>${t('dashboard')}${urgentRems>0?`<span class="nav-badge">${urgentRems}</span>`:''}</div>
       <div class="nav-item ${S.activePage==='calendar'?'active':''}" onclick="gotoPage('calendar')"><i class="ti ti-calendar-event"></i>${t('calendar')}${pendingAppts>0?`<span class="nav-badge">${pendingAppts}</span>`:''}</div>
@@ -1010,7 +1011,8 @@ function buildApp(){
     <button class="tb-btn" onclick="toggleNotif()" style="position:relative"><i class="ti ti-notebook"></i>${getNotifications().length>0?`<span style="position:absolute;top:2px;left:2px;background:#E24B4A;color:#fff;font-size:9px;font-weight:700;min-width:15px;height:15px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 3px">${getNotifications().length}</span>`:''}</button>
   </div>`;
   const bottomNav=isPractitioner()?`<div class="bottom-nav"><div class="bn-row">
-    <button class="bn-item active"><i class="ti ti-calendar-check"></i>היום</button>
+    <button class="bn-item ${S.activePage==='myday'?'active':''}" onclick="gotoPage('myday')"><i class="ti ti-calendar-check"></i>היום</button>
+    <button class="bn-item ${S.activePage==='mypatients'?'active':''}" onclick="gotoPage('mypatients')"><i class="ti ti-users"></i>לקוחות</button>
   </div></div>`:`<div class="bottom-nav"><div class="bn-row">
     <button class="bn-item ${S.activePage==='dashboard'?'active':''}" onclick="gotoPage('dashboard')"><span class="bn-dot"><i class="ti ti-layout-dashboard"></i>${urgentRems>0?'<span class="bn-dot-badge"></span>':''}</span>דשבורד</button>
     <button class="bn-item ${S.activePage==='calendar'?'active':''}" onclick="gotoPage('calendar')"><span class="bn-dot"><i class="ti ti-calendar-event"></i>${pendingAppts>0?'<span class="bn-dot-badge"></span>':''}</span>${t('calendarShort')}</button>
@@ -1022,6 +1024,7 @@ function buildApp(){
   let pageContent='';
   if(S.activePage==='dashboard'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildDashboard()}</div></div>`;}
   else if(S.activePage==='myday'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildMyDay()}</div></div>`;}
+  else if(S.activePage==='mypatients'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildMyPatients()}</div></div>`;}
   else if(S.activePage==='users'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildUsers()}</div></div>`;}
   else if(S.activePage==='inventory'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildInventory()}</div></div>`;}
   else if(S.activePage==='calendar'){pageContent=`<div style="flex:1;overflow:hidden;display:flex;flex-direction:column"><div class="cal-wrap page-pad" style="flex:1">${buildCalendar()}</div></div>`;}
@@ -1580,6 +1583,50 @@ function openMyDayLogTreatment(clientId){
   if(!clientId){toast('הלקוח לא מקושר לרשומת לקוח - לא ניתן לרשום טיפול');return}
   S.activeId=clientId;
   showModal('newTreatment');
+}
+
+// ===================== מסך מטפל - "הלקוחות שלי" (כל לקוח שהיה משויך אי פעם) =====================
+function buildMyPatients(){
+  if(S.myPatientId)return buildPatientDetail(S.myPatientId);
+  const list=[...S.clients].sort((a,b)=>(a.name||'').localeCompare(b.name||'','he'));
+  let h=`<div class="dash-title">הלקוחות שלי</div><div class="dash-sub">${list.length} לקוחות מקושרים</div>`;
+  if(!list.length)return h+`<div class="empty" style="padding:30px 0"><i class="ti ti-users" style="font-size:28px;display:block;margin-bottom:8px"></i>אין עדיין לקוחות מקושרים אליך</div>`;
+  h+=list.map(c=>{
+    const lastTreat=clientTreatments(c.id)[0];
+    return `<div class="card" style="display:flex;align-items:center;gap:13px;cursor:pointer" onclick="openMyPatient('${c.id}')">
+      <div class="av" style="background:${PALETTES[(c.color||0)%PALETTES.length].bg};color:${PALETTES[(c.color||0)%PALETTES.length].c}">${escHtml((c.name||'?')[0])}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14.5px;font-weight:600">${escHtml(c.name||'')}</div>
+        <div style="font-size:12.5px;color:var(--text-sub);margin-top:3px">${lastTreat?`טיפול אחרון: ${escHtml(lastTreat.name)} · ${fmt(lastTreat.date)}`:'אין טיפולים תועדו עדיין'}</div>
+      </div>
+      <i class="ti ti-chevron-left" style="color:var(--text-sub)"></i>
+    </div>`;
+  }).join('');
+  return h;
+}
+function openMyPatient(id){S.myPatientId=id;renderRoot()}
+function backToMyPatients(){S.myPatientId=null;renderRoot()}
+
+function buildPatientDetail(id){
+  const c=S.clients.find(x=>x.id===id);
+  if(!c){S.myPatientId=null;return buildMyPatients();}
+  const history=clientTreatments(id);
+  return `<button class="btn btn-secondary btn-sm" onclick="backToMyPatients()"><i class="ti ti-arrow-right"></i> חזרה לרשימה</button>
+  <div class="card" style="margin-top:14px;display:flex;align-items:center;gap:12px">
+    <div class="av" style="width:44px;height:44px;font-size:15px;background:${PALETTES[(c.color||0)%PALETTES.length].bg};color:${PALETTES[(c.color||0)%PALETTES.length].c}">${escHtml((c.name||'?')[0])}</div>
+    <div style="font-size:17px;font-weight:700">${escHtml(c.name||'')}</div>
+  </div>
+
+  <div class="sec-label" style="margin-top:18px">רישום טיפול שבוצע</div>
+  <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="openMyDayLogTreatment('${c.id}')"><i class="ti ti-needle"></i> בחר טיפול + חומרים</button>
+
+  <div class="sec-label" style="margin-top:18px">היסטוריית טיפולים</div>
+  ${history.length?history.map(tr=>{
+    const mats=(S.treatmentMaterials||[]).filter(m=>m.treatment_id===tr.id);
+    const matsHtml=mats.length?`<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:5px">${mats.map(m=>{const it=S.inventory.find(i=>i.id===m.inventory_id);return `<span style="background:var(--primary-light);color:var(--primary);font-size:11px;padding:3px 9px;border-radius:99px">${it?escHtml(it.name):'?'} × ${m.quantity}</span>`;}).join('')}</div>`:'';
+    return `<div class="card treat-card"><div class="treat-date">${fmt(tr.date)}</div><div class="treat-body"><div class="treat-name">${escHtml(tr.name)}</div>${tr.dose&&tr.dose!=='—'?`<div class="treat-detail">${escHtml(tr.dose)}</div>`:''}${tr.notes?`<div class="treat-detail" style="font-style:italic;margin-top:3px">${escHtml(tr.notes)}</div>`:''}${matsHtml}</div></div>`;
+  }).join(''):`<div class="empty" style="padding:16px 0">אין היסטוריית טיפולים קודמת</div>`}
+  `;
 }
 // ===================== סוף מסך מטפל =====================
 
