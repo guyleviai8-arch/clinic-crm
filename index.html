@@ -652,6 +652,17 @@ function can(what){
   return true;
 }
 function isPractitioner(){return ME&&ME.role==='staff'}
+function suggestedProviderName(){
+  if(isPractitioner())return ME.name||ME.username||'';
+  // מנהל/קבלה - ננסה למצוא תור פעיל של הלקוח עם מטפל משויך, ולהציע את שמו
+  const cid=S.activeId;
+  const appt=(S.appointments||[]).find(a=>a.client_id===cid&&a.assigned_staff_id);
+  if(appt){
+    const u=(S.users||[]).find(x=>x.id===appt.assigned_staff_id);
+    if(u)return u.name||u.username||'';
+  }
+  return '';
+}
 const AUTH_KEY='clinic_crm_auth';
 
 const API_URL=`${SUPABASE_URL}/functions/v1/clinic-api`;
@@ -2019,7 +2030,7 @@ function buildModal(){
       <div class="modal-title"><i class="ti ti-needle"></i> ${t('registerTreat')}</div>
       <div class="fg"><div class="fl">${t('treatNameReq')}</div><input class="fi" id="t-name" placeholder="${t('phTreatName')}" dir="rtl" autofocus></div>
       <div class="fg"><div class="fl">${t('date')}</div><input class="fi" id="t-date" type="date" value="${today()}"></div>
-      <div class="fg"><div class="fl">${t('provider')}</div><input class="fi" id="t-prov" placeholder='ד"ר ...' dir="rtl"></div>
+      <div class="fg"><div class="fl">${t('provider')}</div><input class="fi" id="t-prov" placeholder='ד"ר ...' dir="rtl" value="${escHtml(suggestedProviderName())}" ${isPractitioner()?'readonly style="background:var(--bg);color:var(--text-sub)"':''}></div>
       <div class="fg"><div class="fl">${t('dose')}</div><input class="fi" id="t-dose" placeholder="${t('phDoseEx')}" dir="rtl"></div>
       <div class="fg"><div class="fl">${t('notes')}</div><textarea class="fi" id="t-notes" rows="2" dir="rtl"></textarea></div>
       ${can('money')?`<div class="fg"><div class="fl">${t('price')}</div><input class="fi" id="t-price" type="number" placeholder="0" min="0"></div>`:''}
@@ -2348,14 +2359,35 @@ async function saveAppt(){
 }
 
 function confirmAppt(id){S.modal='confirmassign-'+id;renderRoot()}
+function normPhone(p){return (p||'').replace(/\D/g,'')}
+async function findOrCreateClientId(appt){
+  if(appt.client_id)return appt.client_id; // כבר מקושר - לא נוגעים
+  const name=(appt.client_name||'').trim();
+  const phoneN=normPhone(appt.client_phone);
+  if(name&&phoneN){
+    const existing=S.clients.find(c=>c.name&&c.name.trim()===name&&normPhone(c.phone)===phoneN);
+    if(existing)return existing.id;
+  }
+  if(!name)return null;
+  // אין התאמה - יוצרים לקוח חדש אוטומטית מנתוני התור
+  const res=await sbPost('clients',{name,phone:appt.client_phone||'',email:appt.client_email||'',tier:'new',color:S.clients.length%8,consent:false,notes:'',allergies:'אין ידועות',skin:'לא ידוע'});
+  if(res&&res[0]){S.clients.unshift(res[0]);return res[0].id;}
+  return null;
+}
 async function doConfirmAppt(id){
   const sel=document.getElementById('ca-staff');
   const staffId=sel?sel.value:'';
   if(!staffId){alert('יש לבחור מטפל לשיוך התור');return}
-  await sbPatch('appointments',`?id=eq.${id}`,{status:'confirmed',assigned_staff_id:staffId});
   const appt=S.appointments.find(a=>a.id===id);
-  S.appointments=S.appointments.map(a=>a.id===id?{...a,status:'confirmed',assigned_staff_id:staffId}:a);
-  S.modal=null;renderRoot();toast('התור אושר ושויך למטפל');
+  const patch={status:'confirmed',assigned_staff_id:staffId};
+  let autoLinked=false;
+  if(appt&&!appt.client_id){
+    const clientId=await findOrCreateClientId(appt);
+    if(clientId){patch.client_id=clientId;autoLinked=true;}
+  }
+  await sbPatch('appointments',`?id=eq.${id}`,patch);
+  S.appointments=S.appointments.map(a=>a.id===id?{...a,...patch}:a);
+  S.modal=null;renderRoot();toast(autoLinked?'התור אושר, שויך למטפל, והלקוח קושר/נוצר אוטומטית':'התור אושר ושויך למטפל');
   if(appt&&appt.client_email){
     sendApptEmail({...appt,status:'confirmed'}).then(()=>toast(t('tEmailToClient')));
   }
