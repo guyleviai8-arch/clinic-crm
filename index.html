@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -608,7 +608,7 @@ function t(key,vars){let s=(I18N[LANG]&&I18N[LANG][key])||I18N.he[key]||key;if(v
 function toggleLangMenu(){const el=document.getElementById('lang-switch');if(el)el.classList.toggle('open');}
 function setLang(l){LANG=l;try{localStorage.setItem('clinic_lang',l);}catch(e){}
   const el=document.getElementById('lang-switch');if(el)el.classList.remove('open');
-  document.documentElement.lang=LANG;document.body.dir=I18N[LANG].dir;
+  document.documentElement.lang=LANG;document.documentElement.dir=I18N[LANG].dir;document.body.dir=I18N[LANG].dir;
   if(typeof S!=='undefined'&&S.calWeek)S.calWeek=weekStart(addDays(S.calWeek,3));
   renderRoot();}
 function langMenuHTML(){
@@ -1119,36 +1119,22 @@ async function loadUsers(){
 }
 
 function buildGuide(){
-  const steps=[
-    {ic:'ti-login',t:'התחברות',d:'נכנסים לכתובת המערכת ומתחברים עם שם המשתמש והסיסמה שקיבלתם. אפשר לבחור את שפת המערכת מהתפריט.'},
-    {ic:'ti-layout-dashboard',t:'המסך הראשי (דשבורד)',d:'תמונת מצב של היום — מספר הלקוחות, התורים, ההכנסה ותורים שממתינים לאישור. מאשרים תור בלחיצה על ✓ (הלקוח מקבל מייל) או דוחים ב-✗.'},
-    {ic:'ti-users',t:'ניהול לקוחות',d:'רשימת כל הלקוחות עם חיפוש מהיר. לחיצה על לקוח פותחת כרטיס מלא: היסטוריית טיפולים, הערות קליניות, תמונות וטפסי הסכמה. להוספה — כפתור "לקוח חדש".'},
-    {ic:'ti-calendar-event',t:'יומן וקביעת תורים',d:'היומן מציג את כל התורים בתצוגה שבועית לפי סטטוס. לקביעת תור לוחצים "תור" וממלאים שם, טלפון, טיפול, תאריך ושעה. אם מולא אימייל — הלקוח מקבל אישור אוטומטי.'},
-    {ic:'ti-link',t:'הזמנת תור אונליין',d:'ב"קישור הזמנה" מקבלים לינק אישי לשליחה ללקוחות (גם בוואטסאפ). הלקוח קובע תור בעצמו, והוא נכנס ליומן כ"ממתין לאישור".'},
-    {ic:'ti-notebook',t:'יומן התראות',d:'הפעמון בפינה מרכז את כל ההתראות — תורים שממתינים לאישור, ימי הולדת של לקוחות ותזכורות.'},
-    {ic:'ti-user-shield',t:'משתמשים והרשאות',d:'המנהל מוסיף עובדים ונותן לכל אחד תפקיד: מנהל, מטפל או קבלה. כל עובד יכול לנהל רק את מי שמתחתיו — כך המידע הרגיש נשאר מוגן.'}
-  ];
-  const cards=steps.map((s,i)=>`
+  const GUIDE_L={"he": {"dir": "rtl", "hero": "הדרכה — איך עובדים עם המערכת", "sub": "צעד אחר צעד, עם צילומי מסך מהמערכת. אפשר לחזור לכאן בכל רגע.", "tipL": "טיפ:", "tip": "בטלפון אפשר להתקין את המערכת כאפליקציה — פותחים את הכתובת בדפדפן ובוחרים «הוסף למסך הבית».", "titles": ["התחברות", "המסך הראשי (דשבורד)", "ניווט במערכת", "ניהול לקוחות", "יומן וקביעת תורים", "הזמנת תור אונליין", "משתמשים והרשאות"], "descs": ["נכנסים לכתובת המערכת ומתחברים עם שם המשתמש והסיסמה שקיבלתם מהמנהל. אפשר לבחור את שפת המערכת למעלה — עברית, רוסית, גאורגית או אנגלית.", "מיד אחרי הכניסה מקבלים תמונת מצב של היום: מספר הלקוחות, התורים והטיפולים, ההכנסה, ותורים שממתינים לאישור. תור שנקבע אונליין נכנס כ«ממתין לאישור» — לחיצה על ✓ מאשרת (והלקוח מקבל מייל) ו-✗ דוחה.", "כפתור התפריט (☰) בפינה פותח את כל חלקי המערכת: דשבורד, יומן תורים, לקוחות, קישור הזמנה, משתמשים והדרכה. בתחתית המסך יש גם סרגל ניווט מהיר.", "במסך «לקוחות» רואים את כל הלקוחות עם חיפוש מהיר. לחיצה על לקוח פותחת כרטיס מלא: סיכום הכנסות וטיפולים, התור הבא, הערות קליניות, היסטוריה, תמונות וטפסי הסכמה חתומים. להוספה — «לקוח חדש».", "היומן מציג את כל התורים בתצוגה שבועית, כשהצבע מסמן את הסטטוס. לקביעת תור לוחצים «תור» וממלאים שם, טלפון, טיפול, תאריך ושעה. אם מולא אימייל — הלקוח מקבל אישור אוטומטי.", "ב«קישור הזמנה» מקבלים לינק אישי של הקליניקה ושולחים אותו ללקוחות (או בוואטסאפ). הלקוח רואה דף מעוצב בשם הקליניקה, בוחר טיפול, תאריך ושעה — והתור נכנס אליכם כ«ממתין לאישור».", "ב«משתמשים» המנהל מוסיף עובדים ונותן לכל אחד תפקיד: מנהל, מטפל או קבלה. כל עובד יכול לנהל רק את מי שמתחתיו — כך המידע הרגיש של הלקוחות נשאר מוגן."]}, "ru": {"dir": "ltr", "hero": "Инструкция — как работать с системой", "sub": "Шаг за шагом, со скриншотами из системы. Сюда можно вернуться в любой момент.", "tipL": "Совет:", "tip": "На телефоне систему можно установить как приложение — откройте адрес в браузере и выберите «Добавить на главный экран».", "titles": ["Вход", "Главный экран (Дашборд)", "Навигация", "Управление клиентами", "Календарь и записи", "Онлайн-запись", "Пользователи и права"], "descs": ["Зайдите по адресу системы и войдите с именем пользователя и паролем, которые вы получили от администратора. Язык системы можно выбрать вверху — иврит, русский, грузинский или английский.", "Сразу после входа вы видите сводку за сегодня: число клиентов, записей и процедур, доход и записи, ожидающие подтверждения. Запись, сделанная онлайн, поступает как «Ожидает подтверждения» — нажмите ✓, чтобы подтвердить (клиент получит письмо), или ✗, чтобы отклонить.", "Кнопка меню (☰) в углу открывает все разделы системы: Дашборд, Записи, Клиенты, Ссылка для записи, Пользователи и Инструкция. Внизу также есть панель быстрой навигации.", "На экране «Клиенты» видны все клиенты с быстрым поиском. Нажатие на клиента открывает полную карточку: сводку по доходу и процедурам, ближайшую запись, клинические заметки, историю, фото и подписанные формы согласия. Чтобы добавить — «Новый клиент».", "Календарь показывает все записи в недельном виде, цвет обозначает статус. Чтобы создать запись, нажмите «Запись» и заполните имя, телефон, процедуру, дату и время. Если указан email, клиент получит автоматическое подтверждение.", "В разделе «Ссылка для записи» вы получаете личную ссылку клиники и отправляете её клиентам (или через WhatsApp). Клиент видит оформленную страницу, выбирает процедуру, дату и время — и запись поступает к вам как «Ожидает подтверждения».", "В разделе «Пользователи» администратор добавляет сотрудников и назначает роль: администратор, специалист или ресепшн. Каждый сотрудник управляет только теми, кто ниже его, — так конфиденциальные данные клиентов остаются защищёнными."]}, "ka": {"dir": "ltr", "hero": "სახელმძღვანელო — როგორ ვიმუშაოთ სისტემაში", "sub": "ნაბიჯ-ნაბიჯ, სისტემის სქრინშოტებით. აქ ნებისმიერ დროს შეგიძლიათ დაბრუნდეთ.", "tipL": "რჩევა:", "tip": "ტელეფონზე სისტემის აპლიკაციად დაყენება შეგიძლიათ — გახსენით მისამართი ბრაუზერში და აირჩიეთ «მთავარ ეკრანზე დამატება».", "titles": ["შესვლა", "მთავარი ეკრანი (დეშბორდი)", "ნავიგაცია", "კლიენტების მართვა", "კალენდარი და ჩანაწერები", "ონლაინ ჩაწერა", "მომხმარებლები და უფლებები"], "descs": ["შედით სისტემის მისამართზე და გაიარეთ ავტორიზაცია მომხმარებლის სახელითა და პაროლით, რომელიც ადმინისტრატორისგან მიიღეთ. სისტემის ენა ზემოთ შეგიძლიათ აირჩიოთ — ებრაული, რუსული, ქართული ან ინგლისური.", "შესვლისთანავე ხედავთ დღის მიმოხილვას: კლიენტების, ჩანაწერებისა და პროცედურების რაოდენობას, შემოსავალს და დასადასტურებელ ჩანაწერებს. ონლაინ გაკეთებული ჩანაწერი შემოდის როგორც «დასადასტურებელი» — დააჭირეთ ✓ დასადასტურებლად (კლიენტი მიიღებს ელფოსტას) ან ✗ უარსაყოფად.", "მენიუს ღილაკი (☰) კუთხეში ხსნის სისტემის ყველა ნაწილს: დეშბორდი, ჩანაწერები, კლიენტები, ჩაწერის ბმული, მომხმარებლები და სახელმძღვანელო. ქვემოთ ასევე არის სწრაფი ნავიგაციის პანელი.", "ეკრანზე «კლიენტები» ჩანს ყველა კლიენტი სწრაფი ძიებით. კლიენტზე დაჭერა ხსნის სრულ ბარათს: შემოსავლისა და პროცედურების მიმოხილვას, მომდევნო ჩანაწერს, კლინიკურ შენიშვნებს, ისტორიას, ფოტოებსა და ხელმოწერილ თანხმობის ფორმებს. დასამატებლად — «ახალი კლიენტი».", "კალენდარი აჩვენებს ყველა ჩანაწერს კვირის ხედში, ფერი აღნიშნავს სტატუსს. ჩასაწერად დააჭირეთ «ჩანაწერს» და შეავსეთ სახელი, ტელეფონი, პროცედურა, თარიღი და დრო. თუ ელფოსტა შევსებულია, კლიენტი მიიღებს ავტომატურ დადასტურებას.", "«ჩაწერის ბმულში» იღებთ კლინიკის პირად ბმულს და უგზავნით კლიენტებს (ან WhatsApp-ით). კლიენტი ხედავს გაფორმებულ გვერდს, ირჩევს პროცედურას, თარიღსა და დროს — და ჩანაწერი თქვენთან შემოდის როგორც «დასადასტურებელი».", "«მომხმარებლებში» ადმინისტრატორი ამატებს თანამშრომლებს და თითოეულს ანიჭებს როლს: ადმინისტრატორი, სპეციალისტი ან მიმღები. თითოეულ თანამშრომელს შეუძლია მართოს მხოლოდ მასზე დაბლა მყოფები — ასე კლიენტების სენსიტიური მონაცემები დაცული რჩება."]}, "en": {"dir": "ltr", "hero": "Guide — How to use the system", "sub": "Step by step, with screenshots from the system. You can come back here anytime.", "tipL": "Tip:", "tip": "On a phone you can install the system as an app — open the address in the browser and choose “Add to Home Screen”.", "titles": ["Logging in", "Main screen (Dashboard)", "Navigation", "Managing clients", "Calendar & appointments", "Online booking", "Users & permissions"], "descs": ["Go to the system address and log in with the username and password you received from the manager. You can choose the system language at the top — Hebrew, Russian, Georgian or English.", "Right after logging in you get a snapshot of today: number of clients, appointments and treatments, revenue, and appointments awaiting approval. An appointment booked online arrives as “Pending approval” — tap ✓ to approve (the client gets an email) or ✗ to decline.", "The menu button (☰) in the corner opens every part of the system: Dashboard, Appointments, Clients, Booking link, Users and Guide. There is also a quick navigation bar at the bottom.", "The “Clients” screen shows all clients with quick search. Tapping a client opens the full card: revenue and treatment summary, next appointment, clinical notes, history, photos and signed consent forms. To add — “New client”.", "The calendar shows all appointments in a weekly view, with color marking the status. To book, tap “Appointment” and fill in name, phone, treatment, date and time. If an email is entered, the client gets an automatic confirmation.", "In “Booking link” you get a personal link for the clinic and send it to clients (or via WhatsApp). The client sees a branded page, picks a treatment, date and time — and the appointment arrives to you as “Pending approval”.", "In “Users”, the manager adds staff and gives each a role: manager, practitioner or reception. Each staff member can manage only those below them — so sensitive client data stays protected."]}};
+  const G=GUIDE_L[LANG]||GUIDE_L.he;
+  const dir=(typeof I18N!=='undefined'&&I18N[LANG]&&I18N[LANG].dir)||'rtl';
+  const cards=G.titles.map((ti,i)=>`
     <div style="display:flex;gap:14px;align-items:flex-start;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px 18px">
-      <div style="flex:0 0 auto;width:46px;height:46px;border-radius:12px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;position:relative">
-        <i class="ti ${s.ic}" style="font-size:24px"></i>
-        <span style="position:absolute;top:-6px;right:-6px;background:var(--primary);color:#fff;font-size:11px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center">${i+1}</span>
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px">${s.t}</div>
-        <div style="font-size:14px;color:var(--text-sub);line-height:1.6">${s.d}</div>
-      </div>
+      <div style="flex:0 0 auto;width:40px;height:40px;border-radius:11px;background:linear-gradient(140deg,var(--primary),#41b6c6);color:#fff;font-weight:700;font-size:17px;display:flex;align-items:center;justify-content:center">${i+1}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px">${ti}</div><div style="font-size:14px;color:var(--text-sub);line-height:1.6">${G.descs[i]}</div></div>
     </div>`).join('');
-  return`
-    <div style="max-width:720px;margin:0 auto">
+  return `
+    <div dir="${dir}" style="max-width:720px;margin:0 auto;font-family:'Heebo',sans-serif">
       <div style="background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff;border-radius:16px;padding:22px 24px;margin-bottom:18px">
-        <div style="font-size:20px;font-weight:700;margin-bottom:6px"><i class="ti ti-help-circle"></i> הדרכה — איך עובדים עם המערכת</div>
-        <div style="font-size:14px;opacity:.9">צעדים קצרים שיעשו לכם סדר. אפשר לחזור לכאן בכל רגע.</div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:6px">📘 ${G.hero}</div>
+        <div style="font-size:14px;opacity:.9">${G.sub}</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">${cards}</div>
-      <div style="margin-top:18px;background:var(--primary-light);border:1px solid var(--border-strong);border-radius:12px;padding:14px 16px;font-size:13.5px;color:var(--text-sub)">
-        <b style="color:var(--primary-dark)">טיפ:</b> בטלפון אפשר להתקין את המערכת כאפליקציה — פותחים את הכתובת בדפדפן ובוחרים "הוסף למסך הבית".
-      </div>
+      <div style="margin-top:18px;background:var(--primary-light);border:1px solid var(--border-strong);border-radius:12px;padding:14px 16px;font-size:13.5px;color:var(--text-sub)"><b style="color:var(--primary-dark)">${G.tipL}</b> ${G.tip}</div>
     </div>`;
 }
 
@@ -2021,6 +2007,7 @@ if(isLoggedIn()){
   AUTH_USER=sessionStorage.getItem('clinic_user')||'admin';
   try{ME=JSON.parse(sessionStorage.getItem('clinic_me')||'null');}catch(e){ME=null;}
 }
+try{document.documentElement.dir=I18N[LANG].dir;document.documentElement.lang=LANG;if(document.body)document.body.dir=I18N[LANG].dir;}catch(e){}
 renderRoot();
 if(isLoggedIn())loadAll();
 // ===== PWA =====
