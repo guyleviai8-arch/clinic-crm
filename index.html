@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="he">
 <head>
@@ -312,7 +311,7 @@ const I18N={
  he:{dir:'rtl',
   welcome:'ברוכים הבאים 👋',loginSub:'התחברו כדי להמשיך',username:'שם משתמש',password:'סיסמה',
   login:'כניסה',loggingIn:'מתחבר…',loginErr:'שם משתמש או סיסמה שגויים',sysName:'מערכת ניהול',sysFull:'מערכת ניהול קליניקה',
-  nav:'ניווט',dashboard:'דשבורד',calendar:'יומן תורים',calendarShort:'יומן',clients:'לקוחות',bookingLink:'קישור הזמנה',
+  nav:'ניווט',dashboard:'דשבורד',calendar:'יומן תורים',calendarShort:'יומן',clients:'לקוחות',bookingLink:'קישור הזמנה',guide:'הדרכה',
   newClient:'לקוח חדש',logout:'יציאה',loading:'טוען נתונים…',
   hello:'שלום',apptsToday:'תורים היום',noApptsToday:'אין תורים היום',newAppt:'תור חדש',appt:'תור',client:'לקוח',
   kpiClients:'לקוחות',kpiTreatments:'טיפולים',kpiRevenue:'הכנסה',kpiPending:'תורים ממתינים',
@@ -386,7 +385,7 @@ const I18N={
  ru:{dir:'ltr',
   welcome:'Добро пожаловать 👋',loginSub:'Войдите, чтобы продолжить',username:'Имя пользователя',password:'Пароль',
   login:'Вход',loggingIn:'Вход…',loginErr:'Неверное имя пользователя или пароль',sysName:'Система управления',sysFull:'Система управления клиникой',
-  nav:'Навигация',dashboard:'Панель',calendar:'Календарь записей',calendarShort:'Календарь',clients:'Клиенты',bookingLink:'Ссылка на запись',
+  nav:'Навигация',dashboard:'Панель',calendar:'Календарь записей',calendarShort:'Календарь',clients:'Клиенты',bookingLink:'Ссылка на запись',guide:'Обучение',
   newClient:'Новый клиент',logout:'Выход',loading:'Загрузка данных…',
   hello:'Здравствуйте',apptsToday:'Записи на сегодня',noApptsToday:'Сегодня записей нет',newAppt:'Новая запись',appt:'Запись',client:'Клиент',
   kpiClients:'Клиенты',kpiTreatments:'Процедуры',kpiRevenue:'Доход',kpiPending:'Ожидают',
@@ -459,7 +458,7 @@ const I18N={
  ka:{dir:'ltr',
   welcome:'კეთილი იყოს თქვენი მობრძანება 👋',loginSub:'შედით გასაგრძელებლად',username:'მომხმარებელი',password:'პაროლი',
   login:'შესვლა',loggingIn:'შესვლა…',loginErr:'არასწორი მომხმარებელი ან პაროლი',sysName:'მართვის სისტემა',sysFull:'კლინიკის მართვის სისტემა',
-  nav:'ნავიგაცია',dashboard:'პანელი',calendar:'ჯავშნების კალენდარი',calendarShort:'კალენდარი',clients:'კლიენტები',bookingLink:'ჩაწერის ბმული',
+  nav:'ნავიგაცია',dashboard:'პანელი',calendar:'ჯავშნების კალენდარი',calendarShort:'კალენდარი',clients:'კლიენტები',bookingLink:'ჩაწერის ბმული',guide:'სახელმძღვანელო',
   newClient:'ახალი კლიენტი',logout:'გასვლა',loading:'მონაცემები იტვირთება…',
   hello:'გამარჯობა',apptsToday:'დღევანდელი ჯავშნები',noApptsToday:'დღეს ჯავშნები არ არის',newAppt:'ახალი ჯავშანი',appt:'ჯავშანი',client:'კლიენტი',
   kpiClients:'კლიენტები',kpiTreatments:'პროცედურები',kpiRevenue:'შემოსავალი',kpiPending:'მოლოდინში',
@@ -532,7 +531,7 @@ const I18N={
  en:{dir:'ltr',
   welcome:'Welcome 👋',loginSub:'Log in to continue',username:'Username',password:'Password',
   login:'Log in',loggingIn:'Logging in…',loginErr:'Incorrect username or password',sysName:'Management System',sysFull:'Clinic Management System',
-  nav:'Navigation',dashboard:'Dashboard',calendar:'Appointments',calendarShort:'Calendar',clients:'Clients',bookingLink:'Booking Link',
+  nav:'Navigation',dashboard:'Dashboard',calendar:'Appointments',calendarShort:'Calendar',clients:'Clients',bookingLink:'Booking Link',guide:'Guide',
   newClient:'New Client',logout:'Log out',loading:'Loading data…',
   hello:'Hello',apptsToday:"Today's Appointments",noApptsToday:'No appointments today',newAppt:'New Appointment',appt:'Appointment',client:'Client',
   kpiClients:'Clients',kpiTreatments:'Treatments',kpiRevenue:'Revenue',kpiPending:'Pending',
@@ -645,23 +644,9 @@ function can(what){
   const r=myRank();
   if(what==='money')return r>=3;
   if(what==='delete')return r>=3;
-  if(what==='users')return r>=3;
+  if(what==='users')return r>=2;
   if(what==='treatments')return r>=2;
-  if(what==='inventory')return r>=3;
-  if(what==='materials')return r>=2;
   return true;
-}
-function isPractitioner(){return ME&&ME.role==='staff'}
-function suggestedProviderName(){
-  if(isPractitioner())return ME.name||ME.username||'';
-  // מנהל/קבלה - ננסה למצוא תור פעיל של הלקוח עם מטפל משויך, ולהציע את שמו
-  const cid=S.activeId;
-  const appt=(S.appointments||[]).find(a=>a.client_id===cid&&a.assigned_staff_id);
-  if(appt){
-    const u=(S.users||[]).find(x=>x.id===appt.assigned_staff_id);
-    if(u)return u.name||u.username||'';
-  }
-  return '';
 }
 const AUTH_KEY='clinic_crm_auth';
 
@@ -673,7 +658,7 @@ async function apiCall(payload){
   const res=await fetch(API_URL,{
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
-    body:JSON.stringify({...payload,username:AUTH_USER,password:ADMIN_PW,clientToday:today()})
+    body:JSON.stringify({...payload,username:AUTH_USER,password:ADMIN_PW})
   });
   if(!res.ok)return null;
   const j=await res.json();
@@ -875,13 +860,7 @@ async function doLogin(u,p){
   }catch(e){console.log('Login error:',e)}
   return false;
 }
-function doLogout(){
-  sessionStorage.clear();ME=null;ADMIN_PW='';
-  S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,users:[],editUser:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:'',showNotif:false,viewForm:null,
-    inventory:[],suppliers:[],itemSuppliers:[],stockRequests:[],editInvItem:null,editSupplier:null,editLink:null,editRequest:null,
-    treatMaterials:[],treatmentMaterials:[],myDayApptId:null,myPatientId:null};
-  renderRoot();
-}
+function doLogout(){sessionStorage.clear();ME=null;ADMIN_PW='';renderRoot()}
 
 // UTILS
 function localISO(d){const dt=new Date(d);const off=dt.getTimezoneOffset();const local=new Date(dt.getTime()-off*60000);return local.toISOString().slice(0,10)}
@@ -919,9 +898,7 @@ function sendManageLink(apptId){
   waOpen(a.client_phone, wa(L,'waManage',{name:a.client_name,treat:a.treatment,date:a.date,time:a.time,url:getManageUrl(apptId)}));
 }
 
-let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,users:[],editUser:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:'',showNotif:false,viewForm:null,
-  inventory:[],suppliers:[],itemSuppliers:[],stockRequests:[],editInvItem:null,editSupplier:null,editLink:null,editRequest:null,
-  treatMaterials:[],treatmentMaterials:[],myDayApptId:null,myPatientId:null};
+let S={clients:[],appointments:[],treatments:[],reminders:[],forms:[],sendForm:null,users:[],editUser:null,activeId:null,activeTab:'overview',activePage:'dashboard',modal:null,search:'',newSrc:'',calWeek:weekStart(new Date()),prefillDate:'',prefillTime:'',sidebarOpen:false,editingClient:false,clientListView:true,apptSearch:'',showNotif:false,viewForm:null};
 
 function showLoading(){const el=document.getElementById('root');if(!document.getElementById('loading'))el.insertAdjacentHTML('beforeend','<div class="loading-overlay" id="loading"><div class="loading-spinner"></div><div class="loading-text">'+t('loading')+'</div></div>')}
 function hideLoading(){const el=document.getElementById('loading');if(el)el.remove()}
@@ -939,19 +916,10 @@ async function loadAll(){
       sbFetch('consent_forms','?order=signed_at.desc')
     ]);
     await loadUsers();
-    if(can('materials'))await loadInventory();
     S.clients=clients||[];S.appointments=appointments||[];S.treatments=treatments||[];S.reminders=reminders||[];S.forms=forms||[];
     if(S.clients.length&&!S.activeId)S.activeId=S.clients[0].id;
   }catch(e){toast(t('tErrLoad'))}
   hideLoading();renderRoot();
-}
-
-// ===== מלאי / ספקים =====
-async function loadInventory(){
-  const [inv,sups,links,reqs,tmats]=await Promise.all([
-    sbFetch('inventory'), sbFetch('suppliers'), sbFetch('item_suppliers'), sbFetch('stock_requests'), sbFetch('treatment_materials')
-  ]);
-  S.inventory=inv||[]; S.suppliers=sups||[]; S.itemSuppliers=links||[]; S.stockRequests=reqs||[]; S.treatmentMaterials=tmats||[];
 }
 
 // LOGIN
@@ -981,13 +949,11 @@ async function tryLogin(){
 
 // APP
 function buildApp(){
-  if(isPractitioner()&&!['myday','mypatients'].includes(S.activePage))S.activePage='myday';
-  if(!isPractitioner()&&['myday','mypatients'].includes(S.activePage)){S.activePage='dashboard';S.myDayApptId=null;S.myPatientId=null;}
   const q=S.search.toLowerCase();
   const filtered=S.clients.filter(c=>c.name.toLowerCase().includes(q));
   const urgentRems=allPendingRem().filter(r=>duePri(r.due)!=='normal').length;
   const pendingAppts=S.appointments.filter(a=>a.status==='pending').length;
-  const pageLabels={dashboard:t('dashboard'),calendar:t('calendar'),clients:t('clients'),users:t('usersTitle'),inventory:'מלאי וספקים',myday:'התורים שלי היום',mypatients:'הלקוחות שלי'};
+  const pageLabels={dashboard:t('dashboard'),calendar:t('calendar'),clients:t('clients'),users:t('usersTitle'),guide:t('guide')};
 
 
   const sidebar=`<div class="sidebar ${S.sidebarOpen?'open':''}" id="sidebar">
@@ -996,20 +962,15 @@ function buildApp(){
     </div>
     <div class="nav-section">
       <div class="nav-label">${t('nav')}</div>
-      ${isPractitioner()?`
-      <div class="nav-item ${S.activePage==='myday'?'active':''}" onclick="gotoPage('myday')"><i class="ti ti-calendar-check"></i>התורים שלי היום${(S.appointments||[]).filter(a=>a.status!=='done').length>0?`<span class="nav-badge">${(S.appointments||[]).filter(a=>a.status!=='done').length}</span>`:''}</div>
-      <div class="nav-item ${S.activePage==='mypatients'?'active':''}" onclick="gotoPage('mypatients')"><i class="ti ti-users"></i>הלקוחות שלי</div>
-      `:`
       <div class="nav-item ${S.activePage==='dashboard'?'active':''}" onclick="gotoPage('dashboard')"><i class="ti ti-layout-dashboard"></i>${t('dashboard')}${urgentRems>0?`<span class="nav-badge">${urgentRems}</span>`:''}</div>
       <div class="nav-item ${S.activePage==='calendar'?'active':''}" onclick="gotoPage('calendar')"><i class="ti ti-calendar-event"></i>${t('calendar')}${pendingAppts>0?`<span class="nav-badge">${pendingAppts}</span>`:''}</div>
       <div class="nav-item ${S.activePage==='clients'?'active':''}" onclick="gotoPage('clients')"><i class="ti ti-users"></i>${t('clients')}</div>
       <div class="nav-item" onclick="showModal('bookingLink')"><i class="ti ti-link"></i>${t('bookingLink')}</div>
+      <div class="nav-item ${S.activePage==='guide'?'active':''}" onclick="gotoPage('guide')"><i class="ti ti-help-circle"></i>${t('guide')}</div>
       ${can('users')?`<div class="nav-item ${S.activePage==='users'?'active':''}" onclick="gotoPage('users')"><i class="ti ti-user-shield"></i>${t('users')}</div>`:''}
-      ${can('inventory')?`<div class="nav-item ${S.activePage==='inventory'?'active':''}" onclick="gotoPage('inventory')"><i class="ti ti-package"></i>מלאי וספקים${(S.inventory||[]).filter(it=>Number(it.current_stock)<Number(it.min_threshold)).length>0?`<span class="nav-badge">${(S.inventory||[]).filter(it=>Number(it.current_stock)<Number(it.min_threshold)).length}</span>`:''}</div>`:''}
-      `}
     </div>
     <div style="flex:1"></div>
-    ${isPractitioner()?'':`<button class="add-client-btn" onclick="showModal('newClient')"><i class="ti ti-user-plus"></i> ${t('newClient')}</button>`}
+    <button class="add-client-btn" onclick="showModal('newClient')"><i class="ti ti-user-plus"></i> ${t('newClient')}</button>
     <button id="installBtn" onclick="installApp()" style="display:none;align-items:center;justify-content:center;gap:7px;margin:0 14px 8px;padding:9px;border-radius:10px;border:1.5px solid var(--primary);background:var(--primary-light);color:var(--primary);font-size:13px;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;width:calc(100% - 28px)"><i class="ti ti-download"></i> ${t('installApp')}</button>
     <div style="padding:0 14px 8px">${langMenuHTML()}</div>
     <div class="sb-footer"><button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout"></i> ${t('logout')}</button></div>
@@ -1021,10 +982,7 @@ function buildApp(){
     <div class="topbar-title">${pageLabels[S.activePage]||'לקוחות'}</div>
     <button class="tb-btn" onclick="toggleNotif()" style="position:relative"><i class="ti ti-notebook"></i>${getNotifications().length>0?`<span style="position:absolute;top:2px;left:2px;background:#E24B4A;color:#fff;font-size:9px;font-weight:700;min-width:15px;height:15px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 3px">${getNotifications().length}</span>`:''}</button>
   </div>`;
-  const bottomNav=isPractitioner()?`<div class="bottom-nav"><div class="bn-row">
-    <button class="bn-item ${S.activePage==='myday'?'active':''}" onclick="gotoPage('myday')"><i class="ti ti-calendar-check"></i>היום</button>
-    <button class="bn-item ${S.activePage==='mypatients'?'active':''}" onclick="gotoPage('mypatients')"><i class="ti ti-users"></i>לקוחות</button>
-  </div></div>`:`<div class="bottom-nav"><div class="bn-row">
+  const bottomNav=`<div class="bottom-nav"><div class="bn-row">
     <button class="bn-item ${S.activePage==='dashboard'?'active':''}" onclick="gotoPage('dashboard')"><span class="bn-dot"><i class="ti ti-layout-dashboard"></i>${urgentRems>0?'<span class="bn-dot-badge"></span>':''}</span>דשבורד</button>
     <button class="bn-item ${S.activePage==='calendar'?'active':''}" onclick="gotoPage('calendar')"><span class="bn-dot"><i class="ti ti-calendar-event"></i>${pendingAppts>0?'<span class="bn-dot-badge"></span>':''}</span>${t('calendarShort')}</button>
     <button class="bn-item ${S.activePage==='clients'?'active':''}" onclick="gotoPage('clients')"><i class="ti ti-users"></i>${t('clients')}</button>
@@ -1034,10 +992,8 @@ function buildApp(){
 
   let pageContent='';
   if(S.activePage==='dashboard'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildDashboard()}</div></div>`;}
-  else if(S.activePage==='myday'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildMyDay()}</div></div>`;}
-  else if(S.activePage==='mypatients'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildMyPatients()}</div></div>`;}
   else if(S.activePage==='users'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildUsers()}</div></div>`;}
-  else if(S.activePage==='inventory'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildInventory()}</div></div>`;}
+  else if(S.activePage==='guide'){pageContent=`<div class="page-scroll"><div class="page-pad">${buildGuide()}</div></div>`;}
   else if(S.activePage==='calendar'){pageContent=`<div style="flex:1;overflow:hidden;display:flex;flex-direction:column"><div class="cal-wrap page-pad" style="flex:1">${buildCalendar()}</div></div>`;}
   else{
     const c=getC();
@@ -1162,6 +1118,40 @@ async function loadUsers(){
   });
 }
 
+function buildGuide(){
+  const steps=[
+    {ic:'ti-login',t:'התחברות',d:'נכנסים לכתובת המערכת ומתחברים עם שם המשתמש והסיסמה שקיבלתם. אפשר לבחור את שפת המערכת מהתפריט.'},
+    {ic:'ti-layout-dashboard',t:'המסך הראשי (דשבורד)',d:'תמונת מצב של היום — מספר הלקוחות, התורים, ההכנסה ותורים שממתינים לאישור. מאשרים תור בלחיצה על ✓ (הלקוח מקבל מייל) או דוחים ב-✗.'},
+    {ic:'ti-users',t:'ניהול לקוחות',d:'רשימת כל הלקוחות עם חיפוש מהיר. לחיצה על לקוח פותחת כרטיס מלא: היסטוריית טיפולים, הערות קליניות, תמונות וטפסי הסכמה. להוספה — כפתור "לקוח חדש".'},
+    {ic:'ti-calendar-event',t:'יומן וקביעת תורים',d:'היומן מציג את כל התורים בתצוגה שבועית לפי סטטוס. לקביעת תור לוחצים "תור" וממלאים שם, טלפון, טיפול, תאריך ושעה. אם מולא אימייל — הלקוח מקבל אישור אוטומטי.'},
+    {ic:'ti-link',t:'הזמנת תור אונליין',d:'ב"קישור הזמנה" מקבלים לינק אישי לשליחה ללקוחות (גם בוואטסאפ). הלקוח קובע תור בעצמו, והוא נכנס ליומן כ"ממתין לאישור".'},
+    {ic:'ti-notebook',t:'יומן התראות',d:'הפעמון בפינה מרכז את כל ההתראות — תורים שממתינים לאישור, ימי הולדת של לקוחות ותזכורות.'},
+    {ic:'ti-user-shield',t:'משתמשים והרשאות',d:'המנהל מוסיף עובדים ונותן לכל אחד תפקיד: מנהל, מטפל או קבלה. כל עובד יכול לנהל רק את מי שמתחתיו — כך המידע הרגיש נשאר מוגן.'}
+  ];
+  const cards=steps.map((s,i)=>`
+    <div style="display:flex;gap:14px;align-items:flex-start;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px 18px">
+      <div style="flex:0 0 auto;width:46px;height:46px;border-radius:12px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;position:relative">
+        <i class="ti ${s.ic}" style="font-size:24px"></i>
+        <span style="position:absolute;top:-6px;right:-6px;background:var(--primary);color:#fff;font-size:11px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center">${i+1}</span>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px">${s.t}</div>
+        <div style="font-size:14px;color:var(--text-sub);line-height:1.6">${s.d}</div>
+      </div>
+    </div>`).join('');
+  return`
+    <div style="max-width:720px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff;border-radius:16px;padding:22px 24px;margin-bottom:18px">
+        <div style="font-size:20px;font-weight:700;margin-bottom:6px"><i class="ti ti-help-circle"></i> הדרכה — איך עובדים עם המערכת</div>
+        <div style="font-size:14px;opacity:.9">צעדים קצרים שיעשו לכם סדר. אפשר לחזור לכאן בכל רגע.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">${cards}</div>
+      <div style="margin-top:18px;background:var(--primary-light);border:1px solid var(--border-strong);border-radius:12px;padding:14px 16px;font-size:13.5px;color:var(--text-sub)">
+        <b style="color:var(--primary-dark)">טיפ:</b> בטלפון אפשר להתקין את המערכת כאפליקציה — פותחים את הכתובת בדפדפן ובוחרים "הוסף למסך הבית".
+      </div>
+    </div>`;
+}
+
 function buildUsers(){
   const list=[...S.users].sort((a,b)=>(ROLE_META[b.role]?.rank||0)-(ROLE_META[a.role]?.rank||0));
   let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:12px;flex-wrap:wrap">
@@ -1269,389 +1259,6 @@ async function deleteUser(id){
   if(r&&!r.error){await loadUsers();S.modal=null;S.editUser=null;renderRoot();toast(t('tUserDeleted'));}
   else toast(t('noPermission'));
 }
-
-// ===================== מלאי וספקים =====================
-function buildInventory(){
-  const lowItems=S.inventory.filter(it=>Number(it.current_stock)<Number(it.min_threshold));
-  let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:12px;flex-wrap:wrap">
-    <div><div class="dash-title">מלאי וספקים</div><div class="dash-sub">${S.inventory.length} פריטים · ${S.suppliers.length} ספקים${lowItems.length?` · <span style="color:var(--red)">${lowItems.length} דורשים הזמנה</span>`:''}</div></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-secondary btn-sm" onclick="openSupplier(null)"><i class="ti ti-truck"></i> ספק חדש</button>
-      <button class="btn btn-primary btn-sm" onclick="openInvItem(null)"><i class="ti ti-plus"></i> פריט חדש</button>
-    </div>
-  </div>`;
-
-  // רשימת פריטים
-  h+=`<div class="sec-label">פריטי מלאי</div>`;
-  if(!S.inventory.length){h+=`<div class="empty" style="padding:20px 0">אין פריטי מלאי עדיין</div>`;}
-  else{
-    h+=S.inventory.map(it=>{
-      const low=Number(it.current_stock)<Number(it.min_threshold);
-      const linkedSups=S.itemSuppliers.filter(l=>l.inventory_id===it.id).map(l=>S.suppliers.find(s=>s.id===l.supplier_id)).filter(Boolean);
-      return `<div class="card" style="display:flex;align-items:center;gap:13px">
-        <div style="width:42px;height:42px;border-radius:12px;background:${low?'var(--red-light)':'var(--primary-light)'};color:${low?'var(--red)':'var(--primary)'};display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-box" style="font-size:19px"></i></div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:14.5px;font-weight:600">${escHtml(it.name)}</div>
-          <div style="font-size:12.5px;color:var(--text-sub);margin-top:3px">${it.current_stock} ${escHtml(it.unit||'')} (סף: ${it.min_threshold}) ${linkedSups.length?' · ספקים: '+linkedSups.map(s=>escHtml(s.name)).join(', '):''}</div>
-        </div>
-        ${low?`<span style="font-size:10.5px;font-weight:600;color:var(--red);background:var(--red-light);padding:3px 9px;border-radius:99px;white-space:nowrap">צריך הזמנה</span>`:''}
-        <button class="btn btn-secondary btn-sm" onclick="openInvItem('${it.id}')"><i class="ti ti-edit"></i></button>
-        ${linkedSups.length?`<button class="btn btn-primary btn-sm" onclick="openRequest('${it.id}')"><i class="ti ti-send"></i></button>`:''}
-      </div>`;
-    }).join('');
-  }
-
-  // רשימת ספקים
-  h+=`<div class="sec-label" style="margin-top:20px">ספקים</div>`;
-  if(!S.suppliers.length){h+=`<div class="empty" style="padding:20px 0">אין ספקים עדיין</div>`;}
-  else{
-    h+=S.suppliers.map(s=>{
-      const linkedItems=S.itemSuppliers.filter(l=>l.supplier_id===s.id).map(l=>S.inventory.find(i=>i.id===l.inventory_id)).filter(Boolean);
-      return `<div class="card" style="display:flex;align-items:center;gap:13px">
-        <div style="width:42px;height:42px;border-radius:12px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-truck" style="font-size:19px"></i></div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:14.5px;font-weight:600">${escHtml(s.name)}</div>
-          <div style="font-size:12.5px;color:var(--text-sub);margin-top:3px">${escHtml(s.phone||'')}${linkedItems.length?' · מספק: '+linkedItems.map(i=>escHtml(i.name)).join(', '):' · אין פריטים מקושרים'}</div>
-        </div>
-        <button class="btn btn-secondary btn-sm" onclick="openLink('${s.id}')"><i class="ti ti-link"></i></button>
-        <button class="btn btn-secondary btn-sm" onclick="openSupplier('${s.id}')"><i class="ti ti-edit"></i></button>
-      </div>`;
-    }).join('');
-  }
-
-  // בקשות אספקה
-  h+=`<div class="sec-label" style="margin-top:20px">בקשות אספקה</div>`;
-  if(!S.stockRequests.length){h+=`<div class="empty" style="padding:20px 0">אין בקשות עדיין</div>`;}
-  else{
-    const statusMeta={pending:['ממתין לאישור טלפוני','var(--text-sub)','var(--bg)'],confirmed:['אושר טלפונית - ממתין לספק','var(--primary)','var(--primary-light)'],delivered:['סופק','#1E8A5F','#E7F7F0'],cancelled:['בוטל','var(--red)','var(--red-light)']};
-    h+=[...S.stockRequests].sort((a,b)=>new Date(b.requested_at)-new Date(a.requested_at)).map(r=>{
-      const item=S.inventory.find(i=>i.id===r.inventory_id);
-      const sup=S.suppliers.find(s=>s.id===r.supplier_id);
-      const m=statusMeta[r.status]||statusMeta.pending;
-      return `<div class="card" style="display:flex;align-items:center;gap:13px">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:14px;font-weight:600">${escHtml(item?item.name:'?')} — ${r.quantity_requested} יח'</div>
-          <div style="font-size:12.5px;color:var(--text-sub);margin-top:3px">ספק: ${escHtml(sup?sup.name:'?')}${r.notes?' · '+escHtml(r.notes):''}</div>
-        </div>
-        <span style="font-size:10.5px;font-weight:600;color:${m[1]};background:${m[2]};padding:3px 9px;border-radius:99px;white-space:nowrap">${m[0]}</span>
-        ${r.status==='pending'?`<button class="btn btn-primary btn-sm" onclick="confirmStockRequest('${r.id}')">אשרתי טלפונית</button>`:''}
-        ${r.status==='pending'?`<button class="btn btn-secondary btn-sm" onclick="cancelStockRequest('${r.id}')"><i class="ti ti-x"></i></button>`:''}
-      </div>`;
-    }).join('');
-  }
-  return h;
-}
-
-function openInvItem(id){
-  S.editInvItem = id ? (S.inventory.find(x=>x.id===id)||null) : {id:null,name:'',unit:'',current_stock:0,min_threshold:0};
-  if(id&&!S.editInvItem)return;
-  S.modal='invItem'; renderRoot();
-}
-function buildInvItemModal(){
-  const it=S.editInvItem; if(!it)return '';
-  const isNew=!it.id;
-  return `<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title"><i class="ti ti-box"></i> ${isNew?'פריט מלאי חדש':'עריכת פריט'}</div>
-    <div class="fg"><div class="fl">שם הפריט</div><input class="fi" id="inv-name" value="${escHtml(it.name||'')}" dir="auto"></div>
-    <div class="fg"><div class="fl">יחידת מידה</div><input class="fi" id="inv-unit" value="${escHtml(it.unit||'')}" placeholder="יחידות / בקבוקים / ק&quot;ג"></div>
-    <div class="fg"><div class="fl">מלאי נוכחי</div><input class="fi" id="inv-stock" type="number" value="${it.current_stock??0}"></div>
-    <div class="fg"><div class="fl">סף מינימום להתראה</div><input class="fi" id="inv-min" type="number" value="${it.min_threshold??0}"></div>
-    <div id="inv-err"></div>
-    <div class="ma">
-      ${(!isNew&&can('delete'))?`<button class="btn btn-danger btn-sm" onclick="deleteInvItem('${it.id}')"><i class="ti ti-trash"></i></button>`:''}
-      <button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button>
-      <button class="btn btn-primary" onclick="saveInvItem()"><i class="ti ti-check"></i> ${isNew?'הוסף':'שמור'}</button>
-    </div>
-  </div></div>`;
-}
-async function saveInvItem(){
-  const it=S.editInvItem; if(!it)return;
-  const isNew=!it.id;
-  const name=document.getElementById('inv-name').value.trim();
-  const unit=document.getElementById('inv-unit').value.trim();
-  const current_stock=Number(document.getElementById('inv-stock').value||0);
-  const min_threshold=Number(document.getElementById('inv-min').value||0);
-  const err=document.getElementById('inv-err');
-  if(!name){err.innerHTML=`<div style="background:var(--red-light);color:var(--red);padding:10px 13px;border-radius:9px;font-size:13px;margin-bottom:10px">נא למלא שם פריט</div>`;return;}
-  let r;
-  if(isNew)r=await apiCall({action:'insert',table:'inventory',data:{name,unit,current_stock,min_threshold}});
-  else r=await apiCall({action:'update',table:'inventory',filters:[{column:'id',value:it.id}],data:{name,unit,current_stock,min_threshold}});
-  if(r&&!r.error){await loadInventory();S.modal=null;S.editInvItem=null;renderRoot();toast(isNew?'הפריט נוסף':'הפריט עודכן');}
-  else toast(t('noPermission'));
-}
-async function deleteInvItem(id){
-  if(!confirm('למחוק את הפריט?'))return;
-  const r=await apiCall({action:'delete',table:'inventory',filters:[{column:'id',value:id}]});
-  if(r&&!r.error){await loadInventory();S.modal=null;S.editInvItem=null;renderRoot();toast('הפריט נמחק');}
-  else toast(t('noPermission'));
-}
-
-function openSupplier(id){
-  S.editSupplier = id ? (S.suppliers.find(x=>x.id===id)||null) : {id:null,name:'',phone:'',linked_username:''};
-  if(id&&!S.editSupplier)return;
-  S.modal='supplier'; renderRoot();
-}
-function buildSupplierModal(){
-  const s=S.editSupplier; if(!s)return '';
-  const isNew=!s.id;
-  return `<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title"><i class="ti ti-truck"></i> ${isNew?'ספק חדש':'עריכת ספק'}</div>
-    <div class="fg"><div class="fl">שם הספק</div><input class="fi" id="sup-name" value="${escHtml(s.name||'')}" dir="auto"></div>
-    <div class="fg"><div class="fl">טלפון</div><input class="fi" id="sup-phone" value="${escHtml(s.phone||'')}" dir="ltr"></div>
-    ${isNew?`<div class="fg"><div class="fl">שם משתמש להתחברות הספק (אופציונלי - חייב להיות משתמש קיים עם role=supplier)</div><input class="fi" id="sup-user" placeholder="username" dir="ltr"></div>`:''}
-    <div id="sup-err"></div>
-    <div class="ma">
-      ${(!isNew&&can('delete'))?`<button class="btn btn-danger btn-sm" onclick="deleteSupplier('${s.id}')"><i class="ti ti-trash"></i></button>`:''}
-      <button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button>
-      <button class="btn btn-primary" onclick="saveSupplier()"><i class="ti ti-check"></i> ${isNew?'הוסף':'שמור'}</button>
-    </div>
-  </div></div>`;
-}
-async function saveSupplier(){
-  const s=S.editSupplier; if(!s)return;
-  const isNew=!s.id;
-  const name=document.getElementById('sup-name').value.trim();
-  const phone=document.getElementById('sup-phone').value.trim();
-  const err=document.getElementById('sup-err');
-  if(!name){err.innerHTML=`<div style="background:var(--red-light);color:var(--red);padding:10px 13px;border-radius:9px;font-size:13px;margin-bottom:10px">נא למלא שם ספק</div>`;return;}
-  let linked_user_id=null;
-  if(isNew){
-    const uEl=document.getElementById('sup-user');
-    const uname=uEl?uEl.value.trim():'';
-    if(uname){
-      const u=await apiCall({action:'select',table:'users',filters:[{column:'username',value:uname}]});
-      if(u&&u.data&&u.data[0])linked_user_id=u.data[0].id;
-      else{err.innerHTML=`<div style="background:var(--red-light);color:var(--red);padding:10px 13px;border-radius:9px;font-size:13px;margin-bottom:10px">לא נמצא משתמש בשם ${escHtml(uname)}</div>`;return;}
-    }
-  }
-  let r;
-  if(isNew)r=await apiCall({action:'insert',table:'suppliers',data:{name,phone,linked_user_id}});
-  else r=await apiCall({action:'update',table:'suppliers',filters:[{column:'id',value:s.id}],data:{name,phone}});
-  if(r&&!r.error){await loadInventory();S.modal=null;S.editSupplier=null;renderRoot();toast(isNew?'הספק נוסף':'הספק עודכן');}
-  else toast(t('noPermission'));
-}
-async function deleteSupplier(id){
-  if(!confirm('למחוק את הספק?'))return;
-  const r=await apiCall({action:'delete',table:'suppliers',filters:[{column:'id',value:id}]});
-  if(r&&!r.error){await loadInventory();S.modal=null;S.editSupplier=null;renderRoot();toast('הספק נמחק');}
-  else toast(t('noPermission'));
-}
-
-function openLink(supplierId){
-  S.editLink={supplier_id:supplierId,inventory_id:'',can_view:true};
-  S.modal='link'; renderRoot();
-}
-function buildLinkModal(){
-  const l=S.editLink; if(!l)return '';
-  const sup=S.suppliers.find(s=>s.id===l.supplier_id);
-  const alreadyLinked=S.itemSuppliers.filter(x=>x.supplier_id===l.supplier_id).map(x=>x.inventory_id);
-  const options=S.inventory.filter(it=>!alreadyLinked.includes(it.id));
-  return `<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title"><i class="ti ti-link"></i> קישור פריט ל-${escHtml(sup?sup.name:'')}</div>
-    <div class="fg"><div class="fl">פריט מלאי</div>
-      <select class="fi" id="link-item">${options.length?options.map(it=>`<option value="${it.id}">${escHtml(it.name)}</option>`).join(''):'<option value="">אין פריטים זמינים לקישור</option>'}</select>
-    </div>
-    <div class="fg"><label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px">
-      <input type="checkbox" id="link-canview" checked style="width:19px;height:19px;accent-color:var(--primary);cursor:pointer">
-      לאפשר לספק לצפות בכמות המלאי
-    </label></div>
-    <div id="link-err"></div>
-    <div class="ma">
-      <button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button>
-      <button class="btn btn-primary" onclick="saveLink()"><i class="ti ti-check"></i> קשר</button>
-    </div>
-  </div></div>`;
-}
-async function saveLink(){
-  const l=S.editLink; if(!l)return;
-  const inventory_id=document.getElementById('link-item').value;
-  const can_view=document.getElementById('link-canview').checked;
-  const err=document.getElementById('link-err');
-  if(!inventory_id){err.innerHTML=`<div style="background:var(--red-light);color:var(--red);padding:10px 13px;border-radius:9px;font-size:13px;margin-bottom:10px">אין פריט לבחירה</div>`;return;}
-  const r=await apiCall({action:'insert',table:'item_suppliers',data:{inventory_id,supplier_id:l.supplier_id,can_view}});
-  if(r&&!r.error){await loadInventory();S.modal=null;S.editLink=null;renderRoot();toast('הקישור נוצר');}
-  else toast(t('noPermission'));
-}
-
-function openRequest(inventoryId){
-  const item=S.inventory.find(i=>i.id===inventoryId);
-  const linkedSups=S.itemSuppliers.filter(l=>l.inventory_id===inventoryId).map(l=>S.suppliers.find(s=>s.id===l.supplier_id)).filter(Boolean);
-  S.editRequest={inventory_id:inventoryId,supplier_id:linkedSups[0]?linkedSups[0].id:'',quantity_requested:1,notes:''};
-  S.modal='request'; renderRoot();
-}
-function buildRequestModal(){
-  const r=S.editRequest; if(!r)return '';
-  const item=S.inventory.find(i=>i.id===r.inventory_id);
-  const linkedSups=S.itemSuppliers.filter(l=>l.inventory_id===r.inventory_id).map(l=>S.suppliers.find(s=>s.id===l.supplier_id)).filter(Boolean);
-  return `<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title"><i class="ti ti-send"></i> בקשת אספקה - ${escHtml(item?item.name:'')}</div>
-    <div class="fg"><div class="fl">ספק</div>
-      <select class="fi" id="req-supplier">${linkedSups.map(s=>`<option value="${s.id}" ${s.id===r.supplier_id?'selected':''}>${escHtml(s.name)}</option>`).join('')}</select>
-    </div>
-    <div class="fg"><div class="fl">כמות מבוקשת</div><input class="fi" id="req-qty" type="number" value="${r.quantity_requested}"></div>
-    <div class="fg"><div class="fl">הערות</div><input class="fi" id="req-notes" placeholder="אופציונלי"></div>
-    <div id="req-err"></div>
-    <div class="ma">
-      <button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button>
-      <button class="btn btn-primary" onclick="saveRequest()"><i class="ti ti-check"></i> שלח בקשה</button>
-    </div>
-  </div></div>`;
-}
-async function saveRequest(){
-  const r=S.editRequest; if(!r)return;
-  const supplier_id=document.getElementById('req-supplier').value;
-  const quantity_requested=Number(document.getElementById('req-qty').value||1);
-  const notes=document.getElementById('req-notes').value.trim();
-  const err=document.getElementById('req-err');
-  if(!supplier_id){err.innerHTML=`<div style="background:var(--red-light);color:var(--red);padding:10px 13px;border-radius:9px;font-size:13px;margin-bottom:10px">בחר ספק</div>`;return;}
-  const res=await apiCall({action:'insert',table:'stock_requests',data:{inventory_id:r.inventory_id,supplier_id,quantity_requested,notes}});
-  if(res&&!res.error){await loadInventory();S.modal=null;S.editRequest=null;renderRoot();toast('הבקשה נשלחה לספק');}
-  else toast(t('noPermission'));
-}
-async function confirmStockRequest(id){
-  const res=await apiCall({action:'update',table:'stock_requests',filters:[{column:'id',value:id}],data:{status:'confirmed',confirmed_at:new Date().toISOString()}});
-  if(res&&!res.error){await loadInventory();renderRoot();toast('סומן כאושר טלפונית - ממתין שהספק יספק');}
-  else toast(t('noPermission'));
-}
-async function cancelStockRequest(id){
-  if(!confirm('לבטל את הבקשה?'))return;
-  const res=await apiCall({action:'update',table:'stock_requests',filters:[{column:'id',value:id}],data:{status:'cancelled'}});
-  if(res&&!res.error){await loadInventory();renderRoot();toast('הבקשה בוטלה');}
-  else toast(t('noPermission'));
-}
-// ===================== סוף מלאי וספקים =====================
-
-// ===================== מסך מטפל - "התורים שלי היום" =====================
-function buildMyDay(){
-  if(S.myDayApptId)return buildMyDayDetail(S.myDayApptId);
-  const list=[...S.appointments].sort((a,b)=>(a.time||'').localeCompare(b.time||''));
-  let h=`<div style="display:flex;justify-content:space-between;align-items:center"><div><div class="dash-title">התורים שלי היום</div><div class="dash-sub">${fmtFull(today())} · ${list.length} תורים</div></div><button class="btn btn-secondary btn-sm" onclick="doRefreshPractitioner()"><i class="ti ti-refresh"></i></button></div>`;
-  if(!list.length)return h+`<div class="empty" style="padding:30px 0"><i class="ti ti-calendar-off" style="font-size:28px;display:block;margin-bottom:8px"></i>אין לך תורים משויכים היום</div>`;
-  const statusMap={pending:['⏳ ממתין','var(--amber)'],confirmed:['✅ מאושר','var(--accent)'],done:['הסתיים','var(--text-sub)']};
-  h+=list.map(a=>{
-    const sm=statusMap[a.status]||['','var(--text-sub)'];
-    return `<div class="card" style="display:flex;align-items:center;gap:13px;cursor:pointer" onclick="openMyDayAppt('${a.id}')">
-      <div style="background:var(--primary-light);color:var(--primary);padding:8px 12px;border-radius:9px;text-align:center;flex-shrink:0;min-width:52px;font-weight:700">${a.time}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:14.5px;font-weight:600">${escHtml(a.client_name||'')}</div>
-        <div style="font-size:12.5px;color:var(--text-sub);margin-top:3px">${escHtml(a.treatment||'')} · <span style="color:${sm[1]}">${sm[0]}</span></div>
-      </div>
-      <i class="ti ti-chevron-left" style="color:var(--text-sub)"></i>
-    </div>`;
-  }).join('');
-  return h;
-}
-function openMyDayAppt(id){S.myDayApptId=id;renderRoot()}
-function backToMyDay(){S.myDayApptId=null;renderRoot()}
-
-function buildMyDayDetail(id){
-  const a=S.appointments.find(x=>x.id===id);
-  if(!a){S.myDayApptId=null;return buildMyDay();}
-  const statusMap={pending:['⏳ ממתין','var(--amber)'],confirmed:['✅ מאושר','var(--accent)'],done:['✔️ הסתיים','var(--text-sub)']};
-  const sm=statusMap[a.status]||['','var(--text-sub)'];
-  const history=(a.client_id?clientTreatments(a.client_id):[]);
-  return `<button class="btn btn-secondary btn-sm" onclick="backToMyDay()"><i class="ti ti-arrow-right"></i> חזרה לרשימה</button>
-  <div class="card" style="margin-top:14px">
-    <div style="font-size:17px;font-weight:700">${escHtml(a.client_name||'')}</div>
-    <div style="color:var(--text-sub);font-size:13px;margin-top:4px">${a.time} · ${a.duration||60} דק' · <span style="color:${sm[1]}">${sm[0]}</span></div>
-    ${a.notes?`<div style="font-size:13px;margin-top:6px;font-style:italic;color:var(--text-sub)">${escHtml(a.notes)}</div>`:''}
-    ${a.status!=='done'?`<button class="btn btn-secondary btn-sm" style="margin-top:10px" onclick="markMyDayDone('${a.id}')"><i class="ti ti-check"></i> סמן כהושלם</button>`:''}
-  </div>
-
-  <div class="sec-label" style="margin-top:18px">סוג טיפול</div>
-  <div class="card">
-    <input class="fi" id="myday-treat" value="${escHtml(a.treatment||'')}" dir="rtl">
-    <button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="saveMyDayTreatmentType('${a.id}')"><i class="ti ti-device-floppy"></i> שמור</button>
-  </div>
-
-  <div class="sec-label" style="margin-top:18px">רישום טיפול שבוצע</div>
-  <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="openMyDayLogTreatment('${a.client_id||''}')"><i class="ti ti-needle"></i> רשום טיפול + חומרים</button>
-
-  <div class="sec-label" style="margin-top:18px">היסטוריית טיפולים ללקוח זה</div>
-  ${history.length?history.map(tr=>{
-    const mats=(S.treatmentMaterials||[]).filter(m=>m.treatment_id===tr.id);
-    const matsHtml=mats.length?`<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:5px">${mats.map(m=>{const it=S.inventory.find(i=>i.id===m.inventory_id);return `<span style="background:var(--primary-light);color:var(--primary);font-size:11px;padding:3px 9px;border-radius:99px">${it?escHtml(it.name):'?'} × ${m.quantity}</span>`;}).join('')}</div>`:'';
-    return `<div class="card treat-card"><div class="treat-date">${fmt(tr.date)}</div><div class="treat-body"><div class="treat-name">${escHtml(tr.name)}</div>${tr.dose&&tr.dose!=='—'?`<div class="treat-detail">${escHtml(tr.dose)}</div>`:''}${tr.notes?`<div class="treat-detail" style="font-style:italic;margin-top:3px">${escHtml(tr.notes)}</div>`:''}${matsHtml}</div></div>`;
-  }).join(''):`<div class="empty" style="padding:16px 0">אין היסטוריית טיפולים קודמת</div>`}
-  `;
-}
-async function doRefreshPractitioner(){
-  await refreshPractitionerData();
-  renderRoot();
-  toast('עודכן');
-}
-async function refreshPractitionerData(){
-  const [appts,clients,treats]=await Promise.all([
-    sbFetch('appointments'), sbFetch('clients'), sbFetch('treatments')
-  ]);
-  S.appointments=appts||[]; S.clients=clients||[]; S.treatments=treats||[];
-  if(can('materials')){const tmats=await sbFetch('treatment_materials');S.treatmentMaterials=tmats||[];}
-}
-async function markMyDayDone(aid){
-  const r=await apiCall({action:'update',table:'appointments',filters:[{column:'id',value:aid}],data:{status:'done'}});
-  if(r&&!r.error){S.appointments=S.appointments.map(a=>a.id===aid?{...a,status:'done'}:a);renderRoot();toast('התור סומן כהושלם');await refreshPractitionerData();renderRoot();}
-  else toast(t('noPermission'));
-}
-async function saveMyDayTreatmentType(aid){
-  const val=document.getElementById('myday-treat').value.trim();
-  const r=await apiCall({action:'update',table:'appointments',filters:[{column:'id',value:aid}],data:{treatment:val}});
-  if(r&&!r.error){S.appointments=S.appointments.map(a=>a.id===aid?{...a,treatment:val}:a);renderRoot();toast('סוג הטיפול עודכן')}
-  else toast(t('noPermission'));
-}
-function openMyDayLogTreatment(clientId){
-  if(!clientId){toast('הלקוח לא מקושר לרשומת לקוח - לא ניתן לרשום טיפול');return}
-  S.activeId=clientId;
-  showModal('newTreatment');
-}
-
-// ===================== מסך מטפל - "הלקוחות שלי" (כל לקוח שהיה משויך אי פעם) =====================
-function buildMyPatients(){
-  if(S.myPatientId)return buildPatientDetail(S.myPatientId);
-  const list=[...S.clients].sort((a,b)=>(a.name||'').localeCompare(b.name||'','he'));
-  let h=`<div style="display:flex;justify-content:space-between;align-items:center"><div><div class="dash-title">הלקוחות שלי</div><div class="dash-sub">${list.length} לקוחות מקושרים</div></div><button class="btn btn-secondary btn-sm" onclick="doRefreshPractitioner()"><i class="ti ti-refresh"></i></button></div>`;
-  if(!list.length)return h+`<div class="empty" style="padding:30px 0"><i class="ti ti-users" style="font-size:28px;display:block;margin-bottom:8px"></i>אין עדיין לקוחות מקושרים אליך</div>`;
-  h+=list.map(c=>{
-    const lastTreat=clientTreatments(c.id)[0];
-    return `<div class="card" style="display:flex;align-items:center;gap:13px;cursor:pointer" onclick="openMyPatient('${c.id}')">
-      <div class="av" style="background:${PALETTES[(c.color||0)%PALETTES.length].bg};color:${PALETTES[(c.color||0)%PALETTES.length].c}">${escHtml((c.name||'?')[0])}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:14.5px;font-weight:600">${escHtml(c.name||'')}</div>
-        <div style="font-size:12.5px;color:var(--text-sub);margin-top:3px">${lastTreat?`טיפול אחרון: ${escHtml(lastTreat.name)} · ${fmt(lastTreat.date)}`:'אין טיפולים תועדו עדיין'}</div>
-      </div>
-      <i class="ti ti-chevron-left" style="color:var(--text-sub)"></i>
-    </div>`;
-  }).join('');
-  return h;
-}
-function openMyPatient(id){S.myPatientId=id;renderRoot()}
-function backToMyPatients(){S.myPatientId=null;renderRoot()}
-
-function buildPatientDetail(id){
-  const c=S.clients.find(x=>x.id===id);
-  if(!c){S.myPatientId=null;return buildMyPatients();}
-  const history=clientTreatments(id);
-  return `<button class="btn btn-secondary btn-sm" onclick="backToMyPatients()"><i class="ti ti-arrow-right"></i> חזרה לרשימה</button>
-  <div class="card" style="margin-top:14px;display:flex;align-items:center;gap:12px">
-    <div class="av" style="width:44px;height:44px;font-size:15px;background:${PALETTES[(c.color||0)%PALETTES.length].bg};color:${PALETTES[(c.color||0)%PALETTES.length].c}">${escHtml((c.name||'?')[0])}</div>
-    <div style="font-size:17px;font-weight:700">${escHtml(c.name||'')}</div>
-  </div>
-
-  <div class="sec-label" style="margin-top:18px">רישום טיפול שבוצע</div>
-  <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="openMyDayLogTreatment('${c.id}')"><i class="ti ti-needle"></i> בחר טיפול + חומרים</button>
-
-  <div class="sec-label" style="margin-top:18px">היסטוריית טיפולים</div>
-  ${history.length?history.map(tr=>{
-    const mats=(S.treatmentMaterials||[]).filter(m=>m.treatment_id===tr.id);
-    const matsHtml=mats.length?`<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:5px">${mats.map(m=>{const it=S.inventory.find(i=>i.id===m.inventory_id);return `<span style="background:var(--primary-light);color:var(--primary);font-size:11px;padding:3px 9px;border-radius:99px">${it?escHtml(it.name):'?'} × ${m.quantity}</span>`;}).join('')}</div>`:'';
-    return `<div class="card treat-card"><div class="treat-date">${fmt(tr.date)}</div><div class="treat-body"><div class="treat-name">${escHtml(tr.name)}</div>${tr.dose&&tr.dose!=='—'?`<div class="treat-detail">${escHtml(tr.dose)}</div>`:''}${tr.notes?`<div class="treat-detail" style="font-style:italic;margin-top:3px">${escHtml(tr.notes)}</div>`:''}${matsHtml}</div></div>`;
-  }).join(''):`<div class="empty" style="padding:16px 0">אין היסטוריית טיפולים קודמת</div>`}
-  `;
-}
-// ===================== סוף מסך מטפל =====================
 
 function buildDashboard(){
   const todayStr=today();
@@ -1861,11 +1468,7 @@ function buildTreatments(c){
   const treats=clientTreatments(c.id);
   let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div class="sec-label" style="margin-bottom:0">${t('treatHistory')}</div>${can('treatments')?`<button class="btn btn-primary btn-sm" onclick="showModal('newTreatment')"><i class="ti ti-plus"></i> ${t('add')}</button>`:''}</div>`;
   if(!treats.length)return h+`<div class="empty"><i class="ti ti-needle" style="font-size:28px;display:block;margin-bottom:8px"></i>${t('noTreatments')}</div>`;
-  treats.forEach(t=>{
-    const mats=(S.treatmentMaterials||[]).filter(m=>m.treatment_id===t.id);
-    const matsHtml=mats.length?`<div class="treat-detail" style="margin-top:5px;display:flex;flex-wrap:wrap;gap:5px">${mats.map(m=>{const it=S.inventory.find(i=>i.id===m.inventory_id);return `<span style="background:var(--primary-light);color:var(--primary);font-size:11px;padding:3px 9px;border-radius:99px">${it?escHtml(it.name):'?'} × ${m.quantity}</span>`;}).join('')}</div>`:'';
-    h+=`<div class="card treat-card"><div class="treat-date">${fmt(t.date)}</div><div class="treat-body"><div class="treat-name">${escHtml(t.name)}</div><div class="treat-detail">${escHtml(t.provider||'')}${t.dose&&t.dose!=='—'?' · '+escHtml(t.dose):''}</div>${t.notes?`<div class="treat-detail" style="font-style:italic;margin-top:3px">${escHtml(t.notes)}</div>`:''}${matsHtml}${t.price?`<div class="treat-price">₪${t.price.toLocaleString()}</div>`:''}</div></div>`;
-  });
+  treats.forEach(t=>{h+=`<div class="card treat-card"><div class="treat-date">${fmt(t.date)}</div><div class="treat-body"><div class="treat-name">${escHtml(t.name)}</div><div class="treat-detail">${escHtml(t.provider||'')}${t.dose&&t.dose!=='—'?' · '+escHtml(t.dose):''}</div>${t.notes?`<div class="treat-detail" style="font-style:italic;margin-top:3px">${escHtml(t.notes)}</div>`:''}${t.price?`<div class="treat-price">₪${t.price.toLocaleString()}</div>`:''}</div></div>`;});
   return h;
 }
 
@@ -2016,28 +1619,14 @@ function buildModal(){
   }
 
   if(S.modal==='newTreatment'){
-    if(!S.treatMaterials)S.treatMaterials=[];
-    const matRows=S.treatMaterials.map((m,idx)=>`
-      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
-        <select class="fi" style="flex:1.4" onchange="setTreatMatItem(${idx},this.value)">
-          <option value="">בחר חומר...</option>
-          ${S.inventory.map(it=>`<option value="${it.id}" ${m.inventory_id===it.id?'selected':''}>${escHtml(it.name)}</option>`).join('')}
-        </select>
-        <input class="fi" type="number" min="0" step="any" placeholder="כמות" style="flex:.7" value="${m.quantity||''}" onchange="setTreatMatQty(${idx},this.value)">
-        <button class="btn btn-secondary btn-sm" onclick="removeTreatMat(${idx})"><i class="ti ti-x"></i></button>
-      </div>`).join('');
     return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
       <div class="modal-title"><i class="ti ti-needle"></i> ${t('registerTreat')}</div>
       <div class="fg"><div class="fl">${t('treatNameReq')}</div><input class="fi" id="t-name" placeholder="${t('phTreatName')}" dir="rtl" autofocus></div>
       <div class="fg"><div class="fl">${t('date')}</div><input class="fi" id="t-date" type="date" value="${today()}"></div>
-      <div class="fg"><div class="fl">${t('provider')}</div><input class="fi" id="t-prov" placeholder='ד"ר ...' dir="rtl" value="${escHtml(suggestedProviderName())}" ${isPractitioner()?'readonly style="background:var(--bg);color:var(--text-sub)"':''}></div>
+      <div class="fg"><div class="fl">${t('provider')}</div><input class="fi" id="t-prov" placeholder='ד"ר ...' dir="rtl"></div>
       <div class="fg"><div class="fl">${t('dose')}</div><input class="fi" id="t-dose" placeholder="${t('phDoseEx')}" dir="rtl"></div>
       <div class="fg"><div class="fl">${t('notes')}</div><textarea class="fi" id="t-notes" rows="2" dir="rtl"></textarea></div>
       ${can('money')?`<div class="fg"><div class="fl">${t('price')}</div><input class="fi" id="t-price" type="number" placeholder="0" min="0"></div>`:''}
-      ${can('materials')?`<div class="fg"><div class="fl">חומרים שהושתמשו (אופציונלי - אפשר גם כמה)</div>
-        ${matRows}
-        <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center" onclick="addTreatMatRow()"><i class="ti ti-plus"></i> הוסף חומר</button>
-      </div>`:''}
       <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button><button class="btn btn-primary" onclick="saveTreatment()"><i class="ti ti-device-floppy"></i> ${t('save')}</button></div>
     </div></div>`;
   }
@@ -2055,10 +1644,6 @@ function buildModal(){
       <div class="fg"><div class="fl">${t('time')}</div><input class="fi" id="a-time" type="time" value="${S.prefillTime||'10:00'}"></div>
       <div class="fg"><div class="fl">${t('durationMin')}</div><input class="fi" id="a-dur" type="number" value="60" min="15" max="240"></div>
       <div class="fg"><div class="fl">${t('notes')}</div><textarea class="fi" id="a-notes" rows="2" dir="rtl"></textarea></div>
-      <div class="fg"><div class="fl">שיוך למטפל (אופציונלי)</div><select class="fi" id="a-staff">
-        <option value="">ללא שיוך כרגע</option>
-        ${S.users.filter(u=>u.role==='staff'&&u.active!==false).map(u=>`<option value="${u.id}">${escHtml(u.name||u.username)}</option>`).join('')}
-      </select></div>
       <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button><button class="btn btn-primary" onclick="saveAppt()"><i class="ti ti-calendar-check"></i> ${t('setAppt')}</button></div>
     </div></div>`;
   }
@@ -2078,10 +1663,6 @@ function buildModal(){
   }
 
   if(S.modal==='user')return buildUserModal();
-  if(S.modal==='invItem')return buildInvItemModal();
-  if(S.modal==='supplier')return buildSupplierModal();
-  if(S.modal==='link')return buildLinkModal();
-  if(S.modal==='request')return buildRequestModal();
   if(S.modal==='viewform'&&S.viewForm){
     const{cid,type}=S.viewForm;
     const c=S.clients.find(x=>x.id===cid);if(!c)return'';
@@ -2128,31 +1709,6 @@ function buildModal(){
       <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">${t('close')}</button></div>
     </div></div>`;
   }
-  if(S.modal&&S.modal.startsWith('confirmassign-')){
-    const aid=S.modal.split('-').slice(1).join('-');
-    const a=S.appointments.find(x=>x.id===aid);if(!a)return'';
-    const staffList=S.users.filter(u=>u.role==='staff'&&u.active!==false);
-    const busyIds=new Set(S.appointments.filter(x=>x.id!==aid&&x.date===a.date&&x.time===a.time&&x.assigned_staff_id&&(x.status==='confirmed'||x.status==='done')).map(x=>x.assigned_staff_id));
-    const allBusy=staffList.length>0&&staffList.every(u=>busyIds.has(u.id));
-    return`<div class="modal-bg" onclick="closeModalBg(event)"><div class="modal"><div class="modal-handle"></div>
-      <div class="modal-title"><i class="ti ti-user-check"></i> אישור תור ושיוך למטפל</div>
-      <div class="card" style="margin-bottom:14px">
-        <div style="font-weight:600">${escHtml(a.client_name||'')}</div>
-        <div style="font-size:13px;color:var(--text-sub);margin-top:4px">${fmtFull(a.date)} · ${a.time}</div>
-      </div>
-      ${staffList.length===0?`<div class="empty" style="padding:10px 0">אין עדיין משתמשי מטפל במערכת - צור אחד בעמוד המשתמשים</div>`:`
-      <div class="fg"><div class="fl">שייך למטפל</div>
-        <select class="fi" id="ca-staff">
-          <option value="">בחר מטפל...</option>
-          ${staffList.map(u=>`<option value="${u.id}" ${a.assigned_staff_id===u.id?'selected':''}>${escHtml(u.name||u.username)}${busyIds.has(u.id)?' — תפוס בשעה זו':''}</option>`).join('')}
-        </select>
-      </div>
-      ${busyIds.size&&!allBusy?`<div style="font-size:12.5px;color:var(--amber);margin-top:8px">💡 חלק מהמטפלים כבר תפוסים בשעה ${a.time} - מומלץ לבחור מטפל שלא מסומן "תפוס"</div>`:''}
-      ${allBusy?`<div style="font-size:12.5px;color:var(--red);margin-top:8px">⚠️ כל המטפלים כבר תפוסים בשעה זו - אפשר עדיין לשייך, אבל כדאי לתאם</div>`:''}
-      `}
-      <div class="ma"><button class="btn btn-secondary" onclick="closeModal()">${t('cancel')}</button><button class="btn btn-primary" onclick="doConfirmAppt('${aid}')"><i class="ti ti-check"></i> אשר תור</button></div>
-    </div></div>`;
-  }
   if(S.modal&&S.modal.startsWith('editappt-')){
     const aid=S.modal.split('-').slice(1).join('-');
     const a=S.appointments.find(x=>x.id===aid);if(!a)return'';
@@ -2167,10 +1723,6 @@ function buildModal(){
       <div class="fg"><div class="fl">${t('durationMin')}</div><input class="fi" id="ea-dur" type="number" value="${a.duration||60}" min="15" max="240"></div>
       <div class="fg"><div class="fl">${t('notes')}</div><textarea class="fi" id="ea-notes" rows="2" dir="rtl">${escHtml(a.notes||'')}</textarea></div>
       <div class="fg"><div class="fl">${t('status')}</div><select class="fi" id="ea-status"><option value="confirmed" ${a.status==='confirmed'?'selected':''}>מאושר</option><option value="pending" ${a.status==='pending'?'selected':''}>ממתין</option><option value="done" ${a.status==='done'?'selected':''}>הסתיים</option></select></div>
-      <div class="fg"><div class="fl">שיוך למטפל</div><select class="fi" id="ea-staff">
-        <option value="">ללא שיוך</option>
-        ${S.users.filter(u=>u.role==='staff'&&u.active!==false).map(u=>`<option value="${u.id}" ${a.assigned_staff_id===u.id?'selected':''}>${escHtml(u.name||u.username)}</option>`).join('')}
-      </select></div>
       <div class="ma"><button class="btn btn-secondary" onclick="showApptDetail('${aid}')">${t('cancel')}</button><button class="btn btn-primary" onclick="saveEditAppt('${aid}')"><i class="ti ti-device-floppy"></i> ${t('saveChanges')}</button></div>
     </div></div>`;
   }
@@ -2192,7 +1744,6 @@ function buildModal(){
         <div class="info-field"><span class="info-label">${t('time')}</span><span class="info-value">${a.time}</span></div>
         <div class="info-field"><span class="info-label">${t('duration')}</span><span class="info-value">${a.duration} דקות</span></div>
         <div class="info-field"><span class="info-label">${t('status')}</span><span class="info-value">${{pending:'⏳ ממתין',confirmed:'✅ מאושר',done:'הסתיים'}[a.status]||'מאושר'}</span></div>
-        <div class="info-field"><span class="info-label">מטפל משויך</span><span class="info-value">${a.assigned_staff_id?escHtml((S.users.find(u=>u.id===a.assigned_staff_id)||{}).name||'—'):'לא משויך'}</span></div>
       </div>
       ${a.notes?`<div class="sec-label">הערות</div><div class="card" style="margin-bottom:12px">${escHtml(a.notes)}</div>`:''}
       <div class="ma">
@@ -2216,7 +1767,7 @@ function searchToClients(){if(S.activePage!=='clients'||!S.clientListView){S.act
 function selectClient(id){S.activeId=id;S.activePage='clients';S.activeTab='overview';S.clientListView=false;S.sidebarOpen=false;renderRoot()}
 function gotoPage(p){S.activePage=p;if(p==='clients')S.clientListView=true;S.sidebarOpen=false;renderRoot()}
 function setTab(t){S.activeTab=t;renderRoot()}
-function showModal(type){S.modal=type;S.newSrc='';if(type==='newTreatment')S.treatMaterials=[];renderRoot()}
+function showModal(type){S.modal=type;S.newSrc='';renderRoot()}
 function closeModal(){S.modal=null;S.prefillDate='';S.prefillTime='';S.sendForm=null;S.viewForm=null;S.editUser=null;renderRoot()}
 function closeModalBg(e){if(e.target===e.currentTarget)closeModal()}
 function selectSrc(k){S.newSrc=k;document.querySelectorAll('.source-opt').forEach(el=>{el.classList.toggle('selected',el.getAttribute('onclick').includes("'"+k+"'"))})}
@@ -2232,8 +1783,7 @@ async function saveEditAppt(aid){
     time:document.getElementById('ea-time').value,
     duration:parseInt(document.getElementById('ea-dur').value)||60,
     notes:document.getElementById('ea-notes').value.trim(),
-    status:document.getElementById('ea-status').value,
-    assigned_staff_id:(document.getElementById('ea-staff')||{}).value||null
+    status:document.getElementById('ea-status').value
   };
   if(!body.client_name||!body.date||!body.time){alert(t('aFillNameDateTime'));return}
   await sbPatch('appointments',`?id=eq.${aid}`,body);
@@ -2305,33 +1855,12 @@ async function saveEditClient(){
   S.modal=null;renderRoot();toast(t('tDetailsUpdated'));
 }
 
-function addTreatMatRow(){if(!S.treatMaterials)S.treatMaterials=[];S.treatMaterials.push({inventory_id:'',quantity:''});renderRoot()}
-function removeTreatMat(idx){S.treatMaterials.splice(idx,1);renderRoot()}
-function setTreatMatItem(idx,val){S.treatMaterials[idx].inventory_id=val}
-function setTreatMatQty(idx,val){S.treatMaterials[idx].quantity=val}
-
 async function saveTreatment(){
   const name=document.getElementById('t-name').value.trim();if(!name){alert(t('aEnterTreatName'));return}
   const c=getC();
   const body={client_id:c.id,name,date:document.getElementById('t-date').value||today(),provider:document.getElementById('t-prov').value.trim()||null,dose:document.getElementById('t-dose').value.trim()||'—',notes:document.getElementById('t-notes').value.trim(),price:parseInt((document.getElementById('t-price')||{}).value)||0};
   const res=await sbPost('treatments',body);
-  if(res&&res[0]){
-    S.treatments.unshift(res[0]);
-    // חומרים שהושתמשו - נרשמים ומורידים מלאי אוטומטית (אחד אחרי השני)
-    const validMats=(S.treatMaterials||[]).filter(m=>m.inventory_id&&Number(m.quantity)>0);
-    for(const m of validMats){
-      const r=await apiCall({action:'insert',table:'treatment_materials',data:{treatment_id:res[0].id,inventory_id:m.inventory_id,quantity:Number(m.quantity)}});
-      if(r&&r.data&&r.data[0]){
-        if(!S.treatmentMaterials)S.treatmentMaterials=[];
-        S.treatmentMaterials.push(r.data[0]);
-        const invItem=S.inventory.find(i=>i.id===m.inventory_id);
-        if(invItem)invItem.current_stock=Number(invItem.current_stock)-Number(m.quantity);
-      }
-    }
-    S.treatMaterials=[];
-    S.modal=null;S.activeTab='treatments';renderRoot();toast(t('tTreatSaved'));
-    if(isPractitioner()){await refreshPractitionerData();renderRoot();}
-  }else toast(t('tErr'))
+  if(res&&res[0]){S.treatments.unshift(res[0]);S.modal=null;S.activeTab='treatments';renderRoot();toast(t('tTreatSaved'))}else toast(t('tErr'))
 }
 
 async function saveAppt(){
@@ -2343,10 +1872,9 @@ async function saveAppt(){
   const time=document.getElementById('a-time').value;
   const dur=parseInt(document.getElementById('a-dur').value)||60;
   const notes=document.getElementById('a-notes').value.trim();
-  const staffSel=(document.getElementById('a-staff')||{}).value||null;
   if(!name.trim()){alert(t('aEnterClientName'));return}
   if(!date||!time){alert(t('aFillDateTime'));return}
-  const body={client_name:name.trim(),client_phone:phone.trim(),client_email:email.trim(),treatment:treat||'טיפול',date,time,duration:dur,notes,status:'confirmed',assigned_staff_id:staffSel};
+  const body={client_name:name.trim(),client_phone:phone.trim(),client_email:email.trim(),treatment:treat||'טיפול',date,time,duration:dur,notes,status:'confirmed'};
   // אם נכנסים ללקוח וקובעים תור — שייך אותו ללקוח
   const activeC=(S.activePage==='clients'&&!S.clientListView)?getC():null;
   if(activeC)body.client_id=activeC.id;
@@ -2358,36 +1886,12 @@ async function saveAppt(){
   }else toast(t('tErrSave'))
 }
 
-function confirmAppt(id){S.modal='confirmassign-'+id;renderRoot()}
-function normPhone(p){return (p||'').replace(/\D/g,'')}
-async function findOrCreateClientId(appt){
-  if(appt.client_id)return appt.client_id; // כבר מקושר - לא נוגעים
-  const name=(appt.client_name||'').trim();
-  const phoneN=normPhone(appt.client_phone);
-  if(name&&phoneN){
-    const existing=S.clients.find(c=>c.name&&c.name.trim()===name&&normPhone(c.phone)===phoneN);
-    if(existing)return existing.id;
-  }
-  if(!name)return null;
-  // אין התאמה - יוצרים לקוח חדש אוטומטית מנתוני התור
-  const res=await sbPost('clients',{name,phone:appt.client_phone||'',email:appt.client_email||'',tier:'new',color:S.clients.length%8,consent:false,notes:'',allergies:'אין ידועות',skin:'לא ידוע'});
-  if(res&&res[0]){S.clients.unshift(res[0]);return res[0].id;}
-  return null;
-}
-async function doConfirmAppt(id){
-  const sel=document.getElementById('ca-staff');
-  const staffId=sel?sel.value:'';
-  if(!staffId){alert('יש לבחור מטפל לשיוך התור');return}
+async function confirmAppt(id){
+  await sbPatch('appointments',`?id=eq.${id}`,{status:'confirmed'});
   const appt=S.appointments.find(a=>a.id===id);
-  const patch={status:'confirmed',assigned_staff_id:staffId};
-  let autoLinked=false;
-  if(appt&&!appt.client_id){
-    const clientId=await findOrCreateClientId(appt);
-    if(clientId){patch.client_id=clientId;autoLinked=true;}
-  }
-  await sbPatch('appointments',`?id=eq.${id}`,patch);
-  S.appointments=S.appointments.map(a=>a.id===id?{...a,...patch}:a);
-  S.modal=null;renderRoot();toast(autoLinked?'התור אושר, שויך למטפל, והלקוח קושר/נוצר אוטומטית':'התור אושר ושויך למטפל');
+  S.appointments=S.appointments.map(a=>a.id===id?{...a,status:'confirmed'}:a);
+  S.modal=null;renderRoot();toast(t('tApptApproved'));
+  // שלח מייל אישור ללקוח
   if(appt&&appt.client_email){
     sendApptEmail({...appt,status:'confirmed'}).then(()=>toast(t('tEmailToClient')));
   }
